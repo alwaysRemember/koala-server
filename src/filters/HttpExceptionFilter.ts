@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-05-28 19:21:13
- * @FilePath: /koala_background_server/src/filters/HttpExceptionFilter.ts
+ * @LastEditTime: 2020-06-01 19:07:50
+ * @FilePath: /koala-background-server/src/filters/HttpExceptionFilter.ts
  */
 import { ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { ArgumentsHost } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { ResultVo } from 'src/viewobject/ResultVo';
-import { ResultVoStatus } from 'src/enums/ResultVoStatus';
+import { EResultVoStatus } from 'src/enums/EResultVoStatus';
 import { sysErr } from 'src/config/LogConfig';
 
 /**
@@ -32,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response
       .status(HttpStatus.OK)
       .json(
-        new ResultVo(ResultVoStatus.TOAST, null, '系统服务出错，请稍后重试'),
+        new ResultVo(EResultVoStatus.TOAST, null, '系统服务出错，请稍后重试'),
       );
   }
 }

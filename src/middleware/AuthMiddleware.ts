@@ -2,12 +2,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:45:06
- * @LastEditTime: 2020-05-28 19:09:15
- * @FilePath: /koala_background_server/src/middleware/AuthMiddleware.ts
+ * @LastEditTime: 2020-06-01 19:07:44
+ * @FilePath: /koala-background-server/src/middleware/AuthMiddleware.ts
  */
 import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
-import { ResultVo } from 'src/viewobject/ResultVo';
-import { ResultVoStatus } from 'src/enums/ResultVoStatus';
 
 /**
  * 后台登录校验
