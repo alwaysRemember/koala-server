@@ -52,9 +52,9 @@ checkFile(errorPath);
 
 // 构建分级log配置
 
-category.forEach((c) => {
+category.forEach(c => {
   // 生成配置(info || error)
-  level.forEach((type) => {
+  level.forEach(type => {
     const name: string = `${c}${type}`;
     loggerConfig.appenders[name] = {
       type: 'dateFile',

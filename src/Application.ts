@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-06-01 19:22:45
+ * @LastEditTime: 2020-06-02 12:10:02
  * @FilePath: /koala-background-server/src/Application.ts
  */
 
@@ -14,7 +14,6 @@ import { LoggerMiddleware } from './middleware/LoggerMiddleware';
 import { BackgroundLoginMiddleware } from './middleware/AuthMiddleware';
 import { BackendUserModule } from './modules/BackendUserModule';
 import { BackendUserController } from './controller/BackendUserController';
-
 @Module({
   imports: [TypeOrmModule.forRoot(mysqlConfig), BackendUserModule],
 })

@@ -2,32 +2,28 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-06-01 19:07:50
+ * @LastEditTime: 2020-06-04 18:32:15
  * @FilePath: /koala-background-server/src/filters/HttpExceptionFilter.ts
  */
-import { ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  HttpStatus,
+  Catch,
+  HttpException,
+} from '@nestjs/common';
 import { ArgumentsHost } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { ResultVo } from 'src/viewobject/ResultVo';
 import { EResultVoStatus } from 'src/enums/EResultVoStatus';
-import { sysErr } from 'src/config/LogConfig';
+import { Request, Response } from 'express';
 
 /**
  * 请求错误兜底
  */
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx: HttpArgumentsHost = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-
-    sysErr.error(
-      `token=${request.headers['Token']} \n 
-        url=${request.path} \n
-        params=${JSON.stringify(request.body)} \n 
-        message=${exception.message}
-      `,
-    );
+    const response = ctx.getResponse<Response>();
 
     response
       .status(HttpStatus.OK)
