@@ -3,8 +3,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:59:13
- * @LastEditTime: 2020-05-28 19:11:32
- * @FilePath: /koala_background_server/src/middleware/LoggerMiddleware.ts
+ * @LastEditTime: 2020-06-05 17:17:26
+ * @FilePath: /koala-background-server/src/middleware/LoggerMiddleware.ts
  */
 import { NestMiddleware, Injectable } from '@nestjs/common';
 import log4js, { category, level } from '../config/LogConfig';

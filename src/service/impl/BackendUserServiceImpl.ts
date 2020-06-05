@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-04 19:08:05
+ * @LastEditTime: 2020-06-04 19:25:46
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -10,9 +10,10 @@ import { BackendUserLoginForm } from '../../form/BackendUserLoginForm';
 import { BackendUserRepository } from 'src/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
 
+@Injectable()
 export class BackendUserServiceImpl implements BackendUserService {
   constructor(
     @InjectRepository(BackendUserRepository)

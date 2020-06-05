@@ -2,29 +2,28 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-06-02 12:10:02
+ * @LastEditTime: 2020-06-05 17:05:05
  * @FilePath: /koala-background-server/src/Application.ts
  */
 
 import { NestModule, Module, MiddlewareConsumer } from '@nestjs/common';
-import { Connection } from 'typeorm';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import mysqlConfig from './config/MysqlConfig';
 import { LoggerMiddleware } from './middleware/LoggerMiddleware';
 import { BackgroundLoginMiddleware } from './middleware/AuthMiddleware';
-import { BackendUserModule } from './modules/BackendUserModule';
 import { BackendUserController } from './controller/BackendUserController';
+import { MysqlModule } from './modules/MysqlModule';
+import { ControllerModule } from './modules/ControllerModule';
+import { RedisClientModule } from './modules/RedisClientModule';
+import { AuthMiddlewareModule } from './modules/AuthMiddlewareModule';
 @Module({
-  imports: [TypeOrmModule.forRoot(mysqlConfig), BackendUserModule],
+  imports: [AuthMiddlewareModule,MysqlModule, RedisClientModule, ControllerModule],
 })
 export default class Application implements NestModule {
-  constructor(private readonly connection: Connection) {}
-
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware)
       .forRoutes('*')
-      .apply(BackgroundLoginMiddleware)
-      .forRoutes(BackendUserController);
+      // .apply(BackgroundLoginMiddleware)
+      // .exclude('/backend-user/login')
+      // .forRoutes(BackendUserController);
   }
 }
