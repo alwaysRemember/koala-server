@@ -30,7 +30,7 @@ export class BackgroundLoginMiddleware implements NestMiddleware {
     const dataStr = await this.redisService.get(token);
     if (!dataStr) {
       res.status(HttpStatus.OK).json(new ResultVoUtil().noLogin());
-      return ;
+      return;
     }
     next();
   }

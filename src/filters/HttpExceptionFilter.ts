@@ -28,7 +28,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     new SaveLogUtil({
-      title:"*******httpExceptionFilter*******",
+      title: '*******httpExceptionFilter*******',
       token: request.headers['Token'] as string,
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,

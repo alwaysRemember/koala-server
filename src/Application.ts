@@ -15,15 +15,18 @@ import { ControllerModule } from './modules/ControllerModule';
 import { RedisClientModule } from './modules/RedisClientModule';
 import { AuthMiddlewareModule } from './modules/AuthMiddlewareModule';
 @Module({
-  imports: [AuthMiddlewareModule,MysqlModule, RedisClientModule, ControllerModule],
+  imports: [
+    AuthMiddlewareModule,
+    MysqlModule,
+    RedisClientModule,
+    ControllerModule,
+  ],
 })
 export default class Application implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('*')
-      // .apply(BackgroundLoginMiddleware)
-      // .exclude('/backend-user/login')
-      // .forRoutes(BackendUserController);
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+    // .apply(BackgroundLoginMiddleware)
+    // .exclude('/backend-user/login')
+    // .forRoutes(BackendUserController);
   }
 }

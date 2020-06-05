@@ -18,7 +18,7 @@ export class AuthMiddlewareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(BackgroundLoginMiddleware)
-        .exclude('/backend-user/login')
+      .exclude('/backend-user/login')
       .forRoutes(BackendUserController);
   }
 }
