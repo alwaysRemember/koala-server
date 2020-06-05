@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-06-05 11:56:05
+ * @LastEditTime: 2020-06-05 18:58:00
  * @FilePath: /koala-background-server/src/filters/HttpExceptionFilter.ts
  */
 import {
@@ -17,6 +17,7 @@ import { ResultVo } from 'src/viewobject/ResultVo';
 import { EResultVoStatus } from 'src/enums/EResultVoStatus';
 import { Request, Response } from 'express';
 import { SaveLogUtil } from 'src/utils/SaveLogUtil';
+import { Mail } from 'src/utils/Mail';
 
 /**
  * 请求错误兜底
@@ -29,11 +30,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     new SaveLogUtil({
       title: '*******httpExceptionFilter*******',
-      token: request.headers['Token'] as string,
+      token: request.headers['token'] as string,
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,
       message: exception.message,
     }).saveError();
+
+    new Mail('KOALA - ERROR - CODE', {
+      token: request.headers['token'] as string,
+      body: JSON.stringify(request.body),
+      originalUrl: request.originalUrl,
+      message: exception.message,
+      header: JSON.stringify(request.headers),
+      exception: JSON.stringify(exception),
+    }).send();
 
     response
       .status(HttpStatus.OK)
