@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-10 15:12:26
+ * @LastEditTime: 2020-06-11 16:27:52
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -12,8 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
-import { BackendUserChangePassword } from 'src/form/BackendUserChangePassword';
+import { BackendUserChangePasswordForm } from 'src/form/BackendUserChangePasswordForm';
 import { UpdateResult } from 'typeorm';
+import { BackendUserForm } from 'src/form/BackendUserForm';
 
 @Injectable()
 export class BackendUserServiceImpl implements BackendUserService {
@@ -43,7 +44,7 @@ export class BackendUserServiceImpl implements BackendUserService {
     }
   }
 
-  async backendChangePassword(user: BackendUserChangePassword) {
+  async backendChangePassword(user: BackendUserChangePasswordForm) {
     try {
       const a = new BackendUserLoginForm(user.username, user.oldPassword);
       // 根据用户名和密码查询出用户
@@ -67,6 +68,21 @@ export class BackendUserServiceImpl implements BackendUserService {
           data.userType,
         ),
       );
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  async backendAddUser(user: BackendUserForm) {
+    try {
+      const data: BackendUser = await this.backendUserRepository.findByUsername(
+        user,
+      );
+      // 判断是否存在用户
+      if (data) {
+        throw new BackendException('用户名重复，请重新输入');
+      }
+      await this.backendUserRepository.insert(user);
     } catch (e) {
       throw new BackendException(e.message);
     }

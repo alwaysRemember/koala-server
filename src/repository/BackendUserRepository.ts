@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:58:59
- * @LastEditTime: 2020-06-10 15:09:41
+ * @LastEditTime: 2020-06-11 16:22:46
  * @FilePath: /koala-background-server/src/repository/BackendUserRepository.ts
  */
 import {
@@ -14,6 +14,7 @@ import {
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
 import { BackendUserLoginForm } from 'src/form/BackendUserLoginForm';
 import { BackendUserForm } from 'src/form/BackendUserForm';
+import { Injectable } from '@nestjs/common';
 
 @EntityRepository(BackendUser)
 export class BackendUserRepository extends Repository<BackendUser> {

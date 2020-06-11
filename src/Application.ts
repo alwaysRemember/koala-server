@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-06-05 17:05:05
+ * @LastEditTime: 2020-06-11 16:34:33
  * @FilePath: /koala-background-server/src/Application.ts
  */
 
@@ -25,8 +25,5 @@ import { AuthMiddlewareModule } from './modules/AuthMiddlewareModule';
 export default class Application implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-    // .apply(BackgroundLoginMiddleware)
-    // .exclude('/backend-user/login')
-    // .forRoutes(BackendUserController);
   }
 }

@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-10 14:19:01
+ * @LastEditTime: 2020-06-11 16:36:07
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
 import {
@@ -25,8 +25,10 @@ import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl'
 import { ETokenEnums } from 'src/enums/TokenEnums';
 import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
 import { Mail } from 'src/utils/Mail';
-import { BackendUserChangePassword } from 'src/form/BackendUserChangePassword';
+import { BackendUserChangePasswordForm } from 'src/form/BackendUserChangePasswordForm';
 import { BackendUserChangePasswordSchema } from 'src/schema/BackendUserChangePasswordSchema';
+import { BackendUserForm } from 'src/form/BackendUserForm';
+import { BackendAddUserSchema } from 'src/schema/BackendAddUserSchema';
 
 @Controller('/backend-user')
 export class BackendUserController {
@@ -67,6 +69,10 @@ export class BackendUserController {
     }
   }
 
+  /**
+   * 修改用户密码
+   * @param user
+   */
   @UsePipes(
     new ReqParamCheck(
       BackendUserChangePasswordSchema,
@@ -74,10 +80,30 @@ export class BackendUserController {
     ),
   )
   @Post('/change-password')
-  public async bakcendChangePassword(@Body() user: BackendUserChangePassword) {
+  public async bakcendChangePassword(
+    @Body() user: BackendUserChangePasswordForm,
+  ) {
     const result = new ResultVoUtil();
     try {
       await this.backendUserService.backendChangePassword(user);
+      return result.success(null);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 新增代理
+   * @param user
+   */
+  @UsePipes(
+    new ReqParamCheck(BackendAddUserSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/add-user')
+  public async backendAddUser(@Body() user: BackendUserForm) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendUserService.backendAddUser(user);
       return result.success(null);
     } catch (e) {
       return result.error(e.message);
