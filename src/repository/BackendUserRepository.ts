@@ -48,7 +48,7 @@ export class BackendUserRepository extends Repository<BackendUser> {
       .set({
         username: user.username,
         password: user.password,
-        user_type: user.user_type,
+        userType: user.userType,
       })
       .where('user_id = :id', { id: user.user_id })
       .execute();

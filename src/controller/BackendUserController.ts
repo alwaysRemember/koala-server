@@ -59,7 +59,7 @@ export class BackendUserController {
 
       return result.success({
         token,
-        auth: data.user_type,
+        auth: data.userType,
         username: data.username,
       });
     } catch (e) {

@@ -64,7 +64,7 @@ export class BackendUserServiceImpl implements BackendUserService {
           data.user_id,
           user.username,
           user.newPassword,
-          data.user_type,
+          data.userType,
         ),
       );
     } catch (e) {

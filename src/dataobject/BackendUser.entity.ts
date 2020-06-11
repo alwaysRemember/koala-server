@@ -20,17 +20,17 @@ export class BackendUser {
   password: string;
 
   @Column()
-  user_type: EBackendUserType;
+  userType: EBackendUserType;
 
   constructor(
     user_id: number,
     username: string,
     password: string,
-    user_type: EBackendUserType,
+    userType: EBackendUserType,
   ) {
     this.user_id = user_id;
     this.username = username;
     this.password = password;
-    this.user_type = user_type;
+    this.userType = userType;
   }
 }
