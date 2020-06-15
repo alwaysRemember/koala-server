@@ -53,7 +53,7 @@ export class BackendUserRepository extends Repository<BackendUser> {
         password: user.password,
         userType: user.userType,
       })
-      .where('user_id = :id', { id: user.user_id })
+      .where('userId = :id', { id: user.userId })
       .execute();
   }
 }

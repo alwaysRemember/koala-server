@@ -70,7 +70,7 @@ export class BackendUserServiceImpl implements BackendUserService {
 
       await this.backendUserRepository.updateUser(
         new BackendUser(
-          data.user_id,
+          data.userId,
           user.username,
           user.newPassword,
           data.userType,
@@ -111,9 +111,9 @@ export class BackendUserServiceImpl implements BackendUserService {
     page,
   }: BackendUserListForm): Promise<Array<BackendUser>> {
     const defautParams: FindManyOptions<BackendUser> = {
-      select: ['username', 'userType', 'user_id'],
+      select: ['username', 'userType', 'userId'],
       order: {
-        user_id: 'ASC',
+        userId: 'ASC',
       },
       skip: (page - 1) * number,
       take: number,
