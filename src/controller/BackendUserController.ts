@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-11 16:36:07
+ * @LastEditTime: 2020-06-15 17:43:06
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
 import {
@@ -18,17 +18,22 @@ import {
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/pips/ReqParamCheck';
-import { BackendUserSchema } from 'src/schema/BackendUserSchema';
-import { BackendUserLoginForm } from 'src/form/BackendUserLoginForm';
+import {
+  BackendUserSchema,
+  BackendUserChangePasswordSchema,
+  BackendAddUserSchema,
+  BackendUserListSchema,
+} from 'src/schema/BackendUserSchema';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
 import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl';
 import { ETokenEnums } from 'src/enums/TokenEnums';
 import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
-import { Mail } from 'src/utils/Mail';
-import { BackendUserChangePasswordForm } from 'src/form/BackendUserChangePasswordForm';
-import { BackendUserChangePasswordSchema } from 'src/schema/BackendUserChangePasswordSchema';
-import { BackendUserForm } from 'src/form/BackendUserForm';
-import { BackendAddUserSchema } from 'src/schema/BackendAddUserSchema';
+import {
+  BackendUserForm,
+  BackendUserChangePasswordForm,
+  BackendUserLoginForm,
+  BackendUserListForm,
+} from 'src/form/BackendUserForm';
 
 @Controller('/backend-user')
 export class BackendUserController {
@@ -105,6 +110,38 @@ export class BackendUserController {
     try {
       await this.backendUserService.backendAddUser(user);
       return result.success(null);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 代理列表
+   * @param params
+   */
+  @UsePipes(
+    new ReqParamCheck(BackendUserListSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/find-user-list')
+  public async backendFindUserList(@Body() params: BackendUserListForm) {
+    const result = new ResultVoUtil();
+
+    try {
+      // 获取总长度
+      const length: number = await (
+        await this.backendUserService.backendFindUserList()
+      ).length;
+
+      // 获取查询的数据
+      const data: Array<BackendUser> = await this.backendUserService.backendFindUserListWithParams(
+        params,
+      );
+
+      return result.success({
+        totalPage:
+          length / params.number <= 0 ? 1 : Math.ceil(length / params.number),
+        list: data,
+      });
     } catch (e) {
       return result.error(e.message);
     }

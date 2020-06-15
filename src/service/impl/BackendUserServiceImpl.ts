@@ -2,19 +2,23 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-11 16:27:52
+ * @LastEditTime: 2020-06-15 17:40:45
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
-import { BackendUserLoginForm } from '../../form/BackendUserLoginForm';
 import { BackendUserRepository } from 'src/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
-import { BackendUserChangePasswordForm } from 'src/form/BackendUserChangePasswordForm';
-import { UpdateResult } from 'typeorm';
-import { BackendUserForm } from 'src/form/BackendUserForm';
+import {
+  BackendUserForm,
+  BackendUserLoginForm,
+  BackendUserChangePasswordForm,
+  BackendUserListForm,
+} from 'src/form/BackendUserForm';
+import { EbackendFindWithUserType } from 'src/enums/EBackendUserType';
+import { FindManyOptions, Like } from 'typeorm';
 
 @Injectable()
 export class BackendUserServiceImpl implements BackendUserService {
@@ -44,6 +48,10 @@ export class BackendUserServiceImpl implements BackendUserService {
     }
   }
 
+  /**
+   * 修改密码
+   * @param user
+   */
   async backendChangePassword(user: BackendUserChangePasswordForm) {
     try {
       const a = new BackendUserLoginForm(user.username, user.oldPassword);
@@ -73,6 +81,10 @@ export class BackendUserServiceImpl implements BackendUserService {
     }
   }
 
+  /**
+   * 添加管理员
+   * @param user
+   */
   async backendAddUser(user: BackendUserForm) {
     try {
       const data: BackendUser = await this.backendUserRepository.findByUsername(
@@ -83,6 +95,51 @@ export class BackendUserServiceImpl implements BackendUserService {
         throw new BackendException('用户名重复，请重新输入');
       }
       await this.backendUserRepository.insert(user);
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 用户列表
+   * @param params
+   */
+  async backendFindUserListWithParams({
+    username,
+    userType,
+    number,
+    page,
+  }: BackendUserListForm): Promise<Array<BackendUser>> {
+    const defautParams: FindManyOptions<BackendUser> = {
+      select: ['username', 'userType', 'user_id'],
+      order: {
+        user_id: 'ASC',
+      },
+      skip: (page - 1) * number,
+      take: number,
+    };
+
+    try {
+      // 判断搜索条件是否存在
+      if (!username && userType === EbackendFindWithUserType.ALL) {
+        // 直接查询
+        return await this.backendUserRepository.find(defautParams);
+      }
+      // 根据条件查询
+      return await this.backendUserRepository.find(
+        Object.assign({}, defautParams, {
+          where: [{ username: Like(`%${username}%`) }, { userType }],
+        }),
+      );
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  // 查询管理员列表所有数据
+  async backendFindUserList(): Promise<Array<BackendUser>> {
+    try {
+      return await this.backendUserRepository.find();
     } catch (e) {
       throw new BackendException(e.message);
     }
