@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-16 16:44:06
+ * @LastEditTime: 2020-06-16 18:44:31
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -125,10 +125,12 @@ export class BackendUserServiceImpl implements BackendUserService {
         // 直接查询
         return await this.backendUserRepository.find(defautParams);
       }
-      // 根据条件查询
       return await this.backendUserRepository.find(
         Object.assign({}, defautParams, {
-          where: [{ username: Like(`%${username}%`) }, { userType }],
+          where: (userType !== EbackendFindWithUserType.ALL && {
+            username: Like(`%${username}%`),
+            userType,
+          }) || { username: Like(`%${username}%`) },
         }),
       );
     } catch (e) {
