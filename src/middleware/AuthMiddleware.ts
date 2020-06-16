@@ -2,15 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:45:06
- * @LastEditTime: 2020-06-05 17:20:48
+ * @LastEditTime: 2020-06-16 18:33:42
  * @FilePath: /koala-background-server/src/middleware/AuthMiddleware.ts
  */
-import { NestMiddleware, Injectable, HttpStatus, Module } from '@nestjs/common';
+import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { Request, Response } from 'express';
-import { ResultVo } from 'src/viewobject/ResultVo';
 import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
-import { RedisClientModule } from 'src/modules/RedisClientModule';
 
 /**
  * 后台登录校验

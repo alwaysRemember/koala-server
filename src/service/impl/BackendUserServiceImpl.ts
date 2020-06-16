@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-15 17:40:45
+ * @LastEditTime: 2020-06-16 16:44:06
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -111,7 +111,7 @@ export class BackendUserServiceImpl implements BackendUserService {
     page,
   }: BackendUserListForm): Promise<Array<BackendUser>> {
     const defautParams: FindManyOptions<BackendUser> = {
-      select: ['username', 'userType', 'userId'],
+      select: ['username', 'userType', 'userId', 'password'],
       order: {
         userId: 'ASC',
       },

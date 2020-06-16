@@ -3,12 +3,11 @@
  * @LastEditors: Always
  * @email: 740905172@qq.com
  * @Date: 2019-12-18 17:52:18
- * @LastEditTime: 2020-06-04 18:49:21
+ * @LastEditTime: 2020-06-16 18:33:59
  * @FilePath: /koala-background-server/src/utils/ResultVoUtil.ts
  */
 
 import { ResultVo } from 'src/viewobject/ResultVo';
-import { HttpStatus } from '@nestjs/common';
 import { EResultVoStatus } from 'src/enums/EResultVoStatus';
 
 /**

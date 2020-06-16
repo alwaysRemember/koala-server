@@ -3,18 +3,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-15 17:43:06
+ * @LastEditTime: 2020-06-16 18:33:26
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
-import {
-  Controller,
-  Get,
-  Post,
-  UsePipes,
-  Req,
-  Body,
-  HttpException,
-} from '@nestjs/common';
+import { Controller, Post, UsePipes, Body } from '@nestjs/common';
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/pips/ReqParamCheck';
@@ -66,7 +58,7 @@ export class BackendUserController {
 
       return result.success({
         token,
-        auth: data.userType,
+        userType: data.userType,
         username: data.username,
       });
     } catch (e) {
@@ -138,8 +130,7 @@ export class BackendUserController {
       );
 
       return result.success({
-        totalPage:
-          length / params.number <= 0 ? 1 : Math.ceil(length / params.number),
+        total: length,
         list: data,
       });
     } catch (e) {
