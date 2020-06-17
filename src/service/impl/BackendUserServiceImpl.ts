@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-16 18:44:31
+ * @LastEditTime: 2020-06-17 15:57:08
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -142,6 +142,21 @@ export class BackendUserServiceImpl implements BackendUserService {
   async backendFindUserList(): Promise<Array<BackendUser>> {
     try {
       return await this.backendUserRepository.find();
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  async backendUpdateAdminUser(user: BackendUser) {
+    try {
+      const data: BackendUser = await this.backendUserRepository.findOne(
+        user.userId,
+      );
+      if (!data) {
+        throw new BackendException('未查到此用户，请检查用户是否存在');
+      }
+
+      await this.backendUserRepository.update(user.userId, user);
     } catch (e) {
       throw new BackendException(e.message);
     }

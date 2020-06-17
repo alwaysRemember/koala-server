@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-16 18:33:26
+ * @LastEditTime: 2020-06-17 15:53:23
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
 import { Controller, Post, UsePipes, Body } from '@nestjs/common';
@@ -15,6 +15,7 @@ import {
   BackendUserChangePasswordSchema,
   BackendAddUserSchema,
   BackendUserListSchema,
+  BackendUpdateAdminUseSchema,
 } from 'src/schema/BackendUserSchema';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
 import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl';
@@ -133,6 +134,23 @@ export class BackendUserController {
         total: length,
         list: data,
       });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @UsePipes(
+    new ReqParamCheck(
+      BackendUpdateAdminUseSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @Post('/update-admin-user')
+  public async backendUpdateAdminUser(@Body() user: BackendUser) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendUserService.backendUpdateAdminUser(user);
+      return result.success(null);
     } catch (e) {
       return result.error(e.message);
     }

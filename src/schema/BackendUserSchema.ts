@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-02 11:22:22
- * @LastEditTime: 2020-06-15 17:42:11
+ * @LastEditTime: 2020-06-17 15:45:40
  * @FilePath: /koala-background-server/src/schema/BackendUserSchema.ts
  */
 
@@ -46,4 +46,14 @@ export const BackendUserListSchema = Joi.object({
   number: Joi.number()
     .required()
     .min(1),
+});
+
+// 更新用户数据
+export const BackendUpdateAdminUseSchema = Joi.object({
+  userId: Joi.number().required(),
+  username: Joi.string()
+    .alphanum()
+    .required(),
+  userType: Joi.number().required(),
+  password: Joi.string().required(),
 });
