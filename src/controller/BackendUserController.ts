@@ -3,10 +3,18 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-18 17:58:40
+ * @LastEditTime: 2020-06-18 18:04:11
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
-import { Controller, Post, UsePipes, Body, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UsePipes,
+  Body,
+  HttpCode,
+  Res,
+  Req,
+} from '@nestjs/common';
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/pips/ReqParamCheck';
@@ -156,8 +164,17 @@ export class BackendUserController {
   )
   @HttpCode(200)
   @Post('/update-admin-user')
-  public async backendUpdateAdminUser(@Body() user: BackendUser) {
+  public async backendUpdateAdminUser(@Req() req, @Body() user: BackendUser) {
     const result = new ResultVoUtil();
+
+    // 获取当前登录的用户id
+    const { userId }: BackendUser = JSON.parse(
+      await this.redisService.get(req.headers['token'] as string),
+    );
+    // 限制当前用户操作
+    if (user.userId === userId) {
+      return result.error('不能对自己的账号进行操作!');
+    }
     try {
       await this.backendUserService.backendUpdateAdminUser(user);
       return result.success(null);
@@ -178,8 +195,20 @@ export class BackendUserController {
   )
   @HttpCode(200)
   @Post('/delete-admin-user')
-  public async backendDeleteAdminUser(@Body() { userId }: { userId: number }) {
+  public async backendDeleteAdminUser(
+    @Req() req,
+    @Body() { userId }: { userId: number },
+  ) {
     const result = new ResultVoUtil();
+
+    // 获取当前登录的用户id
+    const user: BackendUser = JSON.parse(
+      await this.redisService.get(req.headers['token'] as string),
+    );
+    // 限制当前用户操作
+    if (user.userId === userId) {
+      return result.error('不能对自己的账号进行操作!');
+    }
     try {
       await this.backendUserService.backendDeleteAdminUser(userId);
       return result.success(null);

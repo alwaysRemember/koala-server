@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-18 17:56:42
+ * @LastEditTime: 2020-06-18 18:06:54
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
 import { BackendUserRepository } from 'src/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import { Injectable, Inject, Optional } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
 import {
   IBackendUserForm,
@@ -18,7 +18,7 @@ import {
   IBackendUserListForm,
 } from 'src/form/BackendUserForm';
 import { EbackendFindWithUserType } from 'src/enums/EBackendUserType';
-import { FindManyOptions, Like, Not } from 'typeorm';
+import { FindManyOptions, Like } from 'typeorm';
 import { RedisCacheServiceImpl } from './RedisCacheServiceImpl';
 
 @Injectable()
@@ -126,9 +126,6 @@ export class BackendUserServiceImpl implements BackendUserService {
       order: {
         userId: 'ASC',
       },
-      where: {
-        userId: Not(0),
-      },
       skip: (page - 1) * number,
       take: number,
     };
@@ -141,14 +138,10 @@ export class BackendUserServiceImpl implements BackendUserService {
       }
       return await this.backendUserRepository.find(
         Object.assign({}, defautParams, {
-          where: Object.assign(
-            {},
-            (userType !== EbackendFindWithUserType.ALL && {
-              username: Like(`%${username}%`),
-              userType,
-            }) || { username: Like(`%${username}%`) },
-            defautParams.where,
-          ),
+          where: (userType !== EbackendFindWithUserType.ALL && {
+            username: Like(`%${username}%`),
+            userType,
+          }) || { username: Like(`%${username}%`) },
         }),
       );
     } catch (e) {
