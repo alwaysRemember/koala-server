@@ -2,39 +2,41 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-17 15:57:08
+ * @LastEditTime: 2020-06-18 16:15:10
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
 import { BackendUserRepository } from 'src/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
 import {
-  BackendUserForm,
-  BackendUserLoginForm,
-  BackendUserChangePasswordForm,
-  BackendUserListForm,
+  IBackendUserForm,
+  IBackendUserLoginForm,
+  IBackendUserChangePasswordForm,
+  IBackendUserListForm,
 } from 'src/form/BackendUserForm';
 import { EbackendFindWithUserType } from 'src/enums/EBackendUserType';
-import { FindManyOptions, Like } from 'typeorm';
+import { FindManyOptions, Like, Not } from 'typeorm';
+import { RedisCacheServiceImpl } from './RedisCacheServiceImpl';
 
 @Injectable()
 export class BackendUserServiceImpl implements BackendUserService {
   constructor(
     @InjectRepository(BackendUserRepository)
     private readonly backendUserRepository: BackendUserRepository,
+    private readonly redisService: RedisCacheServiceImpl,
   ) {}
 
   /**
    * 后台登录接口
    * @param user
    */
-  async backendLogin(user: BackendUserLoginForm): Promise<BackendUser> {
+  async backendLogin(user: IBackendUserLoginForm): Promise<BackendUser> {
     let data: BackendUser;
     try {
-      data = await this.backendUserRepository.findByUsername(user);
+      data = await this.backendUserRepository.findByUsername(user.username);
       if (data) {
         if (data.password === user.password) {
           return data;
@@ -52,11 +54,13 @@ export class BackendUserServiceImpl implements BackendUserService {
    * 修改密码
    * @param user
    */
-  async backendChangePassword(user: BackendUserChangePasswordForm) {
+  async backendChangePassword(user: IBackendUserChangePasswordForm) {
     try {
-      const a = new BackendUserLoginForm(user.username, user.oldPassword);
       // 根据用户名和密码查询出用户
-      const data: BackendUser = await this.backendLogin(a);
+      const data: BackendUser = await this.backendLogin({
+        username: user.username,
+        password: user.oldPassword,
+      });
 
       // 判断用户原密码是否符合
       if (data.password !== user.oldPassword) {
@@ -85,10 +89,10 @@ export class BackendUserServiceImpl implements BackendUserService {
    * 添加管理员
    * @param user
    */
-  async backendAddUser(user: BackendUserForm) {
+  async backendAddUser(user: IBackendUserForm) {
     try {
       const data: BackendUser = await this.backendUserRepository.findByUsername(
-        user,
+        user.username,
       );
       // 判断是否存在用户
       if (data) {
@@ -109,11 +113,21 @@ export class BackendUserServiceImpl implements BackendUserService {
     userType,
     number,
     page,
-  }: BackendUserListForm): Promise<Array<BackendUser>> {
+  }: IBackendUserListForm): Promise<Array<BackendUser>> {
     const defautParams: FindManyOptions<BackendUser> = {
-      select: ['username', 'userType', 'userId', 'password'],
+      select: [
+        'username',
+        'userType',
+        'userId',
+        'password',
+        'createTime',
+        'updateTime',
+      ],
       order: {
         userId: 'ASC',
+      },
+      where: {
+        userId: Not(0),
       },
       skip: (page - 1) * number,
       take: number,
@@ -127,10 +141,14 @@ export class BackendUserServiceImpl implements BackendUserService {
       }
       return await this.backendUserRepository.find(
         Object.assign({}, defautParams, {
-          where: (userType !== EbackendFindWithUserType.ALL && {
-            username: Like(`%${username}%`),
-            userType,
-          }) || { username: Like(`%${username}%`) },
+          where: Object.assign(
+            {},
+            (userType !== EbackendFindWithUserType.ALL && {
+              username: Like(`%${username}%`),
+              userType,
+            }) || { username: Like(`%${username}%`) },
+            defautParams.where,
+          ),
         }),
       );
     } catch (e) {
@@ -147,6 +165,7 @@ export class BackendUserServiceImpl implements BackendUserService {
     }
   }
 
+  // 修改管理员信息
   async backendUpdateAdminUser(user: BackendUser) {
     try {
       const data: BackendUser = await this.backendUserRepository.findOne(

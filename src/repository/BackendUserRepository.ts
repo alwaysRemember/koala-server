@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:58:59
- * @LastEditTime: 2020-06-15 17:36:19
+ * @LastEditTime: 2020-06-18 16:11:03
  * @FilePath: /koala-background-server/src/repository/BackendUserRepository.ts
  */
 import {
@@ -12,11 +12,6 @@ import {
   UpdateResult,
 } from 'typeorm';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import {
-  BackendUserForm,
-  BackendUserLoginForm,
-} from 'src/form/BackendUserForm';
-import { Injectable } from '@nestjs/common';
 
 @EntityRepository(BackendUser)
 export class BackendUserRepository extends Repository<BackendUser> {
@@ -28,7 +23,7 @@ export class BackendUserRepository extends Repository<BackendUser> {
    * 根据username查找用户
    * @param param0
    */
-  findByUsername({ username }: BackendUserLoginForm): Promise<BackendUser> {
+  findByUsername(username: string): Promise<BackendUser> {
     return this.connection
       .getRepository(BackendUser)
       .createQueryBuilder()

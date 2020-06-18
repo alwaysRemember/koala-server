@@ -3,10 +3,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-17 15:53:23
+ * @LastEditTime: 2020-06-18 16:14:56
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
-import { Controller, Post, UsePipes, Body } from '@nestjs/common';
+import { Controller, Post, UsePipes, Body, HttpCode } from '@nestjs/common';
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/pips/ReqParamCheck';
@@ -22,10 +22,10 @@ import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl'
 import { ETokenEnums } from 'src/enums/TokenEnums';
 import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
 import {
-  BackendUserForm,
-  BackendUserChangePasswordForm,
-  BackendUserLoginForm,
-  BackendUserListForm,
+  IBackendUserForm,
+  IBackendUserChangePasswordForm,
+  IBackendUserListForm,
+  IBackendUserLoginForm,
 } from 'src/form/BackendUserForm';
 
 @Controller('/backend-user')
@@ -41,8 +41,9 @@ export class BackendUserController {
    * @param user
    */
   @UsePipes(new ReqParamCheck(BackendUserSchema, ({ type }) => type === 'body'))
+  @HttpCode(200)
   @Post('/login')
-  public async backendLogin(@Body() user: BackendUserLoginForm) {
+  public async backendLogin(@Body() user: IBackendUserLoginForm) {
     const result = new ResultVoUtil();
     try {
       const data: BackendUser = await this.backendUserService.backendLogin(
@@ -77,9 +78,10 @@ export class BackendUserController {
       ({ type }) => type === 'body',
     ),
   )
+  @HttpCode(200)
   @Post('/change-password')
   public async bakcendChangePassword(
-    @Body() user: BackendUserChangePasswordForm,
+    @Body() user: IBackendUserChangePasswordForm,
   ) {
     const result = new ResultVoUtil();
     try {
@@ -97,8 +99,9 @@ export class BackendUserController {
   @UsePipes(
     new ReqParamCheck(BackendAddUserSchema, ({ type }) => type === 'body'),
   )
+  @HttpCode(200)
   @Post('/add-user')
-  public async backendAddUser(@Body() user: BackendUserForm) {
+  public async backendAddUser(@Body() user: IBackendUserForm) {
     const result = new ResultVoUtil();
     try {
       await this.backendUserService.backendAddUser(user);
@@ -115,8 +118,9 @@ export class BackendUserController {
   @UsePipes(
     new ReqParamCheck(BackendUserListSchema, ({ type }) => type === 'body'),
   )
+  @HttpCode(200)
   @Post('/find-user-list')
-  public async backendFindUserList(@Body() params: BackendUserListForm) {
+  public async backendFindUserList(@Body() params: IBackendUserListForm) {
     const result = new ResultVoUtil();
 
     try {
@@ -145,6 +149,7 @@ export class BackendUserController {
       ({ type }) => type === 'body',
     ),
   )
+  @HttpCode(200)
   @Post('/update-admin-user')
   public async backendUpdateAdminUser(@Body() user: BackendUser) {
     const result = new ResultVoUtil();

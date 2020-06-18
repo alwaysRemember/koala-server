@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 15:45:53
- * @LastEditTime: 2020-06-05 15:58:58
+ * @LastEditTime: 2020-06-18 16:55:42
  * @FilePath: /koala-background-server/src/service/impl/RedisCacheServiceImpl.ts
  */
 import { RedisCacheService } from '../RedisCacheService';
@@ -35,5 +35,12 @@ export class RedisCacheServiceImpl implements RedisCacheService {
       await this.getClient();
     }
     return await this.client.get(key);
+  }
+
+  async delete(key: string) {
+    if (!this.client) {
+      await this.getClient();
+    }
+    await this.client.del(key);
   }
 }
