@@ -8,9 +8,9 @@
 import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { Request, Response } from 'express';
-import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
-import { BackendUserRepository } from 'src/repository/BackendUserRepository';
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
+import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
+import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 
 /**
  * 后台登录校验

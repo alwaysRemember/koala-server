@@ -8,7 +8,7 @@
  */
 
 import { ResultVo } from 'src/viewobject/ResultVo';
-import { EResultVoStatus } from 'src/enums/EResultVoStatus';
+import { EResultVoStatus } from 'src/backstage/enums/EResultVoStatus';
 
 /**
  * 返回类包装

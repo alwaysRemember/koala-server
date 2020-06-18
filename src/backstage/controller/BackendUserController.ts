@@ -25,17 +25,17 @@ import {
   BackendUserListSchema,
   BackendUpdateAdminUserSchema,
   BackendDeleteAdminUserSchema,
-} from 'src/schema/BackendUserSchema';
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
-import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl';
-import { ETokenEnums } from 'src/enums/TokenEnums';
-import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
+} from 'src/backstage/schema/BackendUserSchema';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
+import { BackendUserServiceImpl } from 'src/backstage/service/impl/BackendUserServiceImpl';
+import { ETokenEnums } from 'src/backstage/enums/TokenEnums';
+import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
 import {
   IBackendUserForm,
   IBackendUserChangePasswordForm,
   IBackendUserListForm,
   IBackendUserLoginForm,
-} from 'src/form/BackendUserForm';
+} from 'src/backstage/form/BackendUserForm';
 
 @Controller('/backend-user')
 export class BackendUserController {

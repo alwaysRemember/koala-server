@@ -2,13 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-18 18:06:54
+ * @LastEditTime: 2020-06-18 18:14:29
  * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
-import { BackendUserRepository } from 'src/repository/BackendUserRepository';
+import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { Injectable } from '@nestjs/common';
 import { BackendException } from 'src/exception/backendException';
 import {
@@ -16,8 +16,8 @@ import {
   IBackendUserLoginForm,
   IBackendUserChangePasswordForm,
   IBackendUserListForm,
-} from 'src/form/BackendUserForm';
-import { EbackendFindWithUserType } from 'src/enums/EBackendUserType';
+} from 'src/backstage/form/BackendUserForm';
+import { EbackendFindWithUserType } from 'src/backstage/enums/EBackendUserType';
 import { FindManyOptions, Like } from 'typeorm';
 import { RedisCacheServiceImpl } from './RedisCacheServiceImpl';
 

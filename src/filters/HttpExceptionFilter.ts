@@ -14,7 +14,7 @@ import {
 import { ArgumentsHost } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { ResultVo } from 'src/viewobject/ResultVo';
-import { EResultVoStatus } from 'src/enums/EResultVoStatus';
+import { EResultVoStatus } from 'src/backstage/enums/EResultVoStatus';
 import { Request, Response } from 'express';
 import { SaveLogUtil } from 'src/utils/SaveLogUtil';
 import { Mail } from 'src/utils/Mail';

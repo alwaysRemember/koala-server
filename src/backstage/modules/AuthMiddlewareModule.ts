@@ -8,11 +8,11 @@
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
 import { BackgroundLoginMiddleware } from 'src/middleware/AuthMiddleware';
-import { BackendUserController } from 'src/controller/BackendUserController';
-import { RedisCacheServiceImpl } from 'src/service/impl/RedisCacheServiceImpl';
-import { BackendUserRepository } from 'src/repository/BackendUserRepository';
+import { BackendUserController } from 'src/backstage/controller/BackendUserController';
+import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
+import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BackendUser, BackendUserRepository])],

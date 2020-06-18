@@ -11,7 +11,7 @@ import {
   Connection,
   UpdateResult,
 } from 'typeorm';
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 
 @EntityRepository(BackendUser)
 export class BackendUserRepository extends Repository<BackendUser> {

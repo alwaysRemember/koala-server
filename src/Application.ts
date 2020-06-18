@@ -9,9 +9,9 @@
 import { NestModule, Module, MiddlewareConsumer } from '@nestjs/common';
 import { LoggerMiddleware } from './middleware/LoggerMiddleware';
 import { MysqlModule } from './modules/MysqlModule';
-import { ControllerModule } from './modules/ControllerModule';
+import { ControllerModule } from './backstage/modules/ControllerModule';
 import { RedisClientModule } from './modules/RedisClientModule';
-import { AuthMiddlewareModule } from './modules/AuthMiddlewareModule';
+import { AuthMiddlewareModule } from './backstage/modules/AuthMiddlewareModule';
 @Module({
   imports: [
     AuthMiddlewareModule,

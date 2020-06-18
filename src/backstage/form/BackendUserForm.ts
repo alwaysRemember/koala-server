@@ -8,7 +8,7 @@
 import {
   EBackendUserType,
   EbackendFindWithUserType,
-} from 'src/enums/EBackendUserType';
+} from 'src/backstage/enums/EBackendUserType';
 
 // 登录参数
 

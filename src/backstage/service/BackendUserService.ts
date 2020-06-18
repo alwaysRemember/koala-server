@@ -5,13 +5,13 @@
  * @LastEditTime: 2020-06-18 17:37:01
  * @FilePath: /koala-background-server/src/service/BackendUserService.ts
  */
-import { BackendUser } from 'src/dataobject/BackendUser.entity';
+import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import {
   IBackendUserForm,
   IBackendUserLoginForm,
   IBackendUserChangePasswordForm,
   IBackendUserListForm,
-} from 'src/form/BackendUserForm';
+} from 'src/backstage/form/BackendUserForm';
 
 export interface BackendUserService {
   backendLogin(user: IBackendUserLoginForm): Promise<BackendUser>;
