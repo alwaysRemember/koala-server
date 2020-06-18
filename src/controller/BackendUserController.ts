@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-06-18 16:14:56
+ * @LastEditTime: 2020-06-18 17:58:40
  * @FilePath: /koala-background-server/src/controller/BackendUserController.ts
  */
 import { Controller, Post, UsePipes, Body, HttpCode } from '@nestjs/common';
@@ -15,7 +15,8 @@ import {
   BackendUserChangePasswordSchema,
   BackendAddUserSchema,
   BackendUserListSchema,
-  BackendUpdateAdminUseSchema,
+  BackendUpdateAdminUserSchema,
+  BackendDeleteAdminUserSchema,
 } from 'src/schema/BackendUserSchema';
 import { BackendUser } from 'src/dataobject/BackendUser.entity';
 import { BackendUserServiceImpl } from 'src/service/impl/BackendUserServiceImpl';
@@ -143,9 +144,13 @@ export class BackendUserController {
     }
   }
 
+  /**
+   * 更新管理员信息
+   * @param user
+   */
   @UsePipes(
     new ReqParamCheck(
-      BackendUpdateAdminUseSchema,
+      BackendUpdateAdminUserSchema,
       ({ type }) => type === 'body',
     ),
   )
@@ -158,6 +163,28 @@ export class BackendUserController {
       return result.success(null);
     } catch (e) {
       return result.error(e.message);
+    }
+  }
+
+  /**
+   * 删除管理员
+   * @param param0
+   */
+  @UsePipes(
+    new ReqParamCheck(
+      BackendDeleteAdminUserSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @HttpCode(200)
+  @Post('/delete-admin-user')
+  public async backendDeleteAdminUser(@Body() { userId }: { userId: number }) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendUserService.backendDeleteAdminUser(userId);
+      return result.success(null);
+    } catch (e) {
+      return result.error(e.meesage);
     }
   }
 }
