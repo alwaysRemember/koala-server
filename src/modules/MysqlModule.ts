@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 19:34:47
- * @LastEditTime: 2020-06-18 18:15:11
+ * @LastEditTime: 2020-06-18 19:35:43
  * @FilePath: /koala-background-server/src/modules/MysqlModule.ts
  */
 import { Module } from '@nestjs/common';

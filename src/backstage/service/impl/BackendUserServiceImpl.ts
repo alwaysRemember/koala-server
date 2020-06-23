@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-18 18:14:29
- * @FilePath: /koala-background-server/src/service/impl/BackendUserServiceImpl.ts
+ * @LastEditTime: 2020-06-23 18:01:10
+ * @FilePath: /koala-background-server/src/backstage/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';

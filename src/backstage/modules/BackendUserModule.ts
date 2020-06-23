@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:49:34
- * @LastEditTime: 2020-06-05 16:47:15
- * @FilePath: /koala-background-server/src/modules/BackendUserModule.ts
+ * @LastEditTime: 2020-06-23 15:05:04
+ * @FilePath: /koala-background-server/src/backstage/modules/BackendUserModule.ts
  */
 import { Module } from '@nestjs/common';
 import { BackendUserController } from 'src/backstage/controller/BackendUserController';
