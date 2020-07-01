@@ -1,9 +1,10 @@
 /*
+ * 前端用户接口
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-06-23 18:14:26
- * @FilePath: /koala-background-server/src/frontend/controller/FrontUsercontroller.ts
+ * @LastEditTime: 2020-06-28 15:13:15
+ * @FilePath: /koala-background-server/src/frontend/controller/FrontUserController.ts
  */
 import { Controller, Post, HttpCode, UsePipes, Body } from '@nestjs/common';
 import axios from 'axios';

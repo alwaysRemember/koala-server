@@ -3,11 +3,11 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 17:03:49
- * @LastEditTime: 2020-06-18 16:02:00
- * @FilePath: /koala-background-server/src/modules/AuthMiddlewareModule.ts
+ * @LastEditTime: 2020-06-28 15:14:47
+ * @FilePath: /koala-background-server/src/backstage/modules/AuthMiddlewareModule.ts
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
-import { BackgroundLoginMiddleware } from 'src/middleware/AuthMiddleware';
+import { BackgroundLoginMiddleware } from 'src/backstage/middleware/AuthMiddleware';
 import { BackendUserController } from 'src/backstage/controller/BackendUserController';
 import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 14:38:08
- * @LastEditTime: 2020-06-23 17:51:38
+ * @LastEditTime: 2020-06-23 18:23:08
  * @FilePath: /koala-background-server/src/global/dataobject/FrontUser.entity.ts
  */
 import {

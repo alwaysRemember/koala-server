@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:45:06
- * @LastEditTime: 2020-06-18 17:18:54
- * @FilePath: /koala-background-server/src/middleware/AuthMiddleware.ts
+ * @LastEditTime: 2020-06-28 16:50:12
+ * @FilePath: /koala-background-server/src/backstage/middleware/AuthMiddleware.ts
  */
 import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
@@ -11,6 +11,7 @@ import { Request, Response } from 'express';
 import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
+import { ETokenEnums } from '../enums/TokenEnums';
 
 /**
  * 后台登录校验
@@ -40,6 +41,7 @@ export class BackgroundLoginMiddleware implements NestMiddleware {
         userId,
       );
       // 判断数据是否和token中的数据吻合，如果不吻合则代表数据有更新，删除token并且重新登录
+      // else  重置登录态过期时间
       if (
         !(
           userId === user.userId &&
@@ -51,6 +53,12 @@ export class BackgroundLoginMiddleware implements NestMiddleware {
         await this.redisService.delete(token);
         res.status(HttpStatus.OK).json(new ResultVoUtil().noLogin());
         return;
+      } else {
+        await this.redisService.set(
+          token,
+          dataStr,
+          ETokenEnums.TOKEN_EXPIRATION_TIME,
+        );
       }
     } else {
       res.status(HttpStatus.OK).json(new ResultVoUtil().noLogin());
