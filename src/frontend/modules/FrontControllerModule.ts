@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:33:22
- * @LastEditTime: 2020-06-22 17:38:55
+ * @LastEditTime: 2020-07-01 18:50:26
  * @FilePath: /koala-background-server/src/frontend/modules/FrontControllerModule.ts
  */
 
 import { Module } from '@nestjs/common';
-import { LoginModule } from './FrontUserModule';
+import { FrontUserModule } from './FrontUserModule';
 
-const list = [LoginModule];
+const list = [FrontUserModule];
 
 @Module({
   imports: list,

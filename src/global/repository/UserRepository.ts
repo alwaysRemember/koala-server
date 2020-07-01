@@ -6,7 +6,7 @@
  * @FilePath: /koala-background-server/src/global/repository/FrontUserRepository.ts
  */
 import { Repository, EntityRepository, Connection } from 'typeorm';
-import { FrontUser } from '../dataobject/FrontUser.entity';
+import { FrontUser } from '../dataobject/User.entity';
 
 @EntityRepository(FrontUser)
 export class FrontUserRepository extends Repository<FrontUser> {

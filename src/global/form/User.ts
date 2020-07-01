@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:28:53
- * @LastEditTime: 2020-06-23 16:41:38
- * @FilePath: /koala-background-server/src/global/form/FrontUser.ts
+ * @LastEditTime: 2020-07-01 18:55:21
+ * @FilePath: /koala-background-server/src/global/form/User.ts
  */
 import { EUserGender, EUserLanguage } from '../enums/EUserGlobal';
 

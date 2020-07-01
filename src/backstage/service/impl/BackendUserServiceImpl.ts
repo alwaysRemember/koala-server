@@ -10,7 +10,7 @@ import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepos
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { Injectable } from '@nestjs/common';
-import { BackendException } from 'src/exception/backendException';
+import { BackendException } from 'src/backstage/exception/backendException';
 import {
   IBackendUserForm,
   IBackendUserLoginForm,

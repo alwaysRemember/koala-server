@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:14:52
- * @LastEditTime: 2020-06-18 18:15:34
+ * @LastEditTime: 2020-07-01 18:52:31
  * @FilePath: /koala-background-server/src/pips/ReqParamCheck.ts
  */
 import {
@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import Joi from '@hapi/joi';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { BackendException } from 'src/exception/backendException';
+import { BackendException } from 'src/backstage/exception/backendException';
 
 /**
  * 参数前置校验

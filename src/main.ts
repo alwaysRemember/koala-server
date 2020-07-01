@@ -8,8 +8,8 @@
 
 import { NestFactory } from '@nestjs/core';
 import Application from './Application';
-import { HttpExceptionFilter } from './filters/HttpExceptionFilter';
-import { BackendExceptionFilter } from './filters/BackendExceptionFilter';
+import { HttpExceptionFilter } from './global/filters/HttpExceptionFilter';
+import { BackendExceptionFilter } from './backstage/filters/BackendExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(Application);

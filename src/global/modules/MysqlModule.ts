@@ -7,7 +7,7 @@
  */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import mysqlConfig from '../config/MysqlConfig';
+import mysqlConfig from '../../config/MysqlConfig';
 
 const mysql = TypeOrmModule.forRoot(mysqlConfig);
 

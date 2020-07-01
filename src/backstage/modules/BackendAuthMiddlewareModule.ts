@@ -3,8 +3,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 17:03:49
- * @LastEditTime: 2020-07-01 18:19:23
- * @FilePath: /koala-background-server/src/backstage/modules/AuthMiddlewareModule.ts
+ * @LastEditTime: 2020-07-01 18:56:34
+ * @FilePath: /koala-background-server/src/backstage/modules/BackendAuthMiddlewareModule.ts
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
 import { BackgroundLoginMiddleware } from 'src/backstage/middleware/AuthMiddleware';
@@ -19,7 +19,7 @@ import { BackendClassificationController } from '../controller/BackendClassifica
   imports: [TypeOrmModule.forFeature([BackendUser, BackendUserRepository])],
   providers: [RedisCacheServiceImpl],
 })
-export class AuthMiddlewareModule implements NestModule {
+export class BackendAuthMiddlewareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(BackgroundLoginMiddleware)

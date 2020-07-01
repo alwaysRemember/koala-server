@@ -2,23 +2,23 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-06-23 15:18:48
+ * @LastEditTime: 2020-07-01 18:56:51
  * @FilePath: /koala-background-server/src/Application.ts
  */
 
 import { NestModule, Module, MiddlewareConsumer } from '@nestjs/common';
-import { LoggerMiddleware } from './middleware/LoggerMiddleware';
-import { MysqlModule } from './modules/MysqlModule';
-import { ControllerModule } from './backstage/modules/ControllerModule';
-import { RedisClientModule } from './modules/RedisClientModule';
-import { AuthMiddlewareModule } from './backstage/modules/AuthMiddlewareModule';
-import { FrontControllerModule } from './global/modules/FrontControllerModule';
+import { LoggerMiddleware } from './global/middleware/LoggerMiddleware';
+import { MysqlModule } from './global/modules/MysqlModule';
+import { BackendControllerModule } from './backstage/modules/BackendControllerModule';
+import { RedisClientModule } from './global/modules/RedisClientModule';
+import { BackendAuthMiddlewareModule } from './backstage/modules/BackendAuthMiddlewareModule';
+import { FrontControllerModule } from './frontend/modules/FrontControllerModule';
 @Module({
   imports: [
-    AuthMiddlewareModule,
+    BackendAuthMiddlewareModule,
     MysqlModule,
     RedisClientModule,
-    ControllerModule,
+    BackendControllerModule,
     FrontControllerModule,
   ],
 })

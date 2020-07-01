@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common';
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { ReqParamCheck } from 'src/pips/ReqParamCheck';
+import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   BackendUserSchema,
   BackendUserChangePasswordSchema,

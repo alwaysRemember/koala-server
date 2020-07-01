@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-02 11:22:22
- * @LastEditTime: 2020-06-18 17:34:31
- * @FilePath: /koala-background-server/src/schema/BackendUserSchema.ts
+ * @LastEditTime: 2020-07-01 18:52:53
+ * @FilePath: /koala-background-server/src/backstage/schema/BackendUserSchema.ts
  */
 
 import * as Joi from '@hapi/joi';

@@ -3,18 +3,18 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-06-28 15:13:15
+ * @LastEditTime: 2020-07-01 18:42:16
  * @FilePath: /koala-background-server/src/frontend/controller/FrontUserController.ts
  */
 import { Controller, Post, HttpCode, UsePipes, Body } from '@nestjs/common';
 import axios from 'axios';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { ReqParamCheck } from 'src/pips/ReqParamCheck';
-import { FrontUserLoginSchema } from 'src/global/schema/FrontUserSchema';
-import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/FrontUser';
-import { FrontUserServiceImpl } from 'src/global/service/impl/FrontUserServiceImpl';
+import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
+import { UserLoginSchema } from 'src/frontend/schema/FrontUserSchema';
+import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/User';
+import { FrontUserServiceImpl } from 'src/frontend/service/impl/UserServiceImpl';
 import { appId, AppSecret } from 'src/config/projectConfig';
-import { FrontUser } from 'src/global/dataobject/FrontUser.entity';
+import { FrontUser } from 'src/global/dataobject/User.entity';
 
 @Controller('/front')
 export class Logincontroller {
@@ -22,9 +22,7 @@ export class Logincontroller {
 
   @HttpCode(200)
   @Post('/login')
-  @UsePipes(
-    new ReqParamCheck(FrontUserLoginSchema, ({ type }) => type === 'body'),
-  )
+  @UsePipes(new ReqParamCheck(UserLoginSchema, ({ type }) => type === 'body'))
   public async login(@Body() user: IFrontUserLogin) {
     const result = new ResultVoUtil();
     try {

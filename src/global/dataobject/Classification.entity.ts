@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:38:15
- * @LastEditTime: 2020-07-01 18:14:39
- * @FilePath: /koala-background-server/src/backstage/dataobject/BackendClassification.entity.ts
+ * @LastEditTime: 2020-07-01 18:43:18
+ * @FilePath: /koala-background-server/src/global/dataobject/Classification.entity.ts
  */
 
 import {
@@ -17,8 +17,8 @@ import {
 /**
  * 分类
  */
-@Entity('tb_backend_classification')
-export class BackendClassification {
+@Entity('tb_classification')
+export class Classification {
   @PrimaryGeneratedColumn({
     comment: '分类id',
   })

@@ -7,7 +7,7 @@
  * @FilePath: /koala-background-server/src/utils/ResultVoUtil.ts
  */
 
-import { ResultVo } from 'src/viewobject/ResultVo';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { EResultVoStatus } from 'src/backstage/enums/EResultVoStatus';
 
 /**

@@ -7,7 +7,7 @@
  * @FilePath: /koala-background-server/src/middleware/LoggerMiddleware.ts
  */
 import { NestMiddleware, Injectable } from '@nestjs/common';
-import log4js, { category, level } from '../config/LogConfig';
+import log4js, { category, level } from '../../config/LogConfig';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {

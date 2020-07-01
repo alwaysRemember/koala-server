@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-06-05 18:58:00
+ * @LastEditTime: 2020-07-01 18:54:19
  * @FilePath: /koala-background-server/src/filters/HttpExceptionFilter.ts
  */
 import {
@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ArgumentsHost } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import { ResultVo } from 'src/viewobject/ResultVo';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { EResultVoStatus } from 'src/backstage/enums/EResultVoStatus';
 import { Request, Response } from 'express';
 import { SaveLogUtil } from 'src/utils/SaveLogUtil';

@@ -7,12 +7,11 @@
  */
 import { Module } from '@nestjs/common';
 import { BackendUserModule } from './BackendUserModule';
-import { BackendClassificationModule } from './BackendClassificationModule';
 
-const list = [BackendUserModule, BackendClassificationModule];
+const list = [BackendUserModule];
 
 @Module({
   imports: list,
   exports: list,
 })
-export class ControllerModule {}
+export class BackendControllerModule {}

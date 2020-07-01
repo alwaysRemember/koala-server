@@ -5,12 +5,12 @@
  * @LastEditTime: 2020-06-23 18:13:31
  * @FilePath: /koala-background-server/src/global/service/impl/FrontUserServiceImpl.ts
  */
-import { FrontUserService } from '../FrontUserService';
+import { FrontUserService } from '../UserService';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
-import { IFrontUserSave } from 'src/global/form/FrontUser';
-import { FrontUser } from 'src/global/dataobject/FrontUser.entity';
+import { FrontUserRepository } from 'src/global/repository/UserRepository';
+import { IFrontUserSave } from 'src/global/form/User';
+import { FrontUser } from 'src/global/dataobject/User.entity';
 
 @Injectable()
 export class FrontUserServiceImpl implements FrontUserService {
