@@ -2,13 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 11:32:23
- * @LastEditTime: 2020-06-05 11:33:28
- * @FilePath: /koala-background-server/src/modules/ControllerModule.ts
+ * @LastEditTime: 2020-07-01 18:24:18
+ * @FilePath: /koala-background-server/src/backstage/modules/ControllerModule.ts
  */
 import { Module } from '@nestjs/common';
 import { BackendUserModule } from './BackendUserModule';
+import { BackendClassificationModule } from './BackendClassificationModule';
 
-const list = [BackendUserModule];
+const list = [BackendUserModule, BackendClassificationModule];
 
 @Module({
   imports: list,
