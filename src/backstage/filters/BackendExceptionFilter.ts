@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 17:51:59
- * @LastEditTime: 2020-07-01 18:54:29
- * @FilePath: /koala-background-server/src/backstage/filters/BackendExceptionFilter.ts
+ * @LastEditTime: 2020-07-07 18:59:32
+ * @FilePath: /koala-server/src/backstage/filters/BackendExceptionFilter.ts
  */
 import { HttpExceptionFilter } from '../../global/filters/HttpExceptionFilter';
 import {
@@ -22,6 +22,15 @@ export class BackendExceptionFilter implements HttpExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    new SaveLogUtil({
+      title: '*******BackendExceptionFilter*******',
+      token: request.headers['token'] as string,
+      body: JSON.stringify(request.body),
+      originalUrl: request.originalUrl,
+      message: exception.message,
+    }).saveError();
 
     response
       .status(HttpStatus.OK)

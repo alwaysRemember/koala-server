@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:38:15
- * @LastEditTime: 2020-07-01 18:43:18
- * @FilePath: /koala-background-server/src/global/dataobject/Classification.entity.ts
+ * @LastEditTime: 2020-07-07 16:24:08
+ * @FilePath: /koala-server/src/global/dataobject/Categories.entity.ts
  */
 
 import {
@@ -17,23 +17,23 @@ import {
 /**
  * 分类
  */
-@Entity('tb_classification')
-export class Classification {
+@Entity('tb_categories')
+export class Categories {
   @PrimaryGeneratedColumn({
     comment: '分类id',
   })
-  classificationId: number;
+  categoriesId: number;
 
   @Column({
     comment: '分类名',
   })
-  classificationName: string;
+  categoriesName: string;
 
   @Column({
     length: '2083',
     comment: '分类icon',
   })
-  classificationImg: string;
+  categoriesLogo: string;
 
   @Column({
     type: 'boolean',
@@ -41,6 +41,13 @@ export class Classification {
     default: false,
   })
   isShowOnHome: boolean;
+
+  @Column({
+    type: 'boolean',
+    comment: '是否使用',
+    default: true,
+  })
+  isUse: boolean;
 
   @CreateDateColumn({
     comment: '创建时间',
