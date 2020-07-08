@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-07 19:06:54
+ * @LastEditTime: 2020-07-08 16:54:27
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -45,7 +45,7 @@ export class BackendCategoriesController {
   ) {
     const result = new ResultVoUtil();
     try {
-      this.backendCategoriesService.save(file, data);
+      await this.backendCategoriesService.save(file, data);
       return result.success();
     } catch (e) {
       return result.error('系统错误，请稍后重试');

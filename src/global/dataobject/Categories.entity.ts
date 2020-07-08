@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:38:15
- * @LastEditTime: 2020-07-07 16:24:08
+ * @LastEditTime: 2020-07-08 16:55:33
  * @FilePath: /koala-server/src/global/dataobject/Categories.entity.ts
  */
 
@@ -30,10 +30,15 @@ export class Categories {
   categoriesName: string;
 
   @Column({
+    comment: '文件名',
+  })
+  fileName: string;
+
+  @Column({
     length: '2083',
     comment: '分类icon',
   })
-  categoriesLogo: string;
+  categoriesIconUrl: string;
 
   @Column({
     type: 'boolean',
