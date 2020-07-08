@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-06-23 18:01:10
- * @FilePath: /koala-background-server/src/backstage/service/impl/BackendUserServiceImpl.ts
+ * @LastEditTime: 2020-07-08 17:46:26
+ * @FilePath: /koala-server/src/backstage/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -114,7 +114,7 @@ export class BackendUserServiceImpl implements BackendUserService {
     number,
     page,
   }: IBackendUserListForm): Promise<Array<BackendUser>> {
-    const defautParams: FindManyOptions<BackendUser> = {
+    const defaultParams: FindManyOptions<BackendUser> = {
       select: [
         'username',
         'userType',
@@ -134,10 +134,10 @@ export class BackendUserServiceImpl implements BackendUserService {
       // 判断搜索条件是否存在
       if (!username && userType === EbackendFindWithUserType.ALL) {
         // 直接查询
-        return await this.backendUserRepository.find(defautParams);
+        return await this.backendUserRepository.find(defaultParams);
       }
       return await this.backendUserRepository.find(
-        Object.assign({}, defautParams, {
+        Object.assign({}, defaultParams, {
           where: (userType !== EbackendFindWithUserType.ALL && {
             username: Like(`%${username}%`),
             userType,

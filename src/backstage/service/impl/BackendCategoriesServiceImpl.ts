@@ -2,12 +2,15 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-08 17:06:29
+ * @LastEditTime: 2020-07-08 17:49:18
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
 import { BackendCategoriesService } from '../BackendCategoriesService';
-import { IAddCategories } from 'src/backstage/form/BackendCategoriesForm';
+import {
+  IAddCategories,
+  ICategoriesList,
+} from 'src/backstage/form/BackendCategoriesForm';
 import { createWriteStream, accessSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { BackendException } from 'src/backstage/exception/backendException';
@@ -16,7 +19,7 @@ import { CategoriesRepository } from 'src/global/repository/CategoriesRepository
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categories } from 'src/global/dataobject/Categories.entity';
 import { HOST } from 'src/config/FileConfig';
-import { InsertResult } from 'typeorm';
+import { InsertResult, FindManyOptions } from 'typeorm';
 
 @Injectable()
 export class BackendCategoriesServiceImpl implements BackendCategoriesService {
@@ -51,7 +54,50 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
         await accessSync(filePath);
         await unlinkSync(filePath);
       } catch (e) {}
-      throw new BackendException(e);
+      throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 获取分页分类标签列表
+   * @param data
+   */
+  async getCagegoriesList({
+    page,
+    pageSize,
+  }: ICategoriesList): Promise<Array<Categories>> {
+    const defaultParams: FindManyOptions<Categories> = {
+      select: [
+        'categoriesId',
+        'categoriesName',
+        'categoriesIconUrl',
+        'isShowOnHome',
+        'isUse',
+        'createTime',
+        'updateTime',
+      ],
+      order: {
+        categoriesId: 'ASC',
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    };
+
+    try {
+      return await this.categoriesRepository.find(defaultParams);
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 获取所有分类标签
+   */
+  async getAllCagetories() {
+    try {
+      return await this.categoriesRepository.find();
+    } catch (e) {
+      throw new BackendException(e.message);
     }
   }
 }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-07 16:25:18
- * @LastEditTime: 2020-07-07 18:12:49
+ * @LastEditTime: 2020-07-08 17:24:05
  * @FilePath: /koala-server/src/backstage/schema/BackendCategoriesSchema.ts
  */
 
@@ -14,4 +14,9 @@ export const BackendAddCategoriesSchema = Joi.object({
   isUse: Joi.string()
     .allow(ECategoriesIsUseEnum.OFF, ECategoriesIsUseEnum.OFF)
     .required(),
+});
+
+export const BackendCategoriesListSchema = Joi.object({
+  page: Joi.number().required(),
+  pageSize: Joi.number().required(),
 });
