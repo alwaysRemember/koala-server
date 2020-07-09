@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-08 17:51:02
+ * @LastEditTime: 2020-07-09 11:26:03
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -26,6 +26,8 @@ import {
 } from '../schema/BackendCategoriesSchema';
 import { IAddCategories, ICategoriesList } from '../form/BackendCategoriesForm';
 import { BackendCategoriesServiceImpl } from '../service/impl/BackendCategoriesServiceImpl';
+import { SetPermissionsForController } from '../utils';
+import { EBackendUserType } from '../enums/EBackendUserType';
 
 @Controller('/backend-categories')
 export class BackendCategoriesController {
@@ -45,6 +47,7 @@ export class BackendCategoriesController {
     ),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/add-categories')
   @UseInterceptors(FileInterceptor('file'))
   public async createClassification(
@@ -60,6 +63,10 @@ export class BackendCategoriesController {
     }
   }
 
+  /**
+   * 获取商品标签分类列表
+   * @param data
+   */
   @HttpCode(200)
   @UsePipes(
     new ReqParamCheck(
@@ -67,6 +74,7 @@ export class BackendCategoriesController {
       ({ type }) => type === 'body',
     ),
   )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/get-categories')
   public async classificationList(@Body() data: ICategoriesList) {
     const result = new ResultVoUtil();

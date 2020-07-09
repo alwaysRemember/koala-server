@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-07-07 17:19:25
+ * @LastEditTime: 2020-07-09 11:28:45
  * @FilePath: /koala-server/src/backstage/controller/BackendUserController.ts
  */
 import {
@@ -36,6 +36,11 @@ import {
   IBackendUserListForm,
   IBackendUserLoginForm,
 } from 'src/backstage/form/BackendUserForm';
+import { SetPermissionsForController } from '../utils';
+import {
+  EbackendFindWithUserType,
+  EBackendUserType,
+} from '../enums/EBackendUserType';
 
 @Controller('/backend-user')
 export class BackendUserController {
@@ -88,6 +93,7 @@ export class BackendUserController {
     ),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.PROXY)
   @Post('/change-password')
   public async bakcendChangePassword(
     @Body() user: IBackendUserChangePasswordForm,
@@ -109,6 +115,7 @@ export class BackendUserController {
     new ReqParamCheck(BackendAddUserSchema, ({ type }) => type === 'body'),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/add-user')
   public async backendAddUser(@Body() user: IBackendUserForm) {
     const result = new ResultVoUtil();
@@ -128,6 +135,7 @@ export class BackendUserController {
     new ReqParamCheck(BackendUserListSchema, ({ type }) => type === 'body'),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/find-user-list')
   public async backendFindUserList(@Body() params: IBackendUserListForm) {
     const result = new ResultVoUtil();
@@ -163,6 +171,7 @@ export class BackendUserController {
     ),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/update-admin-user')
   public async backendUpdateAdminUser(@Req() req, @Body() user: BackendUser) {
     const result = new ResultVoUtil();
@@ -194,6 +203,7 @@ export class BackendUserController {
     ),
   )
   @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/delete-admin-user')
   public async backendDeleteAdminUser(
     @Req() req,
