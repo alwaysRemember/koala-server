@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-08 17:49:18
+ * @LastEditTime: 2020-07-09 16:55:40
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -10,6 +10,7 @@ import { BackendCategoriesService } from '../BackendCategoriesService';
 import {
   IAddCategories,
   ICategoriesList,
+  IUpdateCategories,
 } from 'src/backstage/form/BackendCategoriesForm';
 import { createWriteStream, accessSync, unlinkSync } from 'fs';
 import { join } from 'path';
@@ -54,7 +55,7 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
         await accessSync(filePath);
         await unlinkSync(filePath);
       } catch (e) {}
-      throw new BackendException(e.message);
+      throw new BackendException('新增商品分类出错');
     }
   }
 
@@ -86,7 +87,7 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
     try {
       return await this.categoriesRepository.find(defaultParams);
     } catch (e) {
-      throw new BackendException(e.message);
+      throw new BackendException('获取商品分类标签列表出错');
     }
   }
 
@@ -96,6 +97,26 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
   async getAllCagetories() {
     try {
       return await this.categoriesRepository.find();
+    } catch (e) {
+      throw new BackendException('获取商品分类标签列表出错');
+    }
+  }
+
+  /**
+   * 修改商品分类标签
+   * @param data
+   */
+  async updateCategories(params: IUpdateCategories) {
+    try {
+      const data = await this.categoriesRepository.findOne(params.categoriesId);
+      if (!data) {
+        throw new BackendException('查询不到此标签信息');
+      }
+      const result = await this.categoriesRepository.update(
+        params.categoriesId,
+        Object.assign({}, data, params),
+      );
+      console.log(result);
     } catch (e) {
       throw new BackendException(e.message);
     }

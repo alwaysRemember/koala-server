@@ -2,12 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-07 16:25:18
- * @LastEditTime: 2020-07-08 17:24:05
+ * @LastEditTime: 2020-07-09 16:34:26
  * @FilePath: /koala-server/src/backstage/schema/BackendCategoriesSchema.ts
  */
 
 import * as Joi from '@hapi/joi';
 import { ECategoriesIsUseEnum } from 'src/global/enums/ECategories';
+import { join } from 'path';
 
 export const BackendAddCategoriesSchema = Joi.object({
   name: Joi.string().required(),
@@ -19,4 +20,11 @@ export const BackendAddCategoriesSchema = Joi.object({
 export const BackendCategoriesListSchema = Joi.object({
   page: Joi.number().required(),
   pageSize: Joi.number().required(),
+});
+
+export const BackendUpdateCategoriesSchema = Joi.object({
+  categoriesId: Joi.number().required(),
+  categoriesName: Joi.string().required(),
+  isUse: Joi.boolean().required(),
+  isShowOnHome: Joi.boolean().required(),
 });

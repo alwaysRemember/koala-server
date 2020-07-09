@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-09 11:26:03
+ * @LastEditTime: 2020-07-09 16:49:03
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -23,8 +23,13 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   BackendAddCategoriesSchema,
   BackendCategoriesListSchema,
+  BackendUpdateCategoriesSchema,
 } from '../schema/BackendCategoriesSchema';
-import { IAddCategories, ICategoriesList } from '../form/BackendCategoriesForm';
+import {
+  IAddCategories,
+  ICategoriesList,
+  IUpdateCategories,
+} from '../form/BackendCategoriesForm';
 import { BackendCategoriesServiceImpl } from '../service/impl/BackendCategoriesServiceImpl';
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
@@ -87,6 +92,29 @@ export class BackendCategoriesController {
         total,
         list,
       });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 更新商品分类标签信息
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendUpdateCategoriesSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/update-categories')
+  public async updateCategories(@Body() params: IUpdateCategories) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendCategoriesService.updateCategories(params);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }
