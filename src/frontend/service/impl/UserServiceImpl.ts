@@ -8,7 +8,7 @@
 import { FrontUserService } from '../UserService';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FrontUserRepository } from 'src/global/repository/UserRepository';
+import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { IFrontUserSave } from 'src/global/form/User';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 

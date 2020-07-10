@@ -8,7 +8,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FrontUser } from '../../global/dataobject/User.entity';
-import { FrontUserRepository } from '../../global/repository/UserRepository';
+import { FrontUserRepository } from '../../global/repository/FrontUserRepository';
 import { Logincontroller } from '../controller/FrontUserController';
 import { FrontUserServiceImpl } from '../service/impl/UserServiceImpl';
 

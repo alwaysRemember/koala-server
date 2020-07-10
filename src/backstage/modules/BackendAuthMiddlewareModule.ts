@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 17:03:49
- * @LastEditTime: 2020-07-07 16:08:48
+ * @LastEditTime: 2020-07-09 17:41:21
  * @FilePath: /koala-server/src/backstage/modules/BackendAuthMiddlewareModule.ts
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
@@ -14,6 +14,7 @@ import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepos
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { BackendCategoriesController } from '../controller/BackendCategoriesController';
+import { BackendAppletUsersController } from '../controller/BackendAppletUsersController';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BackendUser, BackendUserRepository])],
@@ -24,6 +25,10 @@ export class BackendAuthMiddlewareModule implements NestModule {
     consumer
       .apply(BackgroundLoginMiddleware)
       .exclude('/backend-user/login')
-      .forRoutes(BackendUserController, BackendCategoriesController);
+      .forRoutes(
+        BackendUserController,
+        BackendCategoriesController,
+        BackendAppletUsersController,
+      );
   }
 }
