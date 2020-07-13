@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:38:15
- * @LastEditTime: 2020-07-09 16:32:44
+ * @LastEditTime: 2020-07-13 16:08:16
  * @FilePath: /koala-server/src/global/dataobject/Categories.entity.ts
  */
 
@@ -12,7 +12,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Product } from './Product.entity';
 
 /**
  * 分类
@@ -22,7 +24,7 @@ export class Categories {
   @PrimaryGeneratedColumn({
     comment: '分类id',
   })
-  categoriesId: number;
+  id: number;
 
   @Column({
     comment: '分类名',
@@ -53,6 +55,12 @@ export class Categories {
     default: true,
   })
   isUse: boolean;
+
+  @OneToMany(
+    type => Product,
+    product => product.categories,
+  )
+  products: Array<Product>;
 
   @CreateDateColumn({
     comment: '创建时间',

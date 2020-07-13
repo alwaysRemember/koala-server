@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-09 17:58:09
+ * @LastEditTime: 2020-07-13 14:59:57
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -69,7 +69,7 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
   }: ICategoriesList): Promise<Array<Categories>> {
     const defaultParams: FindManyOptions<Categories> = {
       select: [
-        'categoriesId',
+        'id',
         'categoriesName',
         'categoriesIconUrl',
         'isShowOnHome',
@@ -78,7 +78,7 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
         'updateTime',
       ],
       order: {
-        categoriesId: 'ASC',
+        id: 'DESC',
       },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -108,11 +108,11 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
    */
   async updateCategories(params: IUpdateCategories) {
     try {
-      const data = await this.categoriesRepository.findOne(params.categoriesId);
+      const data = await this.categoriesRepository.findOne(params.id);
       if (!data) {
         throw new BackendException('查询不到此标签信息');
       }
-      await this.categoriesRepository.update(params.categoriesId, params);
+      await this.categoriesRepository.update(params.id, params);
     } catch (e) {
       throw new BackendException(e.message);
     }

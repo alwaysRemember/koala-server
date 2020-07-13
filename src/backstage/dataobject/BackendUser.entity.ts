@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:53:23
- * @LastEditTime: 2020-06-18 11:46:55
- * @FilePath: /koala-background-server/src/dataobject/BackendUser.entity.ts
+ * @LastEditTime: 2020-07-13 15:43:48
+ * @FilePath: /koala-server/src/backstage/dataobject/BackendUser.entity.ts
  */
 import {
   Entity,
@@ -11,11 +11,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import {
   EBackendUserType,
   EbackendFindWithUserType,
 } from '../enums/EBackendUserType';
+import { Product } from 'src/global/dataobject/Product.entity';
 
 @Entity('tb_backend_user')
 export class BackendUser {
@@ -35,6 +37,12 @@ export class BackendUser {
     comment: '用户类型',
   })
   userType: EBackendUserType;
+
+  @OneToMany(
+    type => Product,
+    product => product.backendUser,
+  )
+  products: Array<Product>;
 
   @CreateDateColumn({ comment: '创建时间' })
   createTime: string;
