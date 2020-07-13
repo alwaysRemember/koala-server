@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 15:52:47
- * @LastEditTime: 2020-07-13 16:08:47
+ * @LastEditTime: 2020-07-13 16:27:40
  * @FilePath: /koala-server/src/global/dataobject/ProductImage.entity.ts
  */
 import {
@@ -21,6 +21,11 @@ export class ProductImage {
     comment: '商品图片id',
   })
   id: number;
+
+  @Column({
+    comment: '文件名',
+  })
+  fileName: string;
 
   @Column({
     comment: '图片地址',

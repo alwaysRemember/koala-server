@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-13 16:03:52
+ * @LastEditTime: 2020-07-13 16:25:59
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -21,6 +21,7 @@ import { ProductsDetail } from './ProductDetail.entity';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { EProductStatus } from '../enums/EProduct';
 import { ProductImage } from './ProductImage.entity';
+import { ProductVideo } from './ProductVideo.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -60,6 +61,12 @@ export class Product {
     productImage => productImage.product,
   )
   productImages: Array<ProductImage>;
+
+  @OneToMany(
+    type => ProductVideo,
+    productVideo => productVideo.product,
+  )
+  productVideo: Array<ProductVideo>;
 
   @ManyToOne(
     type => BackendUser,
