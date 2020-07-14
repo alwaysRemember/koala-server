@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-13 14:59:57
+ * @LastEditTime: 2020-07-14 16:45:44
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -62,11 +62,12 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
   /**
    * 获取分页分类标签列表
    * @param data
+   * @param isUse 是否选择已使用的数据
    */
-  async getCagegoriesList({
-    page,
-    pageSize,
-  }: ICategoriesList): Promise<Array<Categories>> {
+  async getCagegoriesList(
+    { page, pageSize }: ICategoriesList,
+    isUse: boolean = false,
+  ): Promise<Array<Categories>> {
     const defaultParams: FindManyOptions<Categories> = {
       select: [
         'id',
@@ -85,7 +86,13 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
     };
 
     try {
-      return await this.categoriesRepository.find(defaultParams);
+      return await this.categoriesRepository.find(
+        isUse
+          ? Object.assign({}, defaultParams, {
+              where: [{ isUse: true }],
+            })
+          : defaultParams,
+      );
     } catch (e) {
       throw new BackendException('获取商品分类标签列表出错');
     }
@@ -94,9 +101,15 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
   /**
    * 获取所有分类标签
    */
-  async getAllCagetories() {
+  async getAllCagetories(isUse: boolean = false) {
     try {
-      return await this.categoriesRepository.find();
+      if (isUse) {
+        return await this.categoriesRepository.find({
+          where: [{ isUse: true }],
+        });
+      } else {
+        return await this.categoriesRepository.find();
+      }
     } catch (e) {
       throw new BackendException('获取商品分类标签列表出错');
     }

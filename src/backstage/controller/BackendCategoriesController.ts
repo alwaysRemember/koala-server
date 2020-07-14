@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-09 16:49:03
+ * @LastEditTime: 2020-07-14 16:46:26
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -55,7 +55,7 @@ export class BackendCategoriesController {
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/add-categories')
   @UseInterceptors(FileInterceptor('file'))
-  public async createClassification(
+  public async createCategories(
     @UploadedFile() file,
     @Body() data: IAddCategories,
   ) {
@@ -81,13 +81,45 @@ export class BackendCategoriesController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/get-categories')
-  public async classificationList(@Body() data: ICategoriesList) {
+  public async categoriesnList(@Body() data: ICategoriesList) {
     const result = new ResultVoUtil();
     try {
       const total = await (
         await this.backendCategoriesService.getAllCagetories()
       ).length;
       const list = await this.backendCategoriesService.getCagegoriesList(data);
+      return result.success({
+        total,
+        list,
+      });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取使用中的商品标签
+   * @param data
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendCategoriesListSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('get-using-categories')
+  public async categoriesUseList(@Body() data: ICategoriesList) {
+    const result = new ResultVoUtil();
+    try {
+      const total = await (
+        await this.backendCategoriesService.getAllCagetories(true)
+      ).length;
+      const list = await this.backendCategoriesService.getCagegoriesList(
+        data,
+        true,
+      );
       return result.success({
         total,
         list,
