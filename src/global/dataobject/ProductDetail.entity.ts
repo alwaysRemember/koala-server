@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-13 16:18:51
+ * @LastEditTime: 2020-07-14 17:36:36
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
@@ -20,6 +20,18 @@ export class ProductsDetail {
     comment: '产品详情',
   })
   productContent: string;
+
+  @Column({
+    type: 'longtext',
+    comment: '产品简介',
+  })
+  productBrief: string;
+
+  @Column({
+    type: 'int',
+    comment: '产品金额',
+  })
+  productAmount: number;
 
   @OneToOne(
     type => Product,

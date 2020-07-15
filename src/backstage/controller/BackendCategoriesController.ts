@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-14 16:46:26
+ * @LastEditTime: 2020-07-14 17:50:00
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -109,7 +109,7 @@ export class BackendCategoriesController {
     ),
   )
   @SetPermissionsForController(EBackendUserType.PROXY)
-  @Post('get-using-categories')
+  @Post('/get-using-categories')
   public async categoriesUseList(@Body() data: ICategoriesList) {
     const result = new ResultVoUtil();
     try {

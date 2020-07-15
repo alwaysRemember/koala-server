@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-13 16:25:59
+ * @LastEditTime: 2020-07-14 18:16:05
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -39,7 +39,7 @@ export class Product {
     type: 'enum',
     enum: EProductStatus,
     default: EProductStatus.OFF_SHELF,
-    comment: '产品类型',
+    comment: '产品状态',
   })
   productStatus: EProductStatus;
 
