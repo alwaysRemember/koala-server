@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 15:52:47
- * @LastEditTime: 2020-07-13 16:27:40
- * @FilePath: /koala-server/src/global/dataobject/ProductImage.entity.ts
+ * @LastEditTime: 2020-07-16 19:00:40
+ * @FilePath: /koala-server/src/global/dataobject/ProductBanner.entity.ts
  */
 import {
   Entity,
@@ -15,8 +15,8 @@ import {
 } from 'typeorm';
 import { Product } from './Product.entity';
 
-@Entity('tb_product_image')
-export class ProductImage {
+@Entity('tb_product_banner')
+export class ProductBanner {
   @PrimaryGeneratedColumn({
     comment: '商品图片id',
   })
@@ -34,7 +34,7 @@ export class ProductImage {
 
   @ManyToOne(
     type => Product,
-    product => product.productImages,
+    product => product.productBanner,
   )
   product: Product;
 

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-07-16 18:30:50
+ * @LastEditTime: 2020-07-16 18:56:45
  * @FilePath: /koala-server/src/backstage/service/impl/BackendMediaLibraryServiceImpl.ts
  */
 import { BackendMediaLibraryService } from '../BackendMediaLibraryService';
@@ -10,18 +10,23 @@ import { join } from 'path';
 import { AUDIO, VIDEO, IMAGE, HOME } from 'src/global/enums/EFilePath';
 import { BackendException } from 'src/backstage/exception/backendException';
 import { createWriteStream, accessSync, unlinkSync } from 'fs';
-import { BackendMediaLibrary } from 'src/backstage/dataobject/BackendMediaLibrary.entity';
+import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
 import { EMediaType } from 'src/backstage/enums/EMediaLibrary';
-import { BackendMediaLibraryRepository } from 'src/backstage/repository/BackendMediaLibraryRepository';
+import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HOST } from 'src/config/FileConfig';
 
 export class BackendMediaLibraryServiceImpl
   implements BackendMediaLibraryService {
   constructor(
-    @InjectRepository(BackendMediaLibrary)
-    private readonly backendMediaLibraryRepository: BackendMediaLibraryRepository,
+    @InjectRepository(ProductMediaLibrary)
+    private readonly backendMediaLibraryRepository: ProductMediaLibraryRepository,
   ) {}
+
+  /**
+   * 上传文件到媒体库
+   * @param file
+   */
   async saveFile(file: File): Promise<{ path: string; id: number }> {
     // 获取文件类型
     const fileType = this.getFileType(file.mimetype);
@@ -49,7 +54,7 @@ export class BackendMediaLibraryServiceImpl
       // 生成访问链接
       const path = `${HOST}/${fileType.toLowerCase()}/${fileName}`;
       // 存储数据库
-      const media = new BackendMediaLibrary();
+      const media = new ProductMediaLibrary();
       media.type = fileType;
       media.fileName = fileName;
       media.path = path;
@@ -66,6 +71,16 @@ export class BackendMediaLibraryServiceImpl
         console.log(e.message);
       }
       throw new BackendException('上传文件出错', e.message);
+    }
+  }
+
+  async getAllFile(): Promise<Array<ProductMediaLibrary>> {
+    try {
+      return await this.backendMediaLibraryRepository.find({
+        select: ['id', 'type', 'path'],
+      });
+    } catch (e) {
+      throw new BackendException(e.message);
     }
   }
 

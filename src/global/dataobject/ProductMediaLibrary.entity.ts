@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 16:57:30
- * @LastEditTime: 2020-07-15 19:10:58
- * @FilePath: /koala-server/src/backstage/dataobject/BackendMediaLibrary.entity.ts
+ * @LastEditTime: 2020-07-16 18:58:49
+ * @FilePath: /koala-server/src/global/dataobject/ProductMediaLibrary.entity.ts
  */
 import {
   Entity,
@@ -11,11 +11,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Column,
+  OneToOne,
 } from 'typeorm';
-import { EMediaType } from '../enums/EMediaLibrary';
+import { EMediaType } from '../../backstage/enums/EMediaLibrary';
+import { Product } from './Product.entity';
 
-@Entity('tb_media_library')
-export class BackendMediaLibrary {
+@Entity('tb_product_media_library')
+export class ProductMediaLibrary {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -41,6 +43,12 @@ export class BackendMediaLibrary {
     comment: '文件类型',
   })
   type: EMediaType;
+
+  @OneToOne(
+    type => Product,
+    product => product.productMediaLibrary,
+  )
+  product: Product;
 
   @CreateDateColumn()
   createTime: Date;
