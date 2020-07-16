@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-14 16:45:44
+ * @LastEditTime: 2020-07-16 16:18:59
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -44,10 +44,12 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
 
       // 存入数据库
       const categories = new Categories();
-      categories.categoriesIconUrl = `${HOST}/${fileName}`;
+      categories.categoriesIconUrl = `${HOST}/image/${fileName}`;
       categories.categoriesName = data.name;
+      categories.relativePath = filePath;
       categories.fileName = fileName;
       categories.isUse = data.isUse === 'on' ? true : false;
+
       return await this.categoriesRepository.insert(categories);
     } catch (e) {
       // 如果写入出错的情况下判断文件是否存在，存在则删除文件
