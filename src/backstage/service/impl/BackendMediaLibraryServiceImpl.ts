@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-07-16 18:56:45
+ * @LastEditTime: 2020-07-17 15:22:10
  * @FilePath: /koala-server/src/backstage/service/impl/BackendMediaLibraryServiceImpl.ts
  */
 import { BackendMediaLibraryService } from '../BackendMediaLibraryService';
@@ -15,7 +15,9 @@ import { EMediaType } from 'src/backstage/enums/EMediaLibrary';
 import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HOST } from 'src/config/FileConfig';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class BackendMediaLibraryServiceImpl
   implements BackendMediaLibraryService {
   constructor(

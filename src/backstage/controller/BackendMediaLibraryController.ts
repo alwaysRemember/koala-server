@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:05:12
- * @LastEditTime: 2020-07-16 18:41:34
+ * @LastEditTime: 2020-07-17 15:22:46
  * @FilePath: /koala-server/src/backstage/controller/BackendMediaLibraryController.ts
  */
 import {
@@ -27,6 +27,10 @@ export class BackendMediaLibraryController {
     private readonly backendMediaLibraryService: BackendMediaLibraryServiceImpl,
   ) {}
 
+  /**
+   * 上传文件到媒体库
+   * @param file
+   */
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.PROXY)
   @UseInterceptors(FileInterceptor('file'))
@@ -42,6 +46,9 @@ export class BackendMediaLibraryController {
     }
   }
 
+  /**
+   * 获取媒体库文件列表
+   */
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.PROXY)
   @Get('/get-file-list')

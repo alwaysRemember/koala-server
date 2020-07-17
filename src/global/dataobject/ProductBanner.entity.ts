@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 15:52:47
- * @LastEditTime: 2020-07-16 19:00:40
+ * @LastEditTime: 2020-07-17 16:11:31
  * @FilePath: /koala-server/src/global/dataobject/ProductBanner.entity.ts
  */
 import {
@@ -28,9 +28,19 @@ export class ProductBanner {
   fileName: string;
 
   @Column({
+    comment: '文件大小',
+  })
+  size: number;
+
+  @Column({
     comment: '图片地址',
   })
-  url: string;
+  path: string;
+
+  @Column({
+    comment: '服务器地址',
+  })
+  relativePath: string;
 
   @ManyToOne(
     type => Product,
@@ -39,7 +49,7 @@ export class ProductBanner {
   product: Product;
 
   @CreateDateColumn()
-  createImage: Date;
+  createTime: Date;
 
   @UpdateDateColumn()
   updateTime: Date;

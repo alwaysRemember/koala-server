@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-07-01 18:54:19
- * @FilePath: /koala-background-server/src/filters/HttpExceptionFilter.ts
+ * @LastEditTime: 2020-07-17 16:08:22
+ * @FilePath: /koala-server/src/global/filters/HttpExceptionFilter.ts
  */
 import {
   ExceptionFilter,
@@ -34,6 +34,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,
       message: exception.message,
+      exception: JSON.stringify(exception),
     }).saveError();
 
     new Mail('KOALA - ERROR - CODE', {
