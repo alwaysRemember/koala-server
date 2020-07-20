@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 16:22:32
- * @LastEditTime: 2020-07-13 16:27:01
+ * @LastEditTime: 2020-07-20 12:16:59
  * @FilePath: /koala-server/src/global/dataobject/ProductVideo.entity.ts
  */
 import {
@@ -23,17 +23,17 @@ export class ProductVideo {
   @Column({
     comment: '视频地址',
   })
-  src: string;
+  path: string;
+
+  @Column({
+    comment: '服务器视频地址',
+  })
+  relativePath: string;
 
   @Column({
     comment: '文件名',
   })
   fileName: string;
-
-  @Column({
-    comment: '视频长度',
-  })
-  videoLength: number;
 
   @CreateDateColumn()
   createTime: Date;
