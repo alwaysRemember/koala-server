@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:37:42
- * @LastEditTime: 2020-07-08 16:43:08
+ * @LastEditTime: 2020-07-20 17:58:20
  * @FilePath: /koala-server/src/backstage/modules/BackendCategoriesModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -16,5 +16,9 @@ import { CategoriesRepository } from '../../global/repository/CategoriesReposito
   imports: [TypeOrmModule.forFeature([Categories, CategoriesRepository])],
   controllers: [BackendCategoriesController],
   providers: [BackendCategoriesServiceImpl],
+  exports: [
+    TypeOrmModule.forFeature([Categories, CategoriesRepository]),
+    BackendCategoriesServiceImpl,
+  ],
 })
 export class BackendCategoriesModule {}

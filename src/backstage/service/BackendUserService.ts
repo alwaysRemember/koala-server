@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:49:30
- * @LastEditTime: 2020-06-18 17:37:01
- * @FilePath: /koala-background-server/src/service/BackendUserService.ts
+ * @LastEditTime: 2020-07-20 17:46:17
+ * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import {
@@ -29,4 +29,6 @@ export interface BackendUserService {
   backendUpdateAdminUser(user: BackendUser): void;
 
   backendDeleteAdminUser(userId: number): void;
+
+  backendFindByUserId(userId: number): Promise<BackendUser>;
 }

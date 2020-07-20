@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-16 16:18:59
+ * @LastEditTime: 2020-07-20 18:01:31
  * @FilePath: /koala-server/src/backstage/service/impl/BackendCategoriesServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -128,6 +128,14 @@ export class BackendCategoriesServiceImpl implements BackendCategoriesService {
         throw new BackendException('查询不到此标签信息');
       }
       await this.categoriesRepository.update(params.id, params);
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  async findById(id: number) {
+    try {
+      return await this.categoriesRepository.findOne(id);
     } catch (e) {
       throw new BackendException(e.message);
     }

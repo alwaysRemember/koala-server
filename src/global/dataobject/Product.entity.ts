@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-16 19:01:05
+ * @LastEditTime: 2020-07-20 18:30:14
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -17,7 +17,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Categories } from './Categories.entity';
-import { ProductsDetail } from './ProductDetail.entity';
+import { ProductDetail } from './ProductDetail.entity';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { EProductStatus } from '../enums/EProduct';
 import { ProductBanner } from './ProductBanner.entity';
@@ -51,11 +51,11 @@ export class Product {
   categories: Categories;
 
   @OneToOne(
-    type => ProductsDetail,
-    productsDetail => productsDetail.products,
+    type => ProductDetail,
+    productDetail => productDetail.products,
   )
   @JoinColumn()
-  productDetail: ProductsDetail;
+  productDetail: ProductDetail;
 
   @OneToMany(
     type => ProductBanner,

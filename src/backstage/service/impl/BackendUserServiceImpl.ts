@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-08 17:46:26
+ * @LastEditTime: 2020-07-20 17:50:42
  * @FilePath: /koala-server/src/backstage/service/impl/BackendUserServiceImpl.ts
  */
 import { BackendUserService } from '../BackendUserService';
@@ -184,6 +184,18 @@ export class BackendUserServiceImpl implements BackendUserService {
         throw new BackendException('用户不存在');
       }
       await this.backendUserRepository.remove(data);
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 根据用户id获取信息
+   * @param userId
+   */
+  async backendFindByUserId(userId: number) {
+    try {
+      return await this.backendUserRepository.findOne(userId);
     } catch (e) {
       throw new BackendException(e.message);
     }

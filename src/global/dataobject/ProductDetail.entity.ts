@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-14 17:36:36
+ * @LastEditTime: 2020-07-20 18:29:44
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
 import { Product } from './Product.entity';
 
 @Entity('tb_product_detail')
-export class ProductsDetail {
+export class ProductDetail {
   @PrimaryGeneratedColumn({
     comment: '产品详情id',
   })

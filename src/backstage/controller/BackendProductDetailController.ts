@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-20 14:10:03
+ * @LastEditTime: 2020-07-20 17:39:59
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -11,12 +11,18 @@ import {
   UploadedFile,
   HttpCode,
   UseInterceptors,
+  Body,
+  UsePipes,
+  Req,
 } from '@nestjs/common';
 import { BackendProductDetailServiceImpl } from '../service/impl/BackendProductDetailServiceImpl';
 import { SetPermissionsForController } from '../utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
+import { IProductDetail } from '../form/BackendProductDetailForm';
+import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
+import { BackendProductDetailSchema } from '../schema/BackendProductDetailSchema';
 
 @Controller('/product')
 export class BackendProductDetailController {
@@ -67,6 +73,31 @@ export class BackendProductDetailController {
         file,
       );
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 上传产品
+   * @param data
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendProductDetailSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('/upload-product')
+  public async uploadProduct(
+    @Body() data: IProductDetail,
+    @Req() { headers: { token } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendProductDetailService.uploadProduct(data, token);
     } catch (e) {
       return result.error(e.message);
     }

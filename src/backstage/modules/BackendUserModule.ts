@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:49:34
- * @LastEditTime: 2020-06-23 15:05:04
- * @FilePath: /koala-background-server/src/backstage/modules/BackendUserModule.ts
+ * @LastEditTime: 2020-07-20 17:56:46
+ * @FilePath: /koala-server/src/backstage/modules/BackendUserModule.ts
  */
 import { Module } from '@nestjs/common';
 import { BackendUserController } from 'src/backstage/controller/BackendUserController';
@@ -17,5 +17,9 @@ import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServ
   imports: [TypeOrmModule.forFeature([BackendUser, BackendUserRepository])],
   controllers: [BackendUserController],
   providers: [BackendUserServiceImpl, RedisCacheServiceImpl],
+  exports: [
+    TypeOrmModule.forFeature([BackendUser, BackendUserRepository]),
+    BackendUserServiceImpl,
+  ],
 })
 export class BackendUserModule {}
