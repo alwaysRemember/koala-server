@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-21 14:53:58
+ * @LastEditTime: 2020-07-21 15:02:58
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -22,7 +22,10 @@ import { EBackendUserType } from '../enums/EBackendUserType';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { IProductDetail } from '../form/BackendProductDetailForm';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { BackendProductDetailSchema } from '../schema/BackendProductDetailSchema';
+import {
+  BackendProductDetailSchema,
+  BackendGetProductDetailSchema,
+} from '../schema/BackendProductDetailSchema';
 
 @Controller('/product')
 export class BackendProductDetailController {
@@ -102,6 +105,27 @@ export class BackendProductDetailController {
         token,
       );
       return result.success({ id });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendGetProductDetailSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('/get-product-detail')
+  public async getProductDetail(@Body() { productId }: { productId: number }) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.backendProductDetailService.getProductDetail(
+        productId,
+      );
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

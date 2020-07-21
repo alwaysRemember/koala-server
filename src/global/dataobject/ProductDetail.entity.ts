@@ -2,10 +2,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-20 18:29:44
+ * @LastEditTime: 2020-07-21 17:25:52
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
-import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, OneToOne, Column, JoinColumn } from 'typeorm';
 import { Product } from './Product.entity';
 
 @Entity('tb_product_detail')
@@ -37,5 +37,5 @@ export class ProductDetail {
     type => Product,
     product => product.productDetail,
   )
-  products: Product;
+  product: Product;
 }

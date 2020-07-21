@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-07-17 15:22:10
+ * @LastEditTime: 2020-07-21 17:38:21
  * @FilePath: /koala-server/src/backstage/service/impl/BackendMediaLibraryServiceImpl.ts
  */
 import { BackendMediaLibraryService } from '../BackendMediaLibraryService';
@@ -16,6 +16,7 @@ import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMedi
 import { InjectRepository } from '@nestjs/typeorm';
 import { HOST } from 'src/config/FileConfig';
 import { Injectable } from '@nestjs/common';
+import { ProductRepository } from 'src/global/repository/ProductRepository';
 
 @Injectable()
 export class BackendMediaLibraryServiceImpl
@@ -23,6 +24,7 @@ export class BackendMediaLibraryServiceImpl
   constructor(
     @InjectRepository(ProductMediaLibrary)
     private readonly backendMediaLibraryRepository: ProductMediaLibraryRepository,
+    private readonly productRepository: ProductRepository,
   ) {}
 
   /**
@@ -80,6 +82,25 @@ export class BackendMediaLibraryServiceImpl
     try {
       return await this.backendMediaLibraryRepository.find({
         select: ['id', 'type', 'path'],
+      });
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  async getFileByProductId(
+    productId: number,
+  ): Promise<Array<ProductMediaLibrary>> {
+    try {
+      // 获取产品
+      const product = await this.productRepository.findOne(productId);
+      if (!product) {
+        throw new BackendException('查询不到此商品信息');
+      }
+      return await this.backendMediaLibraryRepository.find({
+        where: {
+          product,
+        },
       });
     } catch (e) {
       throw new BackendException(e.message);

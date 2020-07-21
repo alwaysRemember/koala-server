@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-21 14:37:57
+ * @LastEditTime: 2020-07-21 17:29:55
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -52,7 +52,7 @@ export class Product {
 
   @OneToOne(
     type => ProductDetail,
-    productDetail => productDetail.products,
+    productDetail => productDetail.product,
   )
   @JoinColumn()
   productDetail: ProductDetail;

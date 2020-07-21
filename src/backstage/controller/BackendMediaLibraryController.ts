@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:05:12
- * @LastEditTime: 2020-07-17 15:22:46
+ * @LastEditTime: 2020-07-21 16:25:40
  * @FilePath: /koala-server/src/backstage/controller/BackendMediaLibraryController.ts
  */
 import {
@@ -51,11 +51,15 @@ export class BackendMediaLibraryController {
    */
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.PROXY)
-  @Get('/get-file-list')
-  public async getfileList() {
+  @Post('/get-file-list')
+  public async getfileList(@Body() { productId }: { productId: number }) {
     const result = new ResultVoUtil();
+    console.log(productId);
+    
     try {
-      const list = await this.backendMediaLibraryService.getAllFile();
+      const list = await this.backendMediaLibraryService.getFileByProductId(
+        productId,
+      );
       return result.success(list);
     } catch (e) {
       return result.error(e.message);

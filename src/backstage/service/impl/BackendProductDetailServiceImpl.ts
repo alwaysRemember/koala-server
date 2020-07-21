@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-21 14:54:34
+ * @LastEditTime: 2020-07-21 18:44:46
  * @FilePath: /koala-server/src/backstage/service/impl/BackendProductDetailServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -12,6 +12,7 @@ import { BackendProductDetailService } from '../BackendProductDetailService';
 import {
   IUploadProductBanner,
   IUploadProductVideo,
+  IProductResponse,
 } from '../../interface/productDetail';
 import { ProductBannerRepository } from '../../../global/repository/ProductBannerRepository';
 import { HOST } from '../../../config/FileConfig';
@@ -30,9 +31,11 @@ import { BackendCategoriesServiceImpl } from './BackendCategoriesServiceImpl';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { EBackendUserType } from 'src/backstage/enums/EBackendUserType';
-import { getManager, EntityManager } from 'typeorm';
+import { getManager, EntityManager, In } from 'typeorm';
 import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
 import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
+import { ProductRepository } from 'src/global/repository/ProductRepository';
+import { async } from 'rxjs';
 
 @Injectable()
 export class BackendProductDetailServiceImpl
@@ -40,6 +43,8 @@ export class BackendProductDetailServiceImpl
   constructor(
     private readonly productBannerRepository: ProductBannerRepository,
     private readonly productVideoRepository: ProductVideoRepository,
+    private readonly productRepository: ProductRepository,
+    private readonly productDetailRepository: ProductDetailRepository,
     private readonly redisService: RedisCacheServiceImpl,
     private readonly backendUserService: BackendUserServiceImpl,
     private readonly backendCategoriesService: BackendCategoriesServiceImpl,
@@ -131,8 +136,13 @@ export class BackendProductDetailServiceImpl
       // 查询是否拥有此用户
       const user = await this.backendUserService.backendFindByUserId(userId);
       if (!user) throw new BackendException('查无此用户');
+
       const product = new Product();
       const productDetail = new ProductDetail();
+      const hasProduct: boolean = !!data.productId; // 是否已经当前已有产品
+      let defaultProduct: Product;
+      let defaultProductDetail: ProductDetail;
+
       // 查询商品分类标签是否正确
       const categories = await this.backendCategoriesService.findById(
         data.categoriesId,
@@ -141,10 +151,63 @@ export class BackendProductDetailServiceImpl
       if (categories && !categories.isUse) {
         throw new BackendException('商品分类标签异常,暂不能使用');
       }
+
       // 产品详细信息
       productDetail.productAmount = data.amount;
       productDetail.productBrief = data.productBrief;
       productDetail.productContent = data.productDetail;
+
+      // 判断是否更新产品
+      if (hasProduct) {
+        defaultProduct = await this.productRepository.findOne({
+          join: {
+            alias: 'product',
+            leftJoinAndSelect: {
+              productDetail: 'product.productDetail',
+            },
+          },
+          where: {
+            id: data.productId,
+          },
+        });
+        if (!defaultProduct) {
+          throw new BackendException('查询不到此商品');
+        }
+
+        defaultProductDetail = await this.productDetailRepository.findOne({
+          where: {
+            id: defaultProduct.productDetail.id,
+          },
+        });
+        if (!defaultProductDetail) {
+          throw new BackendException('查询不到此商品详情');
+        }
+        productDetail.id = defaultProductDetail.id;
+        product.id = defaultProduct.id;
+
+        // TODO 检查问题 数据更新的时候会误删banner
+        // 判断banner是否更改
+        if (data.bannerIdList?.length) {
+          const bannerList = await this.productBannerRepository.find({
+            id: In(data.bannerIdList),
+          });
+          bannerList.forEach(async ({ relativePath }: ProductBanner) => {
+            await accessSync(relativePath);
+            unlinkSync(relativePath);
+          });
+        }
+
+        // 判断video是否更改
+        if (data.delBannerIdList?.length) {
+          const videoList = await this.productVideoRepository.find({
+            id: In(data.delVideoIdList),
+          });
+          videoList.forEach(async ({ relativePath }: ProductVideo) => {
+            await accessSync(relativePath);
+            await unlinkSync(relativePath);
+          });
+        }
+      }
 
       // 产品主要信息
       product.backendUser = user;
@@ -165,7 +228,7 @@ export class BackendProductDetailServiceImpl
 
       // 关联banner文件
       const banner: Array<ProductBanner | undefined> = await Promise.all(
-        data.bannerIdList.map(
+        (data.bannerIdList || []).map(
           async (id: number) => await this.productBannerRepository.findOne(id),
         ),
       );
@@ -178,7 +241,7 @@ export class BackendProductDetailServiceImpl
       const mediaList: Array<
         ProductMediaLibrary | undefined
       > = await Promise.all(
-        data.mediaIdList.map(
+        (data.mediaIdList || []).map(
           async (id: number) =>
             await this.productMediaLibraryRepository.findOne(id),
         ),
@@ -188,9 +251,11 @@ export class BackendProductDetailServiceImpl
       >(mediaList);
 
       // 关联商品视频文件
-      const video = await this.productVideoRepository.findOne(data.videoId);
-      if (video) {
-        product.productVideo = [video];
+      if (data.videoId) {
+        const video = await this.productVideoRepository.findOne(data.videoId);
+        if (video) {
+          product.productVideo = [video];
+        }
       }
 
       // 写入数据
@@ -204,6 +269,63 @@ export class BackendProductDetailServiceImpl
         .catch(e => {
           throw new BackendException('写入数据失败', e.message);
         });
+    } catch (e) {
+      throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 根据id获取商品详情
+   * @param productId
+   */
+  async getProductDetail(productId: number): Promise<IProductResponse> {
+    try {
+      const product = await this.productRepository.findOne({
+        join: {
+          alias: 'product',
+          leftJoinAndSelect: {
+            productDetail: 'product.productDetail',
+            categories: 'product.categories',
+            productBanner: 'product.productBanner',
+            productVideo: 'product.productVideo',
+          },
+        },
+        where: { id: productId },
+      });
+      if (!product) {
+        throw new BackendException('查询不到此商品信息');
+      }
+
+      const {
+        productName,
+        productStatus,
+        categories,
+        productDetail: { productAmount, productContent, productBrief },
+        productBanner,
+        productVideo,
+      } = product;
+
+      return {
+        name: productName,
+        productStatus: productStatus,
+        categoriesId: categories.id,
+        amount: productAmount,
+        productBrief: productBrief,
+        productDetail: productContent,
+        bannerList: (productBanner || ([] as Array<ProductBanner>)).map(
+          ({ id, fileName, size, path }: ProductBanner) => ({
+            id,
+            name: fileName,
+            size,
+            url: path,
+          }),
+        ),
+        videoData: productVideo && {
+          id: productVideo[0].id,
+          name: productVideo[0].fileName,
+          url: productVideo[0].path,
+        },
+      };
     } catch (e) {
       throw new BackendException(e.message);
     }
