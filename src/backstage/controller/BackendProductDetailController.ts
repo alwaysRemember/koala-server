@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-20 17:39:59
+ * @LastEditTime: 2020-07-21 14:53:58
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -97,7 +97,11 @@ export class BackendProductDetailController {
   ) {
     const result = new ResultVoUtil();
     try {
-      await this.backendProductDetailService.uploadProduct(data, token);
+      const id = await this.backendProductDetailService.uploadProduct(
+        data,
+        token,
+      );
+      return result.success({ id });
     } catch (e) {
       return result.error(e.message);
     }

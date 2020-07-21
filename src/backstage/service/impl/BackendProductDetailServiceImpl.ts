@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-20 19:20:33
+ * @LastEditTime: 2020-07-21 14:54:34
  * @FilePath: /koala-server/src/backstage/service/impl/BackendProductDetailServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -31,6 +31,8 @@ import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepo
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { EBackendUserType } from 'src/backstage/enums/EBackendUserType';
 import { getManager, EntityManager } from 'typeorm';
+import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
+import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 
 @Injectable()
 export class BackendProductDetailServiceImpl
@@ -38,10 +40,10 @@ export class BackendProductDetailServiceImpl
   constructor(
     private readonly productBannerRepository: ProductBannerRepository,
     private readonly productVideoRepository: ProductVideoRepository,
-    private readonly productDetailRepository: ProductDetailRepository,
     private readonly redisService: RedisCacheServiceImpl,
     private readonly backendUserService: BackendUserServiceImpl,
     private readonly backendCategoriesService: BackendCategoriesServiceImpl,
+    private readonly productMediaLibraryRepository: ProductMediaLibraryRepository,
   ) {}
 
   /**
@@ -119,7 +121,7 @@ export class BackendProductDetailServiceImpl
    * @param data
    * @param token 用户标识
    */
-  async uploadProduct(data: IProductDetail, token: string) {
+  async uploadProduct(data: IProductDetail, token: string): Promise<number> {
     try {
       // 从redis中获取用户信息
       const { userId }: BackendUser = JSON.parse(
@@ -148,6 +150,7 @@ export class BackendProductDetailServiceImpl
       product.backendUser = user;
       product.categories = categories;
       product.productDetail = productDetail;
+      product.productName = data.name;
 
       // 判断当前用户权限
       // 如果不是管理员，并且产品状态为上线，则需要改为待审核，等待管理员手动上线
@@ -160,12 +163,57 @@ export class BackendProductDetailServiceImpl
         product.productStatus = data.productStatus;
       }
 
-      await getManager().transaction(async (entityManage: EntityManager) => {
-        await entityManage.save(ProductDetail, productDetail);
-        throw new BackendException('131232');
-      });
+      // 关联banner文件
+      const banner: Array<ProductBanner | undefined> = await Promise.all(
+        data.bannerIdList.map(
+          async (id: number) => await this.productBannerRepository.findOne(id),
+        ),
+      );
+      // 过滤掉不存在的banner
+      product.productBanner = this.filterArray<ProductBanner | undefined>(
+        banner,
+      );
+
+      // 关联详情中的媒体文件
+      const mediaList: Array<
+        ProductMediaLibrary | undefined
+      > = await Promise.all(
+        data.mediaIdList.map(
+          async (id: number) =>
+            await this.productMediaLibraryRepository.findOne(id),
+        ),
+      );
+      product.productMediaLibrary = this.filterArray<
+        ProductMediaLibrary | undefined
+      >(mediaList);
+
+      // 关联商品视频文件
+      const video = await this.productVideoRepository.findOne(data.videoId);
+      if (video) {
+        product.productVideo = [video];
+      }
+
+      // 写入数据
+      return await getManager()
+        .transaction(async (entityManage: EntityManager) => {
+          // 保存详情
+          await entityManage.save(ProductDetail, productDetail);
+          const data = await entityManage.save(Product, product);
+          return data.id;
+        })
+        .catch(e => {
+          throw new BackendException('写入数据失败', e.message);
+        });
     } catch (e) {
-      throw new BackendException('新增商品出错', e.message);
+      throw new BackendException(e.message);
     }
+  }
+
+  /**
+   * 过滤非正常的数据
+   * @param data
+   */
+  filterArray<T>(data: Array<T>) {
+    return data.filter((item: T) => !!item);
   }
 }

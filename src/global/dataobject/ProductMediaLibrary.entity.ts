@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 16:57:30
- * @LastEditTime: 2020-07-16 18:58:49
+ * @LastEditTime: 2020-07-21 14:39:13
  * @FilePath: /koala-server/src/global/dataobject/ProductMediaLibrary.entity.ts
  */
 import {
@@ -11,7 +11,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Column,
-  OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { EMediaType } from '../../backstage/enums/EMediaLibrary';
 import { Product } from './Product.entity';
@@ -44,7 +44,7 @@ export class ProductMediaLibrary {
   })
   type: EMediaType;
 
-  @OneToOne(
+  @ManyToOne(
     type => Product,
     product => product.productMediaLibrary,
   )

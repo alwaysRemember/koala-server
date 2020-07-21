@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-20 18:30:14
+ * @LastEditTime: 2020-07-21 14:37:57
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -75,11 +75,11 @@ export class Product {
   )
   backendUser: BackendUser;
 
-  @OneToOne(
+  @OneToMany(
     type => ProductMediaLibrary,
     productMediaLibrary => productMediaLibrary.product,
   )
-  productMediaLibrary: ProductMediaLibrary;
+  productMediaLibrary: Array<ProductMediaLibrary>;
 
   @CreateDateColumn({
     comment: '创建时间',

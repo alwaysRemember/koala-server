@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:19:21
- * @LastEditTime: 2020-07-20 18:31:01
+ * @LastEditTime: 2020-07-21 14:34:37
  * @FilePath: /koala-server/src/backstage/modules/BackendProductDetailModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -18,12 +18,17 @@ import { BackendUserModule } from './BackendUserModule';
 import { BackendCategoriesModule } from './BackendCategoriesModule';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
+import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
+import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductBanner, ProductBannerRepository]),
     TypeOrmModule.forFeature([ProductVideo, ProductVideoRepository]),
-    TypeOrmModule.forFeature([ProductDetail, ProductDetailRepository]),
+    TypeOrmModule.forFeature([
+      ProductMediaLibrary,
+      ProductMediaLibraryRepository,
+    ]),
     BackendUserModule,
     BackendCategoriesModule,
   ],
