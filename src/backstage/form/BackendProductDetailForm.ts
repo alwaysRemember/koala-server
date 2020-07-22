@@ -9,7 +9,7 @@
 import { EProductStatus } from 'src/global/enums/EProduct';
 
 export interface IProductDetail {
-  productId?:number;
+  productId?: number;
   name: string;
   productStatus: EProductStatus;
   amount: number;

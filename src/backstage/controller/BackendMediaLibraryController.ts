@@ -55,7 +55,7 @@ export class BackendMediaLibraryController {
   public async getfileList(@Body() { productId }: { productId: number }) {
     const result = new ResultVoUtil();
     console.log(productId);
-    
+
     try {
       const list = await this.backendMediaLibraryService.getFileByProductId(
         productId,

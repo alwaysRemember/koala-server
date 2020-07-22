@@ -5,7 +5,13 @@
  * @LastEditTime: 2020-07-21 17:25:52
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
-import { Entity, PrimaryGeneratedColumn, OneToOne, Column, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  Column,
+  JoinColumn,
+} from 'typeorm';
 import { Product } from './Product.entity';
 
 @Entity('tb_product_detail')

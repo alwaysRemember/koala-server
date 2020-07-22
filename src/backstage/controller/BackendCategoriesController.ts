@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-14 17:50:00
+ * @LastEditTime: 2020-07-22 11:20:56
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -22,8 +22,8 @@ import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   BackendAddCategoriesSchema,
-  BackendCategoriesListSchema,
   BackendUpdateCategoriesSchema,
+  BackendCategoriesListSchema,
 } from '../schema/BackendCategoriesSchema';
 import {
   IAddCategories,
@@ -102,26 +102,13 @@ export class BackendCategoriesController {
    * @param data
    */
   @HttpCode(200)
-  @UsePipes(
-    new ReqParamCheck(
-      BackendCategoriesListSchema,
-      ({ type }) => type === 'body',
-    ),
-  )
   @SetPermissionsForController(EBackendUserType.PROXY)
-  @Post('/get-using-categories')
-  public async categoriesUseList(@Body() data: ICategoriesList) {
+  @Get('/get-using-categories')
+  public async categoriesUseList() {
     const result = new ResultVoUtil();
     try {
-      const total = await (
-        await this.backendCategoriesService.getAllCagetories(true)
-      ).length;
-      const list = await this.backendCategoriesService.getCagegoriesList(
-        data,
-        true,
-      );
+      const list = await this.backendCategoriesService.getAllCagetories(true);
       return result.success({
-        total,
         list,
       });
     } catch (e) {

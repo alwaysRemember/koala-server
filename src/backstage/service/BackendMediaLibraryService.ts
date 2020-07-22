@@ -13,5 +13,5 @@ export interface BackendMediaLibraryService {
 
   getAllFile(): Promise<Array<ProductMediaLibrary>>;
 
-  getFileByProductId(productId: number):Promise<Array<ProductMediaLibrary>>;
+  getFileByProductId(productId: number): Promise<Array<ProductMediaLibrary>>;
 }

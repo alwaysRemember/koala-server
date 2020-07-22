@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-21 18:44:46
+ * @LastEditTime: 2020-07-22 10:40:09
  * @FilePath: /koala-server/src/backstage/service/impl/BackendProductDetailServiceImpl.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -140,8 +140,10 @@ export class BackendProductDetailServiceImpl
       const product = new Product();
       const productDetail = new ProductDetail();
       const hasProduct: boolean = !!data.productId; // 是否已经当前已有产品
-      let defaultProduct: Product;
-      let defaultProductDetail: ProductDetail;
+      let defaultProduct: Product; // 当前的产品
+      let defaultProductDetail: ProductDetail; // 当前的产品详情
+      let delBannerList: Array<ProductBanner>; // 删除的banner
+      let delVideoList: Array<ProductVideo>; // 删除的视频
 
       // 查询商品分类标签是否正确
       const categories = await this.backendCategoriesService.findById(
@@ -184,29 +186,6 @@ export class BackendProductDetailServiceImpl
         }
         productDetail.id = defaultProductDetail.id;
         product.id = defaultProduct.id;
-
-        // TODO 检查问题 数据更新的时候会误删banner
-        // 判断banner是否更改
-        if (data.bannerIdList?.length) {
-          const bannerList = await this.productBannerRepository.find({
-            id: In(data.bannerIdList),
-          });
-          bannerList.forEach(async ({ relativePath }: ProductBanner) => {
-            await accessSync(relativePath);
-            unlinkSync(relativePath);
-          });
-        }
-
-        // 判断video是否更改
-        if (data.delBannerIdList?.length) {
-          const videoList = await this.productVideoRepository.find({
-            id: In(data.delVideoIdList),
-          });
-          videoList.forEach(async ({ relativePath }: ProductVideo) => {
-            await accessSync(relativePath);
-            await unlinkSync(relativePath);
-          });
-        }
       }
 
       // 产品主要信息
@@ -263,8 +242,34 @@ export class BackendProductDetailServiceImpl
         .transaction(async (entityManage: EntityManager) => {
           // 保存详情
           await entityManage.save(ProductDetail, productDetail);
-          const data = await entityManage.save(Product, product);
-          return data.id;
+          const result = await entityManage.save(Product, product);
+
+          // 判断banner是否更改
+          if (data.delBannerIdList?.length) {
+            delBannerList = await this.productBannerRepository.find({
+              id: In(data.delBannerIdList),
+            });
+            delBannerList.forEach(async (item: ProductBanner) => {
+              const { relativePath } = item;
+              await this.productBannerRepository.remove(item);
+              await accessSync(relativePath);
+              unlinkSync(relativePath);
+            });
+          }
+
+          // 判断video是否更改
+          if (data.delVideoIdList?.length) {
+            delVideoList = await this.productVideoRepository.find({
+              id: In(data.delVideoIdList),
+            });
+            delVideoList.forEach(async (item: ProductVideo) => {
+              const { relativePath } = item;
+              await this.productVideoRepository.remove(item);
+              await accessSync(relativePath);
+              await unlinkSync(relativePath);
+            });
+          }
+          return result.id;
         })
         .catch(e => {
           throw new BackendException('写入数据失败', e.message);
