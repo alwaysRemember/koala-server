@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-22 11:20:56
+ * @LastEditTime: 2020-07-22 11:27:14
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -30,14 +30,14 @@ import {
   ICategoriesList,
   IUpdateCategories,
 } from '../form/BackendCategoriesForm';
-import { BackendCategoriesServiceImpl } from '../service/impl/BackendCategoriesServiceImpl';
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
+import { BackendCategoriesService } from '../service/BackendCategoriesService';
 
 @Controller('/backend-categories')
 export class BackendCategoriesController {
   constructor(
-    private readonly backendCategoriesService: BackendCategoriesServiceImpl,
+    private readonly backendCategoriesService: BackendCategoriesService,
   ) {}
 
   /**

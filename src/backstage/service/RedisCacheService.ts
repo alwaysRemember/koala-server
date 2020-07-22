@@ -1,18 +1,45 @@
 /*
  * @Author: Always
  * @LastEditors: Always
- * @Date: 2020-06-05 15:35:47
- * @LastEditTime: 2020-06-18 16:52:44
- * @FilePath: /koala-background-server/src/service/RedisCacheService.ts
+ * @Date: 2020-06-05 15:45:53
+ * @LastEditTime: 2020-07-22 11:26:44
+ * @FilePath: /koala-server/src/backstage/service/RedisCacheService.ts
  */
 import { Redis } from 'ioredis';
+import { Injectable } from '@nestjs/common';
+import { RedisService } from 'nestjs-redis';
 
-export interface RedisCacheService {
-  getClient(): Promise<Redis>;
+@Injectable()
+export class RedisCacheService {
+  public client: Redis;
+  constructor(private readonly redisService: RedisService) {}
 
-  set(key: string, value: string, seconds?: number);
+  async getClient(): Promise<Redis> {
+    this.client = await this.redisService.getClient();
+    return this.client;
+  }
 
-  get(key: string): Promise<string>;
+  async set(key: string, value: string, seconds?: number) {
+    if (!this.client) {
+      await this.getClient();
+    }
+    if (seconds) {
+      await this.client.set(key, value, 'EX', seconds);
+    } else {
+      await this.client.set(key, value);
+    }
+  }
+  async get(key: string): Promise<string> {
+    if (!this.client) {
+      await this.getClient();
+    }
+    return await this.client.get(key);
+  }
 
-  delete(key: string);
+  async delete(key: string) {
+    if (!this.client) {
+      await this.getClient();
+    }
+    await this.client.del(key);
+  }
 }

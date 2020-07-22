@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-21 15:02:58
+ * @LastEditTime: 2020-07-22 11:29:18
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -15,7 +15,6 @@ import {
   UsePipes,
   Req,
 } from '@nestjs/common';
-import { BackendProductDetailServiceImpl } from '../service/impl/BackendProductDetailServiceImpl';
 import { SetPermissionsForController } from '../utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EBackendUserType } from '../enums/EBackendUserType';
@@ -26,11 +25,12 @@ import {
   BackendProductDetailSchema,
   BackendGetProductDetailSchema,
 } from '../schema/BackendProductDetailSchema';
+import { BackendProductDetailService } from '../service/BackendProductDetailService';
 
 @Controller('/product')
 export class BackendProductDetailController {
   constructor(
-    private readonly backendProductDetailService: BackendProductDetailServiceImpl,
+    private readonly backendProductDetailService: BackendProductDetailService,
   ) {}
 
   /**

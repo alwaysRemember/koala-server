@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:32:12
- * @LastEditTime: 2020-07-09 18:18:09
+ * @LastEditTime: 2020-07-22 11:27:06
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletUsersController.ts
  */
 import {
@@ -13,18 +13,18 @@ import {
   Post,
   Body,
 } from '@nestjs/common';
-import { BackendAppletUsersServiceImpl } from '../service/impl/BackendAppletUsersServiceImpl';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { BackendAppletUsersListRequestSchema } from '../schema/BackendAppletUsersSchema';
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { IBackendAppletUsersListRequestParams } from '../form/BackendAppletUsersForm';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
+import { BackendAppletUsersService } from '../service/BackendAppletUsersService';
 
 @Controller('/backend-applet-user')
 export class BackendAppletUsersController {
   constructor(
-    private readonly backendAppletUsersService: BackendAppletUsersServiceImpl,
+    private readonly backendAppletUsersService: BackendAppletUsersService,
   ) {}
 
   /**

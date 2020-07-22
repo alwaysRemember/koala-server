@@ -3,8 +3,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-07-01 18:42:16
- * @FilePath: /koala-background-server/src/frontend/controller/FrontUserController.ts
+ * @LastEditTime: 2020-07-22 11:32:32
+ * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import { Controller, Post, HttpCode, UsePipes, Body } from '@nestjs/common';
 import axios from 'axios';
@@ -12,13 +12,13 @@ import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { UserLoginSchema } from 'src/frontend/schema/FrontUserSchema';
 import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/User';
-import { FrontUserServiceImpl } from 'src/frontend/service/impl/UserServiceImpl';
+import { FrontUserService } from 'src/frontend/service/UserService';
 import { appId, AppSecret } from 'src/config/projectConfig';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 
 @Controller('/front')
 export class Logincontroller {
-  constructor(private readonly frontUserService: FrontUserServiceImpl) {}
+  constructor(private readonly frontUserService: FrontUserService) {}
 
   @HttpCode(200)
   @Post('/login')

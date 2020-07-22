@@ -3,21 +3,21 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-08 18:43:11
- * @LastEditTime: 2020-07-09 11:25:12
+ * @LastEditTime: 2020-07-22 11:31:04
  * @FilePath: /koala-server/src/backstage/guards/PermissionsGuard.ts
  */
 import { CanActivate, Injectable, ExecutionContext } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { RedisCacheServiceImpl } from '../service/impl/RedisCacheServiceImpl';
 import { Reflector } from '@nestjs/core';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendUser } from '../dataobject/BackendUser.entity';
 import { BackendException } from '../exception/backendException';
+import { RedisCacheService } from '../service/RedisCacheService';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(
-    private readonly redisService: RedisCacheServiceImpl,
+    private readonly redisService: RedisCacheService,
     private reflector: Reflector,
   ) {}
 

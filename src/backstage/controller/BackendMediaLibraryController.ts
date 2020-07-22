@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:05:12
- * @LastEditTime: 2020-07-21 16:25:40
+ * @LastEditTime: 2020-07-22 11:33:01
  * @FilePath: /koala-server/src/backstage/controller/BackendMediaLibraryController.ts
  */
 import {
@@ -19,12 +19,12 @@ import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { BackendMediaLibraryServiceImpl } from '../service/impl/BackendMediaLibraryServiceImpl';
+import { BackendMediaLibraryService } from '../service/BackendMediaLibraryService';
 
 @Controller('/media-library')
 export class BackendMediaLibraryController {
   constructor(
-    private readonly backendMediaLibraryService: BackendMediaLibraryServiceImpl,
+    private readonly backendMediaLibraryService: BackendMediaLibraryService,
   ) {}
 
   /**
@@ -54,7 +54,6 @@ export class BackendMediaLibraryController {
   @Post('/get-file-list')
   public async getfileList(@Body() { productId }: { productId: number }) {
     const result = new ResultVoUtil();
-    console.log(productId);
 
     try {
       const list = await this.backendMediaLibraryService.getFileByProductId(

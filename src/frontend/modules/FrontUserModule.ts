@@ -2,19 +2,19 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:37:53
- * @LastEditTime: 2020-07-01 18:41:02
- * @FilePath: /koala-background-server/src/global/modules/UserModule.ts
+ * @LastEditTime: 2020-07-22 11:32:21
+ * @FilePath: /koala-server/src/frontend/modules/FrontUserModule.ts
  */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FrontUser } from '../../global/dataobject/User.entity';
 import { FrontUserRepository } from '../../global/repository/FrontUserRepository';
 import { Logincontroller } from '../controller/FrontUserController';
-import { FrontUserServiceImpl } from '../service/impl/UserServiceImpl';
+import { FrontUserService } from '../service/UserService';
 
 @Module({
   imports: [TypeOrmModule.forFeature([FrontUser, FrontUserRepository])],
   controllers: [Logincontroller],
-  providers: [FrontUserServiceImpl],
+  providers: [FrontUserService],
 })
 export class FrontUserModule {}

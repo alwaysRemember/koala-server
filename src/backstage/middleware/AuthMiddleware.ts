@@ -2,16 +2,16 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:45:06
- * @LastEditTime: 2020-06-28 16:50:12
- * @FilePath: /koala-background-server/src/backstage/middleware/AuthMiddleware.ts
+ * @LastEditTime: 2020-07-22 11:30:52
+ * @FilePath: /koala-server/src/backstage/middleware/AuthMiddleware.ts
  */
 import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { Request, Response } from 'express';
-import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { ETokenEnums } from '../enums/TokenEnums';
+import { RedisCacheService } from '../service/RedisCacheService';
 
 /**
  * 后台登录校验
@@ -19,7 +19,7 @@ import { ETokenEnums } from '../enums/TokenEnums';
 @Injectable()
 export class BackgroundLoginMiddleware implements NestMiddleware {
   constructor(
-    private readonly redisService: RedisCacheServiceImpl,
+    private readonly redisService: RedisCacheService,
     private readonly backendUserRepository: BackendUserRepository,
   ) {}
   async use(req: Request, res: Response, next: () => void) {

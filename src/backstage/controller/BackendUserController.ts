@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-07-09 11:28:45
+ * @LastEditTime: 2020-07-22 11:31:14
  * @FilePath: /koala-server/src/backstage/controller/BackendUserController.ts
  */
 import {
@@ -27,9 +27,7 @@ import {
   BackendDeleteAdminUserSchema,
 } from 'src/backstage/schema/BackendUserSchema';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
-import { BackendUserServiceImpl } from 'src/backstage/service/impl/BackendUserServiceImpl';
 import { ETokenEnums } from 'src/backstage/enums/TokenEnums';
-import { RedisCacheServiceImpl } from 'src/backstage/service/impl/RedisCacheServiceImpl';
 import {
   IBackendUserForm,
   IBackendUserChangePasswordForm,
@@ -41,12 +39,14 @@ import {
   EbackendFindWithUserType,
   EBackendUserType,
 } from '../enums/EBackendUserType';
+import { BackendUserService } from '../service/BackendUserService';
+import { RedisCacheService } from '../service/RedisCacheService';
 
 @Controller('/backend-user')
 export class BackendUserController {
   constructor(
-    private readonly backendUserService: BackendUserServiceImpl,
-    private readonly redisService: RedisCacheServiceImpl,
+    private readonly backendUserService: BackendUserService,
+    private readonly redisService: RedisCacheService,
   ) {}
 
   /**
