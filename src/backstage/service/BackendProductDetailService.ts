@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-22 11:28:09
+ * @LastEditTime: 2020-07-22 14:32:49
  * @FilePath: /koala-server/src/backstage/service/BackendProductDetailService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -140,8 +140,6 @@ export class BackendProductDetailService {
       const hasProduct: boolean = !!data.productId; // 是否已经当前已有产品
       let defaultProduct: Product; // 当前的产品
       let defaultProductDetail: ProductDetail; // 当前的产品详情
-      let delBannerList: Array<ProductBanner>; // 删除的banner
-      let delVideoList: Array<ProductVideo>; // 删除的视频
 
       // 查询商品分类标签是否正确
       const categories = await this.backendCategoriesService.findById(
@@ -244,9 +242,11 @@ export class BackendProductDetailService {
 
           // 判断banner是否更改
           if (data.delBannerIdList?.length) {
-            delBannerList = await this.productBannerRepository.find({
-              id: In(data.delBannerIdList),
-            });
+            const delBannerList: Array<ProductBanner> = await this.productBannerRepository.find(
+              {
+                id: In(data.delBannerIdList),
+              },
+            );
             delBannerList.forEach(async (item: ProductBanner) => {
               const { relativePath } = item;
               await this.productBannerRepository.remove(item);
@@ -257,12 +257,29 @@ export class BackendProductDetailService {
 
           // 判断video是否更改
           if (data.delVideoIdList?.length) {
-            delVideoList = await this.productVideoRepository.find({
-              id: In(data.delVideoIdList),
-            });
+            const delVideoList: Array<ProductVideo> = await this.productVideoRepository.find(
+              {
+                id: In(data.delVideoIdList),
+              },
+            );
             delVideoList.forEach(async (item: ProductVideo) => {
               const { relativePath } = item;
               await this.productVideoRepository.remove(item);
+              await accessSync(relativePath);
+              await unlinkSync(relativePath);
+            });
+          }
+
+          // 判断详情中的媒体资源是否发生改变
+          if (data.delMediaIdList?.length) {
+            const delMediaList: Array<ProductMediaLibrary> = await this.productMediaLibraryRepository.find(
+              {
+                id: In(data.delMediaIdList),
+              },
+            );
+            delMediaList.forEach(async (item: ProductMediaLibrary) => {
+              const { relativePath } = item;
+              await this.productMediaLibraryRepository.remove(item);
               await accessSync(relativePath);
               await unlinkSync(relativePath);
             });

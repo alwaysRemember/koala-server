@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:22:10
- * @LastEditTime: 2020-07-21 16:32:29
+ * @LastEditTime: 2020-07-22 11:45:24
  * @FilePath: /koala-server/src/backstage/form/BackendProductDetailForm.ts
  */
 
@@ -17,6 +17,7 @@ export interface IProductDetail {
   categoriesId: number;
   productDetail: string;
   mediaIdList: Array<number>;
+  delMediaIdList: Array<number>;
   bannerIdList: Array<number>;
   delBannerIdList: Array<number>;
   videoId: number | undefined;
