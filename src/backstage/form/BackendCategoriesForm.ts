@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-07 16:40:52
- * @LastEditTime: 2020-07-13 15:01:23
+ * @LastEditTime: 2020-07-23 14:35:46
  * @FilePath: /koala-server/src/backstage/form/BackendCategoriesForm.ts
  */
 import { ECategoriesIsUseEnum } from 'src/global/enums/ECategories';
@@ -18,7 +18,7 @@ export interface ICategoriesList {
 }
 
 export interface IUpdateCategories {
-  id: number;
+  id: string;
   categoriesName: string;
   isUse: boolean;
   isShowOnHome: boolean;

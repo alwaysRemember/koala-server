@@ -27,7 +27,7 @@ import { ProductMediaLibrary } from './ProductMediaLibrary.entity';
 @Entity('tb_product')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({
     comment: '产品名',

@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-22 11:25:44
- * @FilePath: /koala-server/src/backstage/service/BackendCategoriesServiceImpl.ts
+ * @LastEditTime: 2020-07-23 14:43:11
+ * @FilePath: /koala-server/src/backstage/service/BackendCategoriesService.ts
  */
 import { Injectable } from '@nestjs/common';
 import {
@@ -132,7 +132,7 @@ export class BackendCategoriesService {
     }
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     try {
       return await this.categoriesRepository.findOne(id);
     } catch (e) {

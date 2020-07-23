@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 16:22:32
- * @LastEditTime: 2020-07-20 12:16:59
+ * @LastEditTime: 2020-07-23 14:37:59
  * @FilePath: /koala-server/src/global/dataobject/ProductVideo.entity.ts
  */
 import {
@@ -17,8 +17,8 @@ import { Product } from './Product.entity';
 
 @Entity('tb_product_video')
 export class ProductVideo {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({
     comment: '视频地址',

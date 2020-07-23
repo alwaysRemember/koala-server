@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-07 16:25:18
- * @LastEditTime: 2020-07-15 17:42:26
+ * @LastEditTime: 2020-07-23 14:36:05
  * @FilePath: /koala-server/src/backstage/schema/BackendCategoriesSchema.ts
  */
 
@@ -22,7 +22,7 @@ export const BackendCategoriesListSchema = Joi.object({
 });
 
 export const BackendUpdateCategoriesSchema = Joi.object({
-  id: Joi.number().required(),
+  id: Joi.string().required(),
   categoriesName: Joi.string().required(),
   isUse: Joi.boolean().required(),
   isShowOnHome: Joi.boolean().required(),

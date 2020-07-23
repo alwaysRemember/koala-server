@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-07-22 11:24:22
- * @FilePath: /koala-server/src/backstage/service/BackendMediaLibraryServiceImpl.ts
+ * @LastEditTime: 2020-07-23 14:56:09
+ * @FilePath: /koala-server/src/backstage/service/BackendMediaLibraryService.ts
  */
 import { join } from 'path';
 import { AUDIO, VIDEO, IMAGE, HOME } from 'src/global/enums/EFilePath';
@@ -61,9 +61,11 @@ export class BackendMediaLibraryService {
       media.fileName = fileName;
       media.path = path;
       media.relativePath = filePath;
-      const data = await this.backendMediaLibraryRepository.insert(media);
+      const { identifiers } = await this.backendMediaLibraryRepository.insert(
+        media,
+      );
 
-      return { path, id: data.raw.insertId };
+      return { path, id: identifiers[0].id };
     } catch (e) {
       try {
         // 如果有错误判断文件是否写入，写入则删除

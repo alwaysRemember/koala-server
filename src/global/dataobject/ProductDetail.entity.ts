@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-21 17:25:52
+ * @LastEditTime: 2020-07-23 14:37:45
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import {
@@ -16,10 +16,8 @@ import { Product } from './Product.entity';
 
 @Entity('tb_product_detail')
 export class ProductDetail {
-  @PrimaryGeneratedColumn({
-    comment: '产品详情id',
-  })
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({
     type: 'longtext',

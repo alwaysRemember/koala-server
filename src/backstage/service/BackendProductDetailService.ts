@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-22 14:32:49
+ * @LastEditTime: 2020-07-23 14:56:44
  * @FilePath: /koala-server/src/backstage/service/BackendProductDetailService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -67,20 +67,20 @@ export class BackendProductDetailService {
       productBanner.relativePath = filePath;
       productBanner.size = file.size;
 
-      const {
-        raw: { insertId },
-      } = await this.productBannerRepository.insert(productBanner);
+      const { identifiers } = await this.productBannerRepository.insert(
+        productBanner,
+      );
 
       return {
-        id: insertId,
+        id: identifiers[0].id,
         url: productBanner.path,
         name: file.originalname,
         size: productBanner.size,
       };
     } catch (e) {
       try {
-        await accessSync(filePath);
-        await unlinkSync(filePath);
+        accessSync(filePath);
+        unlinkSync(filePath);
       } catch (e) {}
       throw new BackendException('上传banner失败', e.message);
     }
@@ -101,19 +101,17 @@ export class BackendProductDetailService {
       video.relativePath = filePath;
       video.fileName = fileName;
 
-      const {
-        raw: { insertId },
-      } = await this.productVideoRepository.insert(video);
+      const { identifiers } = await this.productVideoRepository.insert(video);
       return {
-        id: insertId,
+        id: identifiers[0].id,
         name: file.originalname,
         url: video.path,
         size: file.size,
       };
     } catch (e) {
       try {
-        await accessSync(filePath);
-        await unlinkSync(filePath);
+        accessSync(filePath);
+        unlinkSync(filePath);
       } catch (e) {}
       throw new BackendException('上传视频失败', e.message);
     }
@@ -124,7 +122,7 @@ export class BackendProductDetailService {
    * @param data
    * @param token 用户标识
    */
-  async uploadProduct(data: IProductDetail, token: string): Promise<number> {
+  async uploadProduct(data: IProductDetail, token: string): Promise<string> {
     try {
       // 从redis中获取用户信息
       const { userId }: BackendUser = JSON.parse(
@@ -204,7 +202,7 @@ export class BackendProductDetailService {
       // 关联banner文件
       const banner: Array<ProductBanner | undefined> = await Promise.all(
         (data.bannerIdList || []).map(
-          async (id: number) => await this.productBannerRepository.findOne(id),
+          async (id: string) => await this.productBannerRepository.findOne(id),
         ),
       );
       // 过滤掉不存在的banner
@@ -217,7 +215,7 @@ export class BackendProductDetailService {
         ProductMediaLibrary | undefined
       > = await Promise.all(
         (data.mediaIdList || []).map(
-          async (id: number) =>
+          async (id: string) =>
             await this.productMediaLibraryRepository.findOne(id),
         ),
       );
@@ -250,7 +248,7 @@ export class BackendProductDetailService {
             delBannerList.forEach(async (item: ProductBanner) => {
               const { relativePath } = item;
               await this.productBannerRepository.remove(item);
-              await accessSync(relativePath);
+              accessSync(relativePath);
               unlinkSync(relativePath);
             });
           }
@@ -265,8 +263,8 @@ export class BackendProductDetailService {
             delVideoList.forEach(async (item: ProductVideo) => {
               const { relativePath } = item;
               await this.productVideoRepository.remove(item);
-              await accessSync(relativePath);
-              await unlinkSync(relativePath);
+              accessSync(relativePath);
+              unlinkSync(relativePath);
             });
           }
 
@@ -280,8 +278,8 @@ export class BackendProductDetailService {
             delMediaList.forEach(async (item: ProductMediaLibrary) => {
               const { relativePath } = item;
               await this.productMediaLibraryRepository.remove(item);
-              await accessSync(relativePath);
-              await unlinkSync(relativePath);
+              accessSync(relativePath);
+              unlinkSync(relativePath);
             });
           }
           return result.id;
