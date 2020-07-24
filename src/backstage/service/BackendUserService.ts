@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-22 11:27:51
+ * @LastEditTime: 2020-07-24 15:02:11
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -16,7 +16,10 @@ import {
   IBackendUserChangePasswordForm,
   IBackendUserListForm,
 } from 'src/backstage/form/BackendUserForm';
-import { EbackendFindWithUserType } from 'src/backstage/enums/EBackendUserType';
+import {
+  EbackendFindWithUserType,
+  EBackendUserType,
+} from 'src/backstage/enums/EBackendUserType';
 import { FindManyOptions, Like } from 'typeorm';
 
 @Injectable()
@@ -110,37 +113,37 @@ export class BackendUserService {
     userType,
     number,
     page,
-  }: IBackendUserListForm): Promise<Array<BackendUser>> {
+  }: IBackendUserListForm): Promise<{
+    list: Array<BackendUser>;
+    total: number;
+  }> {
     const defaultParams: FindManyOptions<BackendUser> = {
-      select: [
-        'username',
-        'userType',
-        'userId',
-        'password',
-        'createTime',
-        'updateTime',
-      ],
       order: {
         userId: 'ASC',
       },
       skip: (page - 1) * number,
       take: number,
     };
-
+    let condition = {};
     try {
-      // 判断搜索条件是否存在
-      if (!username && userType === EbackendFindWithUserType.ALL) {
-        // 直接查询
-        return await this.backendUserRepository.find(defaultParams);
+      // 判断是否有权限条件
+      if (username) {
+        condition['username'] = Like(`%${username}%`);
       }
-      return await this.backendUserRepository.find(
-        Object.assign({}, defaultParams, {
-          where: (userType !== EbackendFindWithUserType.ALL && {
-            username: Like(`%${username}%`),
-            userType,
-          }) || { username: Like(`%${username}%`) },
-        }),
+      if (userType !== EbackendFindWithUserType.ALL) {
+        condition['userType'] = String(userType);
+      }
+      // 获取分页数据
+      const list = await this.backendUserRepository.find(
+        Object.assign({}, defaultParams, { where: condition }),
       );
+      // 获取条件总数据
+      const total = await (
+        await this.backendUserRepository.find({
+          where: condition,
+        })
+      ).length;
+      return { list, total };
     } catch (e) {
       throw new BackendException(e.message);
     }

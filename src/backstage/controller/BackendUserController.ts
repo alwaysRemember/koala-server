@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-07-22 11:31:14
+ * @LastEditTime: 2020-07-24 14:57:17
  * @FilePath: /koala-server/src/backstage/controller/BackendUserController.ts
  */
 import {
@@ -14,6 +14,7 @@ import {
   HttpCode,
   Res,
   Req,
+  Get,
 } from '@nestjs/common';
 import * as jwt from 'jwt-simple';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
@@ -141,20 +142,32 @@ export class BackendUserController {
     const result = new ResultVoUtil();
 
     try {
-      // 获取总长度
-      const length: number = await (
-        await this.backendUserService.backendFindUserList()
-      ).length;
-
       // 获取查询的数据
-      const data: Array<BackendUser> = await this.backendUserService.backendFindUserListWithParams(
-        params,
-      );
+      const {
+        list,
+        total,
+      } = await this.backendUserService.backendFindUserListWithParams(params);
 
       return result.success({
-        total: length,
-        list: data,
+        total,
+        list,
       });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取所有用户数据
+   */
+  @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Get('/get-all-user-list')
+  public async backendGetAllUserList() {
+    const result = new ResultVoUtil();
+    try {
+      const list = await this.backendUserService.backendFindUserList();
+      return result.success(list);
     } catch (e) {
       return result.error(e.message);
     }

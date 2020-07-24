@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:58:59
- * @LastEditTime: 2020-06-18 16:11:03
- * @FilePath: /koala-background-server/src/repository/BackendUserRepository.ts
+ * @LastEditTime: 2020-07-24 14:49:21
+ * @FilePath: /koala-server/src/backstage/repository/BackendUserRepository.ts
  */
 import {
   Repository,
@@ -51,4 +51,6 @@ export class BackendUserRepository extends Repository<BackendUser> {
       .where('userId = :id', { id: user.userId })
       .execute();
   }
+
+  getPagingData() {}
 }
