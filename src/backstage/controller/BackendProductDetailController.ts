@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-22 11:29:18
+ * @LastEditTime: 2020-07-24 16:03:48
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -25,13 +25,11 @@ import {
   BackendProductDetailSchema,
   BackendGetProductDetailSchema,
 } from '../schema/BackendProductDetailSchema';
-import { BackendProductDetailService } from '../service/BackendProductDetailService';
+import { BackendProductService } from '../service/BackendProductService';
 
 @Controller('/product')
 export class BackendProductDetailController {
-  constructor(
-    private readonly backendProductDetailService: BackendProductDetailService,
-  ) {}
+  constructor(private readonly backendProductService: BackendProductService) {}
 
   /**
    * 上传产品banner
@@ -48,9 +46,7 @@ export class BackendProductDetailController {
       return result.error('请选择上传的文件');
     }
     try {
-      const data = await this.backendProductDetailService.uploadProductBanner(
-        file,
-      );
+      const data = await this.backendProductService.uploadProductBanner(file);
 
       return result.success(data);
     } catch (e) {
@@ -72,9 +68,7 @@ export class BackendProductDetailController {
       return result.error('请选择上传的文件');
     }
     try {
-      const data = await this.backendProductDetailService.uploadProductVideo(
-        file,
-      );
+      const data = await this.backendProductService.uploadProductVideo(file);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);
@@ -100,10 +94,7 @@ export class BackendProductDetailController {
   ) {
     const result = new ResultVoUtil();
     try {
-      const id = await this.backendProductDetailService.uploadProduct(
-        data,
-        token,
-      );
+      const id = await this.backendProductService.uploadProduct(data, token);
       return result.success({ id });
     } catch (e) {
       return result.error(e.message);
@@ -122,9 +113,7 @@ export class BackendProductDetailController {
   public async getProductDetail(@Body() { productId }: { productId: number }) {
     const result = new ResultVoUtil();
     try {
-      const data = await this.backendProductDetailService.getProductDetail(
-        productId,
-      );
+      const data = await this.backendProductService.getProductDetail(productId);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);

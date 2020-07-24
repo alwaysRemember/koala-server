@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-24 15:02:11
+ * @LastEditTime: 2020-07-24 21:12:35
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -117,14 +117,10 @@ export class BackendUserService {
     list: Array<BackendUser>;
     total: number;
   }> {
-    const defaultParams: FindManyOptions<BackendUser> = {
-      order: {
-        userId: 'ASC',
-      },
-      skip: (page - 1) * number,
-      take: number,
-    };
     let condition = {};
+    const maxIndex: number = page * number;
+    const minIndex: number = maxIndex - number;
+
     try {
       // 判断是否有权限条件
       if (username) {
@@ -133,17 +129,17 @@ export class BackendUserService {
       if (userType !== EbackendFindWithUserType.ALL) {
         condition['userType'] = String(userType);
       }
-      // 获取分页数据
-      const list = await this.backendUserRepository.find(
-        Object.assign({}, defaultParams, { where: condition }),
-      );
+
       // 获取条件总数据
-      const total = await (
-        await this.backendUserRepository.find({
-          where: condition,
-        })
-      ).length;
-      return { list, total };
+      const list = await await this.backendUserRepository.find({
+        where: condition,
+        order: {
+          updateTime: 'ASC',
+        },
+      });
+      // 手动分页
+      const data = list.slice(minIndex, maxIndex);
+      return { list: data, total: list.length };
     } catch (e) {
       throw new BackendException(e.message);
     }

@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:19:21
- * @LastEditTime: 2020-07-22 11:28:58
- * @FilePath: /koala-server/src/backstage/modules/BackendProductDetailModule.ts
+ * @LastEditTime: 2020-07-24 16:04:15
+ * @FilePath: /koala-server/src/backstage/modules/BackendProductModule.ts
  */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,8 +20,9 @@ import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.e
 import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
-import { BackendProductDetailService } from '../service/BackendProductDetailService';
+import { BackendProductService } from '../service/BackendProductService';
 import { RedisCacheService } from '../service/RedisCacheService';
+import { BackendProductListController } from '../controller/BackendProductListController';
 
 @Module({
   imports: [
@@ -36,11 +37,7 @@ import { RedisCacheService } from '../service/RedisCacheService';
     BackendUserModule,
     BackendCategoriesModule,
   ],
-  controllers: [BackendProductDetailController],
-  providers: [
-    BackendProductDetailService,
-    RedisCacheService,
-    BackendProductDetailService,
-  ],
+  controllers: [BackendProductDetailController, BackendProductListController],
+  providers: [BackendProductService, RedisCacheService],
 })
-export class BackendProductDetailModule {}
+export class BackendProductModule {}

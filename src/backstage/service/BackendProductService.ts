@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-23 14:56:44
- * @FilePath: /koala-server/src/backstage/service/BackendProductDetailService.ts
+ * @LastEditTime: 2020-07-24 21:41:22
+ * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
@@ -12,7 +12,7 @@ import {
   IUploadProductBanner,
   IUploadProductVideo,
   IProductResponse,
-} from '../interface/productDetail';
+} from '../interface/IProductDetail';
 import { ProductBannerRepository } from '../../global/repository/ProductBannerRepository';
 import { HOST } from '../../config/FileConfig';
 import { IMAGE, VIDEO } from '../../global/enums/EFilePath';
@@ -27,17 +27,29 @@ import { RedisCacheService } from './RedisCacheService';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { BackendUserService } from './BackendUserService';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
-import { EProductStatus } from 'src/global/enums/EProduct';
+import { EProductStatus, EDefaultSelect } from 'src/global/enums/EProduct';
 import { EBackendUserType } from 'src/backstage/enums/EBackendUserType';
-import { getManager, EntityManager, In } from 'typeorm';
+import {
+  getManager,
+  EntityManager,
+  In,
+  FindConditions,
+  Raw,
+  LessThanOrEqual,
+} from 'typeorm';
 import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
 import { ProductMediaLibraryRepository } from 'src/global/repository/ProductMediaLibraryRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { async } from 'rxjs';
 import { BackendCategoriesService } from './BackendCategoriesService';
+import {
+  IProductListRequest,
+  IProductItemResponse,
+} from '../interface/IProductList';
+import { Categories } from 'src/global/dataobject/Categories.entity';
 
 @Injectable()
-export class BackendProductDetailService {
+export class BackendProductService {
   constructor(
     private readonly productBannerRepository: ProductBannerRepository,
     private readonly productVideoRepository: ProductVideoRepository,
@@ -346,6 +358,130 @@ export class BackendProductDetailService {
       };
     } catch (e) {
       throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 获取产品列表
+   * @param param0
+   */
+  async getProductList(
+    {
+      page,
+      pageSize,
+      categoriesId,
+      productStatus,
+      userId,
+      minAmount,
+      maxAmount,
+    }: IProductListRequest,
+    token: string,
+  ): Promise<{ total: number; list: Array<IProductItemResponse> }> {
+    // 分页参数
+    const maxIndex: number = page * pageSize;
+    const minIndex: number = maxIndex - pageSize;
+
+    try {
+      // 判断token是否存在
+      const userStr = await this.redisService.get(token);
+      if (!userStr) await Promise.reject({ message: '用户登录态不正确' });
+
+      const { userId: tokenUserId }: BackendUser = JSON.parse(userStr);
+      const db = this.productRepository.createQueryBuilder('product');
+
+      // 用户查表
+      const user = await this.backendUserService.backendFindByUserId(
+        tokenUserId,
+      );
+      if (!user) await Promise.reject({ message: '用户不存在' });
+
+      // 非管理员用户则只能看自己的
+      if (
+        user.userType !== EBackendUserType.ADMIN ||
+        userId !== EDefaultSelect.ALL
+      ) {
+        db.andWhere('product.backendUserUserId =:userId', {
+          userId: (userId !== EDefaultSelect.ALL && userId) || user.userId,
+        });
+      }
+
+      // 按分类名查找
+      if (categoriesId) {
+        const categories = await this.backendCategoriesService.findById(
+          categoriesId,
+        );
+        if (!categories)
+          await Promise.reject({ message: '当前选择的商品分类不正确' });
+        db.andWhere('product.categoriesId =:id', { id: categories.id });
+      }
+
+      // 按状态查找
+      if (productStatus !== EDefaultSelect.ALL) {
+        db.andWhere('product.productStatus =:status', {
+          status: productStatus,
+        });
+      }
+
+      // 按金额查找
+      if (minAmount || maxAmount) {
+        let sqlStr: string = '';
+        let params: { max?: number; min?: number } = {};
+        if (minAmount) {
+          sqlStr = 'productDetail.productAmount>=:min';
+          params.min = minAmount;
+        }
+        if (maxAmount) {
+          sqlStr = 'productDetail.productAmount<=:max';
+          params.max = maxAmount;
+        }
+        if (maxAmount && minAmount) {
+          sqlStr =
+            'productDetail.productAmount>=:min AND productDetail.productAmount<=:max';
+        }
+        db.innerJoinAndSelect(
+          'product.productDetail',
+          'productDetail',
+          sqlStr,
+          params,
+        );
+      }
+
+      db.leftJoinAndMapOne(
+        'product.backendUser',
+        'product.backendUser',
+        'backendUser',
+      );
+      db.leftJoinAndMapOne(
+        'product.categories',
+        'product.categories',
+        'categories',
+      );
+
+      const data = await db.getMany();
+
+      const list: Array<IProductItemResponse> = data
+        .slice(minIndex, maxIndex)
+        .map(
+          ({
+            id,
+            backendUser,
+            categories,
+            productDetail,
+            createTime,
+            updateTime,
+          }: Product) => ({
+            productId: id,
+            username: backendUser.username,
+            categoriesName: categories.categoriesName,
+            productAmount: productDetail.productAmount,
+            productBrief: productDetail.productBrief,
+            createTime,
+            updateTime,
+          }),
+        );
+      return { list, total: data.length };
+    } catch (e) {
+      throw new BackendException(e.message, e);
     }
   }
 
