@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-22 11:27:14
+ * @LastEditTime: 2020-07-28 11:57:49
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -84,10 +84,10 @@ export class BackendCategoriesController {
   public async categoriesnList(@Body() data: ICategoriesList) {
     const result = new ResultVoUtil();
     try {
-      const total = await (
-        await this.backendCategoriesService.getAllCagetories()
-      ).length;
-      const list = await this.backendCategoriesService.getCagegoriesList(data);
+      const {
+        list,
+        total,
+      } = await this.backendCategoriesService.getCagegoriesList(data);
       return result.success({
         total,
         list,

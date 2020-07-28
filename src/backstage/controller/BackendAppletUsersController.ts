@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:32:12
- * @LastEditTime: 2020-07-22 11:27:06
+ * @LastEditTime: 2020-07-28 11:54:26
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletUsersController.ts
  */
 import {
@@ -46,12 +46,10 @@ export class BackendAppletUsersController {
     const result = new ResultVoUtil();
 
     try {
-      const total = await (
-        await this.backendAppletUsersService.getAppletUserAllList()
-      ).length;
-      const list = await this.backendAppletUsersService.getAppletUserList(
-        params,
-      );
+      const {
+        list,
+        total,
+      } = await this.backendAppletUsersService.getAppletUserList(params);
       return result.success({
         total,
         list,

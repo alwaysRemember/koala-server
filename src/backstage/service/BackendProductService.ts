@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-24 21:41:22
+ * @LastEditTime: 2020-07-28 12:07:02
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -395,7 +395,7 @@ export class BackendProductService {
       );
       if (!user) await Promise.reject({ message: '用户不存在' });
 
-      // 非管理员用户则只能看自己的
+      // 非管理员用户则只能看自己的 || 选择了某个用户的数据
       if (
         user.userType !== EBackendUserType.ADMIN ||
         userId !== EDefaultSelect.ALL
@@ -457,29 +457,32 @@ export class BackendProductService {
         'categories',
       );
 
-      const data = await db.getMany();
+      const data = await db
+        .skip((page - 1) * pageSize)
+        .take(pageSize)
+        .addOrderBy('updateTime', 'ASC')
+        .getMany();
+      const total = await db.getCount();
 
-      const list: Array<IProductItemResponse> = data
-        .slice(minIndex, maxIndex)
-        .map(
-          ({
-            id,
-            backendUser,
-            categories,
-            productDetail,
-            createTime,
-            updateTime,
-          }: Product) => ({
-            productId: id,
-            username: backendUser.username,
-            categoriesName: categories.categoriesName,
-            productAmount: productDetail.productAmount,
-            productBrief: productDetail.productBrief,
-            createTime,
-            updateTime,
-          }),
-        );
-      return { list, total: data.length };
+      const list: Array<IProductItemResponse> = data.map(
+        ({
+          id,
+          backendUser,
+          categories,
+          productDetail,
+          createTime,
+          updateTime,
+        }: Product) => ({
+          productId: id,
+          username: backendUser.username,
+          categoriesName: categories.categoriesName,
+          productAmount: productDetail.productAmount,
+          productBrief: productDetail.productBrief,
+          createTime,
+          updateTime,
+        }),
+      );
+      return { list, total };
     } catch (e) {
       throw new BackendException(e.message, e);
     }

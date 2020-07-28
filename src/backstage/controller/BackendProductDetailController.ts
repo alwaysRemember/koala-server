@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-24 16:03:48
+ * @LastEditTime: 2020-07-28 12:06:08
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -101,6 +101,10 @@ export class BackendProductDetailController {
     }
   }
 
+  /**
+   * 获取商品详情
+   * @param param0
+   */
   @HttpCode(200)
   @UsePipes(
     new ReqParamCheck(

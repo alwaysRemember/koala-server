@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:37:18
- * @LastEditTime: 2020-07-22 11:24:01
- * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersServiceImpl.ts
+ * @LastEditTime: 2020-07-28 11:56:21
+ * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersService.ts
  */
 import { Injectable } from '@nestjs/common';
 import { IBackendAppletUsersListRequestParams } from 'src/backstage/form/BackendAppletUsersForm';
@@ -29,9 +29,12 @@ export class BackendAppletUsersService {
   async getAppletUserList({
     page,
     pageSize,
-  }: IBackendAppletUsersListRequestParams): Promise<Array<IFrontUser>> {
+  }: IBackendAppletUsersListRequestParams): Promise<{
+    list: Array<IFrontUser>;
+    total: number;
+  }> {
     try {
-      return await this.frontUserRepository.find({
+      const list = await this.frontUserRepository.find({
         select: [
           'userId',
           'nickName',
@@ -49,6 +52,10 @@ export class BackendAppletUsersService {
         skip: (page - 1) * pageSize,
         take: pageSize,
       });
+      const total = await this.frontUserRepository
+        .createQueryBuilder('frontUser')
+        .getCount();
+      return { list, total };
     } catch (e) {
       throw new BackendException('获取用户列表失败');
     }

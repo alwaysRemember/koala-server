@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-24 21:12:35
+ * @LastEditTime: 2020-07-28 12:20:29
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -118,28 +118,29 @@ export class BackendUserService {
     total: number;
   }> {
     let condition = {};
-    const maxIndex: number = page * number;
-    const minIndex: number = maxIndex - number;
+    const db = this.backendUserRepository.createQueryBuilder('user');
 
     try {
       // 判断是否有权限条件
       if (username) {
-        condition['username'] = Like(`%${username}%`);
+        db.andWhere('user.username Like :username', {
+          username: `%${username}%`,
+        });
+        // condition['username'] = Like(`%${username}%`);
       }
       if (userType !== EbackendFindWithUserType.ALL) {
-        condition['userType'] = String(userType);
+        db.andWhere('user.userType =:userType', { userType: String(userType) });
+        // condition['userType'] = String(userType);
       }
 
-      // 获取条件总数据
-      const list = await await this.backendUserRepository.find({
-        where: condition,
-        order: {
-          updateTime: 'ASC',
-        },
-      });
-      // 手动分页
-      const data = list.slice(minIndex, maxIndex);
-      return { list: data, total: list.length };
+      // 分页
+      const list = await db
+        .skip((page - 1) * number)
+        .take(number)
+        .addOrderBy('updateTime', 'ASC')
+        .getMany();
+      const total = await db.getCount();
+      return { list, total };
     } catch (e) {
       throw new BackendException(e.message);
     }

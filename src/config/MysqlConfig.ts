@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:20:39
- * @LastEditTime: 2020-07-24 21:42:36
+ * @LastEditTime: 2020-07-28 12:14:24
  * @FilePath: /koala-server/src/config/MysqlConfig.ts
  */
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
@@ -22,7 +22,7 @@ const defaultConfig: MysqlConnectionOptions = {
     join(__dirname, '../global/dataobject/*.entity{.ts,.js}'),
   ],
   synchronize: true,
-  debug: false,
+  debug: true,
 };
 
 export default defaultConfig;
