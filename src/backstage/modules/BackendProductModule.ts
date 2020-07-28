@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:19:21
- * @LastEditTime: 2020-07-24 16:04:15
+ * @LastEditTime: 2020-07-28 17:20:53
  * @FilePath: /koala-server/src/backstage/modules/BackendProductModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -23,6 +23,8 @@ import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { BackendProductService } from '../service/BackendProductService';
 import { RedisCacheService } from '../service/RedisCacheService';
 import { BackendProductListController } from '../controller/BackendProductListController';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { BackendProductListController } from '../controller/BackendProductListCo
       ProductMediaLibrary,
       ProductMediaLibraryRepository,
     ]),
+    TypeOrmModule.forFeature([ProductMainImg, ProductMainImgRepository]),
     BackendUserModule,
     BackendCategoriesModule,
   ],

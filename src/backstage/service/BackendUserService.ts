@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-28 12:20:29
+ * @LastEditTime: 2020-07-28 13:56:22
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -126,11 +126,9 @@ export class BackendUserService {
         db.andWhere('user.username Like :username', {
           username: `%${username}%`,
         });
-        // condition['username'] = Like(`%${username}%`);
       }
       if (userType !== EbackendFindWithUserType.ALL) {
         db.andWhere('user.userType =:userType', { userType: String(userType) });
-        // condition['userType'] = String(userType);
       }
 
       // 分页

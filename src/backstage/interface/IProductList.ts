@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:16:00
- * @LastEditTime: 2020-07-24 21:35:23
+ * @LastEditTime: 2020-07-28 15:10:35
  * @FilePath: /koala-server/src/backstage/interface/IProductList.ts
  */
 
@@ -20,6 +20,7 @@ export interface IProductListRequest {
 
 export interface IProductItemResponse {
   productId: string;
+  productName: string;
   username: string;
   categoriesName: string;
   productAmount: number;

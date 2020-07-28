@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-28 12:07:02
+ * @LastEditTime: 2020-07-28 18:10:16
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -12,6 +12,7 @@ import {
   IUploadProductBanner,
   IUploadProductVideo,
   IProductResponse,
+  IUploadProductMainImg,
 } from '../interface/IProductDetail';
 import { ProductBannerRepository } from '../../global/repository/ProductBannerRepository';
 import { HOST } from '../../config/FileConfig';
@@ -47,6 +48,8 @@ import {
   IProductItemResponse,
 } from '../interface/IProductList';
 import { Categories } from 'src/global/dataobject/Categories.entity';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 
 @Injectable()
 export class BackendProductService {
@@ -55,6 +58,7 @@ export class BackendProductService {
     private readonly productVideoRepository: ProductVideoRepository,
     private readonly productRepository: ProductRepository,
     private readonly productDetailRepository: ProductDetailRepository,
+    private readonly productMainImgRepository: ProductMainImgRepository,
     private readonly redisService: RedisCacheService,
     private readonly backendUserService: BackendUserService,
     private readonly backendCategoriesService: BackendCategoriesService,
@@ -126,6 +130,36 @@ export class BackendProductService {
         unlinkSync(filePath);
       } catch (e) {}
       throw new BackendException('上传视频失败', e.message);
+    }
+  }
+
+  /**
+   * 上传产品主图
+   * @param file
+   */
+  async uploadProductMainImg(file: File): Promise<IUploadProductMainImg> {
+    const fileName = `${new Date().getTime()}_${file.originalname}`;
+    const filePath = join(IMAGE, fileName);
+    try {
+      const write = createWriteStream(filePath);
+      write.write(file.buffer);
+      const img = new ProductMainImg();
+      img.path = `${HOST}/image/${fileName}`;
+      img.relativePath = filePath;
+      img.fileName = fileName;
+      const { identifiers } = await this.productMainImgRepository.insert(img);
+      return {
+        id: identifiers[0].id,
+        name: file.originalname,
+        url: img.path,
+        size: file.size,
+      };
+    } catch (e) {
+      try {
+        accessSync(filePath);
+        unlinkSync(filePath);
+      } catch (e) {}
+      throw new BackendException('上传主图失败', e.message);
     }
   }
 
@@ -243,6 +277,18 @@ export class BackendProductService {
         }
       }
 
+      // 关联产品主图
+      if (data.mainImgId) {
+        const mainImg = await this.productMainImgRepository.findOne(
+          data.mainImgId,
+        );
+        if (mainImg) {
+          product.productMainImg = mainImg;
+        } else {
+          throw new BackendException('未找到对应的产品主图');
+        }
+      }
+
       // 写入数据
       return await getManager()
         .transaction(async (entityManage: EntityManager) => {
@@ -294,6 +340,21 @@ export class BackendProductService {
               unlinkSync(relativePath);
             });
           }
+          // 判断主图是否更改
+          if (data.delMainImgIdList?.length) {
+            const delMainImgIdList: Array<ProductMainImg> = await this.productMainImgRepository.find(
+              {
+                id: In(data.delMainImgIdList),
+              },
+            );
+            delMainImgIdList.forEach(async item => {
+              const { relativePath } = item;
+              await this.productMainImgRepository.remove(item);
+              accessSync(relativePath);
+              unlinkSync(relativePath);
+            });
+          }
+
           return result.id;
         })
         .catch(e => {
@@ -318,6 +379,7 @@ export class BackendProductService {
             categories: 'product.categories',
             productBanner: 'product.productBanner',
             productVideo: 'product.productVideo',
+            productMainImg: 'product.productMainImg',
           },
         },
         where: { id: productId },
@@ -333,6 +395,7 @@ export class BackendProductService {
         productDetail: { productAmount, productContent, productBrief },
         productBanner,
         productVideo,
+        productMainImg,
       } = product;
 
       return {
@@ -342,6 +405,12 @@ export class BackendProductService {
         amount: productAmount,
         productBrief: productBrief,
         productDetail: productContent,
+        mainImg: productMainImg && {
+          id: productMainImg.id,
+          name: productMainImg.fileName,
+          size: 0,
+          url: productMainImg.path,
+        },
         bannerList: (productBanner || ([] as Array<ProductBanner>)).map(
           ({ id, fileName, size, path }: ProductBanner) => ({
             id,
@@ -406,7 +475,7 @@ export class BackendProductService {
       }
 
       // 按分类名查找
-      if (categoriesId) {
+      if (categoriesId && categoriesId !== EDefaultSelect.ALL) {
         const categories = await this.backendCategoriesService.findById(
           categoriesId,
         );
@@ -444,6 +513,12 @@ export class BackendProductService {
           sqlStr,
           params,
         );
+      } else {
+        db.innerJoinAndMapOne(
+          'product.productDetail',
+          'product.productDetail',
+          'productDetail',
+        );
       }
 
       db.leftJoinAndMapOne(
@@ -460,13 +535,14 @@ export class BackendProductService {
       const data = await db
         .skip((page - 1) * pageSize)
         .take(pageSize)
-        .addOrderBy('updateTime', 'ASC')
+        .addOrderBy('product.updateTime', 'ASC')
         .getMany();
       const total = await db.getCount();
 
       const list: Array<IProductItemResponse> = data.map(
         ({
           id,
+          productName,
           backendUser,
           categories,
           productDetail,
@@ -474,6 +550,7 @@ export class BackendProductService {
           updateTime,
         }: Product) => ({
           productId: id,
+          productName,
           username: backendUser.username,
           categoriesName: categories.categoriesName,
           productAmount: productDetail.productAmount,

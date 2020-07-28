@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-28 12:06:08
+ * @LastEditTime: 2020-07-28 17:22:58
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -69,6 +69,27 @@ export class BackendProductDetailController {
     }
     try {
       const data = await this.backendProductService.uploadProductVideo(file);
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 上传产品主图
+   * @param file
+   */
+  @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('/upload-product-main-img')
+  public async uploadProductMainImg(@UploadedFile() file) {
+    const result = new ResultVoUtil();
+    if (!file) {
+      return result.error('请选择上传的文件');
+    }
+    try {
+      const data = await this.backendProductService.uploadProductMainImg(file);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);

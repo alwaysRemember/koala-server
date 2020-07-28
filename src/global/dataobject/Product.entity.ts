@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-22 14:46:45
+ * @LastEditTime: 2020-07-28 18:05:47
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -23,6 +23,7 @@ import { EProductStatus } from '../enums/EProduct';
 import { ProductBanner } from './ProductBanner.entity';
 import { ProductVideo } from './ProductVideo.entity';
 import { ProductMediaLibrary } from './ProductMediaLibrary.entity';
+import { ProductMainImg } from './ProductMainImg.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -78,6 +79,12 @@ export class Product {
     productMediaLibrary => productMediaLibrary.product,
   )
   productMediaLibrary: Array<ProductMediaLibrary>;
+
+  @OneToOne(
+    type => ProductMainImg,
+    productMainImg => productMainImg.product,
+  )
+  productMainImg: ProductMainImg;
 
   @CreateDateColumn({
     comment: '创建时间',
