@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-29 18:14:50
+ * @LastEditTime: 2020-07-29 18:35:23
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -215,6 +215,9 @@ export class BackendProductService {
         if (!defaultProduct) {
           throw new BackendException('查询不到此商品');
         }
+        if (defaultProduct.isDel) {
+          throw new BackendException('此商品已删除');
+        }
 
         defaultProductDetail = await this.productDetailRepository.findOne({
           where: {
@@ -388,6 +391,11 @@ export class BackendProductService {
         throw new BackendException('查询不到此商品信息');
       }
 
+      // 判断是否删除
+      if (product.isDel) {
+        throw new BackendException('商品已删除');
+      }
+
       const {
         productName,
         productStatus,
@@ -490,6 +498,9 @@ export class BackendProductService {
           status: productStatus,
         });
       }
+
+      // 过滤掉删除的商品
+      db.andWhere('product.isDel = 0');
 
       // 按金额查找
       if (minAmount || maxAmount) {
