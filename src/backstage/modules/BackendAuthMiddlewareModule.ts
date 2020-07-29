@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 17:03:49
- * @LastEditTime: 2020-07-24 15:33:59
+ * @LastEditTime: 2020-07-29 10:20:21
  * @FilePath: /koala-server/src/backstage/modules/BackendAuthMiddlewareModule.ts
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
@@ -27,7 +27,7 @@ export class BackendAuthMiddlewareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(BackgroundLoginMiddleware)
-      .exclude('/backend-user/login')
+      .exclude('/api/backend-user/login')
       .forRoutes(
         BackendUserController,
         BackendCategoriesController,

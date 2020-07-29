@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-28 18:10:16
+ * @LastEditTime: 2020-07-29 14:13:53
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -531,6 +531,11 @@ export class BackendProductService {
         'product.categories',
         'categories',
       );
+      db.leftJoinAndMapOne(
+        'product.productMainImg',
+        'product.productMainImg',
+        'productMainImg',
+      );
 
       const data = await db
         .skip((page - 1) * pageSize)
@@ -543,9 +548,11 @@ export class BackendProductService {
         ({
           id,
           productName,
+          productStatus,
           backendUser,
           categories,
           productDetail,
+          productMainImg,
           createTime,
           updateTime,
         }: Product) => ({
@@ -553,8 +560,10 @@ export class BackendProductService {
           productName,
           username: backendUser.username,
           categoriesName: categories.categoriesName,
+          productStatus,
           productAmount: productDetail.productAmount,
           productBrief: productDetail.productBrief,
+          productMainImg: productMainImg.path,
           createTime,
           updateTime,
         }),
