@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-28 18:05:47
+ * @LastEditTime: 2020-07-29 17:47:35
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -42,6 +42,12 @@ export class Product {
     comment: '产品状态',
   })
   productStatus: EProductStatus;
+
+  @Column({
+    default: false,
+    comment: '是否已删除',
+  })
+  isDel: boolean;
 
   @ManyToOne(
     type => Categories,
@@ -84,6 +90,7 @@ export class Product {
     type => ProductMainImg,
     productMainImg => productMainImg.product,
   )
+  @JoinColumn()
   productMainImg: ProductMainImg;
 
   @CreateDateColumn({

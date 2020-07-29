@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-29 14:13:53
+ * @LastEditTime: 2020-07-29 18:14:50
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -369,7 +369,7 @@ export class BackendProductService {
    * 根据id获取商品详情
    * @param productId
    */
-  async getProductDetail(productId: number): Promise<IProductResponse> {
+  async getProductDetail(productId: string): Promise<IProductResponse> {
     try {
       const product = await this.productRepository.findOne({
         join: {
@@ -569,6 +569,27 @@ export class BackendProductService {
         }),
       );
       return { list, total };
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 根据id进行删除产品（状态置为删除）
+   * @param productId
+   */
+  async delProduct(productId: string) {
+    try {
+      const product = await this.productRepository.findOne(productId);
+      if (!product) {
+        Promise.reject({
+          message: '查询不到此商品',
+        });
+      }
+      product.isDel = true; // 设置删除状态
+      product.productStatus = EProductStatus.OFF_SHELF; // 设置下架
+
+      await this.productRepository.save(product);
     } catch (e) {
       throw new BackendException(e.message, e);
     }

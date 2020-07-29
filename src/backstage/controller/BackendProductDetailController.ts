@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-28 17:22:58
+ * @LastEditTime: 2020-07-29 18:15:16
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -24,6 +24,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   BackendProductDetailSchema,
   BackendGetProductDetailSchema,
+  BackendDelProductSchema,
 } from '../schema/BackendProductDetailSchema';
 import { BackendProductService } from '../service/BackendProductService';
 
@@ -135,11 +136,31 @@ export class BackendProductDetailController {
   )
   @SetPermissionsForController(EBackendUserType.PROXY)
   @Post('/get-product-detail')
-  public async getProductDetail(@Body() { productId }: { productId: number }) {
+  public async getProductDetail(@Body() { productId }: { productId: string }) {
     const result = new ResultVoUtil();
     try {
       const data = await this.backendProductService.getProductDetail(productId);
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 删除产品
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(BackendDelProductSchema, ({ type }) => type === 'body'),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('del-product')
+  public async delProduct(@Body() { productId }: { productId: string }) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendProductService.delProduct(productId);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }
