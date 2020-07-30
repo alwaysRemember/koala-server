@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-23 14:37:45
+ * @LastEditTime: 2020-07-29 18:37:50
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import {
@@ -37,9 +37,4 @@ export class ProductDetail {
   })
   productAmount: number;
 
-  @OneToOne(
-    type => Product,
-    product => product.productDetail,
-  )
-  product: Product;
 }

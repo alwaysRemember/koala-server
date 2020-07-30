@@ -42,9 +42,5 @@ export class ProductMainImg {
   @UpdateDateColumn()
   updateTime: Date;
 
-  @ManyToOne(
-    type => Product,
-    product => product.productMainImg,
-  )
-  product: Product;
+
 }

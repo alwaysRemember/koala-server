@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-29 18:35:23
+ * @LastEditTime: 2020-07-30 15:34:31
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -202,12 +202,6 @@ export class BackendProductService {
       // 判断是否更新产品
       if (hasProduct) {
         defaultProduct = await this.productRepository.findOne({
-          join: {
-            alias: 'product',
-            leftJoinAndSelect: {
-              productDetail: 'product.productDetail',
-            },
-          },
           where: {
             id: data.productId,
           },
@@ -221,7 +215,7 @@ export class BackendProductService {
 
         defaultProductDetail = await this.productDetailRepository.findOne({
           where: {
-            id: defaultProduct.productDetail.id,
+            id: defaultProduct.productDetailId,
           },
         });
         if (!defaultProductDetail) {
@@ -234,7 +228,6 @@ export class BackendProductService {
       // 产品主要信息
       product.backendUser = user;
       product.categories = categories;
-      product.productDetail = productDetail;
       product.productName = data.name;
 
       // 判断当前用户权限
@@ -286,7 +279,7 @@ export class BackendProductService {
           data.mainImgId,
         );
         if (mainImg) {
-          product.productMainImg = mainImg;
+          product.productMainImgId = mainImg.id;
         } else {
           throw new BackendException('未找到对应的产品主图');
         }
@@ -296,7 +289,8 @@ export class BackendProductService {
       return await getManager()
         .transaction(async (entityManage: EntityManager) => {
           // 保存详情
-          await entityManage.save(ProductDetail, productDetail);
+          const { id } = await entityManage.save(ProductDetail, productDetail);
+          product.productDetailId = id;
           const result = await entityManage.save(Product, product);
 
           // 判断banner是否更改
@@ -374,21 +368,42 @@ export class BackendProductService {
    */
   async getProductDetail(productId: string): Promise<IProductResponse> {
     try {
-      const product = await this.productRepository.findOne({
-        join: {
-          alias: 'product',
-          leftJoinAndSelect: {
-            productDetail: 'product.productDetail',
-            categories: 'product.categories',
-            productBanner: 'product.productBanner',
-            productVideo: 'product.productVideo',
-            productMainImg: 'product.productMainImg',
-          },
-        },
-        where: { id: productId },
-      });
+      const product = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndMapOne(
+          'product.categories',
+          'product.categories',
+          'categories',
+        )
+        .leftJoinAndMapMany(
+          'product.productBanner',
+          'product.productBanner',
+          'productBanner',
+        )
+        .leftJoinAndMapMany(
+          'product.productVideo',
+          'product.productVideo',
+          'productVideo',
+        )
+        .where('product.id = :id', { id: productId })
+        .getOne();
+
       if (!product) {
-        throw new BackendException('查询不到此商品信息');
+        throw new BackendException('查询不到此商品');
+      }
+
+      const detail = await this.productDetailRepository.findOne(
+        product.productDetailId,
+      );
+      const mainImg = await this.productMainImgRepository.findOne(
+        product.productMainImgId,
+      );
+
+      if (!detail) {
+        throw new BackendException('查询不到商品信息');
+      }
+      if (!mainImg) {
+        throw new BackendException('查询不到商品主图');
       }
 
       // 判断是否删除
@@ -397,40 +412,42 @@ export class BackendProductService {
       }
 
       const {
-        productName,
+        productName: name,
         productStatus,
-        categories,
-        productDetail: { productAmount, productContent, productBrief },
-        productBanner,
+        categories: { id: categoriesId },
         productVideo,
-        productMainImg,
       } = product;
 
+      const {
+        productAmount: amount,
+        productContent: productDetail,
+        productBrief,
+      } = detail;
+
       return {
-        name: productName,
-        productStatus: productStatus,
-        categoriesId: categories.id,
-        amount: productAmount,
-        productBrief: productBrief,
-        productDetail: productContent,
-        mainImg: productMainImg && {
-          id: productMainImg.id,
-          name: productMainImg.fileName,
-          size: 0,
-          url: productMainImg.path,
-        },
-        bannerList: (productBanner || ([] as Array<ProductBanner>)).map(
-          ({ id, fileName, size, path }: ProductBanner) => ({
+        name,
+        productStatus,
+        categoriesId,
+        amount,
+        productBrief,
+        productDetail,
+        bannerList: product.productBanner.map(
+          ({ id, fileName: name, path: url, size }) => ({
             id,
-            name: fileName,
+            name,
+            url,
             size,
-            url: path,
           }),
         ),
         videoData: productVideo && {
           id: productVideo[0].id,
           name: productVideo[0].fileName,
           url: productVideo[0].path,
+        },
+        mainImg: {
+          id: mainImg.id,
+          name: mainImg.fileName,
+          url: mainImg.path,
         },
       };
     } catch (e) {
@@ -455,8 +472,6 @@ export class BackendProductService {
     token: string,
   ): Promise<{ total: number; list: Array<IProductItemResponse> }> {
     // 分页参数
-    const maxIndex: number = page * pageSize;
-    const minIndex: number = maxIndex - pageSize;
 
     try {
       // 判断token是否存在
@@ -464,7 +479,51 @@ export class BackendProductService {
       if (!userStr) await Promise.reject({ message: '用户登录态不正确' });
 
       const { userId: tokenUserId }: BackendUser = JSON.parse(userStr);
-      const db = this.productRepository.createQueryBuilder('product');
+      const db = this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.id as productId',
+          'productName',
+          'productStatus',
+          'isDel',
+          'product.createTime as createTime',
+          'product.updateTime as updateTime',
+          'mainImg.path as productMainImg',
+          'user.username as username',
+          'categories.categoriesName as categoriesName',
+          'detail.productAmount as productAmount',
+          'detail.productBrief as productBrief',
+        ]);
+
+      db.leftJoin(
+        ProductMainImg,
+        'mainImg',
+        'mainImg.id = product.productMainImgId',
+      );
+      db.leftJoin(
+        BackendUser,
+        'user',
+        'user.userId = product.backendUserUserId',
+      );
+      db.leftJoin(
+        Categories,
+        'categories',
+        'categories.id = product.categoriesId',
+      );
+      db.leftJoin(
+        ProductDetail,
+        'detail',
+        'detail.id = product.productDetailId',
+      );
+
+      // 按状态查找
+      if (productStatus !== EDefaultSelect.ALL) {
+        db.andWhere('product.productStatus =:status', {
+          status: productStatus,
+        });
+      }
+      // 过滤掉删除的商品
+      db.andWhere('product.isDel = 0');
 
       // 用户查表
       const user = await this.backendUserService.backendFindByUserId(
@@ -492,94 +551,32 @@ export class BackendProductService {
         db.andWhere('product.categoriesId =:id', { id: categories.id });
       }
 
-      // 按状态查找
-      if (productStatus !== EDefaultSelect.ALL) {
-        db.andWhere('product.productStatus =:status', {
-          status: productStatus,
-        });
-      }
-
-      // 过滤掉删除的商品
-      db.andWhere('product.isDel = 0');
-
       // 按金额查找
       if (minAmount || maxAmount) {
         let sqlStr: string = '';
         let params: { max?: number; min?: number } = {};
         if (minAmount) {
-          sqlStr = 'productDetail.productAmount>=:min';
+          sqlStr = 'detail.productAmount>=:min';
           params.min = minAmount;
         }
         if (maxAmount) {
-          sqlStr = 'productDetail.productAmount<=:max';
+          sqlStr = 'detail.productAmount<=:max';
           params.max = maxAmount;
         }
         if (maxAmount && minAmount) {
-          sqlStr =
-            'productDetail.productAmount>=:min AND productDetail.productAmount<=:max';
+          sqlStr = 'detail.productAmount>=:min AND detail.productAmount<=:max';
         }
-        db.innerJoinAndSelect(
-          'product.productDetail',
-          'productDetail',
-          sqlStr,
-          params,
-        );
-      } else {
-        db.innerJoinAndMapOne(
-          'product.productDetail',
-          'product.productDetail',
-          'productDetail',
-        );
+        db.andWhere(sqlStr, params);
       }
-
-      db.leftJoinAndMapOne(
-        'product.backendUser',
-        'product.backendUser',
-        'backendUser',
-      );
-      db.leftJoinAndMapOne(
-        'product.categories',
-        'product.categories',
-        'categories',
-      );
-      db.leftJoinAndMapOne(
-        'product.productMainImg',
-        'product.productMainImg',
-        'productMainImg',
-      );
 
       const data = await db
         .skip((page - 1) * pageSize)
         .take(pageSize)
         .addOrderBy('product.updateTime', 'ASC')
-        .getMany();
+        .getRawMany();
       const total = await db.getCount();
 
-      const list: Array<IProductItemResponse> = data.map(
-        ({
-          id,
-          productName,
-          productStatus,
-          backendUser,
-          categories,
-          productDetail,
-          productMainImg,
-          createTime,
-          updateTime,
-        }: Product) => ({
-          productId: id,
-          productName,
-          username: backendUser.username,
-          categoriesName: categories.categoriesName,
-          productStatus,
-          productAmount: productDetail.productAmount,
-          productBrief: productDetail.productBrief,
-          productMainImg: productMainImg.path,
-          createTime,
-          updateTime,
-        }),
-      );
-      return { list, total };
+      return { list: data, total };
     } catch (e) {
       throw new BackendException(e.message, e);
     }

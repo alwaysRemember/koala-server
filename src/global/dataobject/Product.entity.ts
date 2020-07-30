@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-29 17:47:35
+ * @LastEditTime: 2020-07-29 18:37:41
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -55,12 +55,11 @@ export class Product {
   )
   categories: Categories;
 
-  @OneToOne(
-    type => ProductDetail,
-    productDetail => productDetail.product,
-  )
-  @JoinColumn()
-  productDetail: ProductDetail;
+  @Column({
+    length: 36,
+    comment: '商品详情id',
+  })
+  productDetailId: string;
 
   @OneToMany(
     type => ProductBanner,
@@ -86,12 +85,11 @@ export class Product {
   )
   productMediaLibrary: Array<ProductMediaLibrary>;
 
-  @OneToOne(
-    type => ProductMainImg,
-    productMainImg => productMainImg.product,
-  )
-  @JoinColumn()
-  productMainImg: ProductMainImg;
+  @Column({
+    length: 36,
+    comment: '商品主图id',
+  })
+  productMainImgId: string;
 
   @CreateDateColumn({
     comment: '创建时间',
