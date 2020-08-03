@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:53:23
- * @LastEditTime: 2020-07-13 15:43:48
+ * @LastEditTime: 2020-08-03 12:16:36
  * @FilePath: /koala-server/src/backstage/dataobject/BackendUser.entity.ts
  */
 import {
@@ -37,6 +37,11 @@ export class BackendUser {
     comment: '用户类型',
   })
   userType: EBackendUserType;
+
+  @Column({
+    comment: '邮箱',
+  })
+  email: string;
 
   @OneToMany(
     type => Product,

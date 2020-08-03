@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-02 11:22:22
- * @LastEditTime: 2020-07-01 18:52:53
- * @FilePath: /koala-background-server/src/backstage/schema/BackendUserSchema.ts
+ * @LastEditTime: 2020-08-03 15:13:24
+ * @FilePath: /koala-server/src/backstage/schema/BackendUserSchema.ts
  */
 
 import * as Joi from '@hapi/joi';
@@ -12,6 +12,7 @@ import * as Joi from '@hapi/joi';
 export const BackendUserSchema = Joi.object({
   username: Joi.string()
     .alphanum()
+    .min(6)
     .required(),
   password: Joi.string().required(),
 });
@@ -20,15 +21,20 @@ export const BackendUserSchema = Joi.object({
 export const BackendAddUserSchema = Joi.object({
   username: Joi.string()
     .alphanum()
+    .min(6)
     .required(),
   password: Joi.string().required(),
   userType: Joi.number().required(),
+  email: Joi.string()
+    .email()
+    .required(),
 });
 
 // 修改密码
 export const BackendUserChangePasswordSchema = Joi.object({
   username: Joi.string()
     .alphanum()
+    .min(6)
     .required(),
   oldPassword: Joi.string().required(),
   newPassword: Joi.string().required(),
@@ -53,9 +59,13 @@ export const BackendUpdateAdminUserSchema = Joi.object({
   userId: Joi.number().required(),
   username: Joi.string()
     .alphanum()
+    .min(6)
     .required(),
   userType: Joi.number().required(),
   password: Joi.string().required(),
+  email: Joi.string()
+    .email()
+    .required(),
 });
 
 export const BackendDeleteAdminUserSchema = Joi.object({

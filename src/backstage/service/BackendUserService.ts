@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-07-28 13:56:22
+ * @LastEditTime: 2020-08-03 15:14:15
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -117,7 +117,6 @@ export class BackendUserService {
     list: Array<BackendUser>;
     total: number;
   }> {
-    let condition = {};
     const db = this.backendUserRepository.createQueryBuilder('user');
 
     try {
@@ -135,7 +134,7 @@ export class BackendUserService {
       const list = await db
         .skip((page - 1) * number)
         .take(number)
-        .addOrderBy('updateTime', 'ASC')
+        .addOrderBy('updateTime', 'DESC')
         .getMany();
       const total = await db.getCount();
       return { list, total };
