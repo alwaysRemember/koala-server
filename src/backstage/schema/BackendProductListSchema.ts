@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:14:32
- * @LastEditTime: 2020-07-30 16:18:42
+ * @LastEditTime: 2020-08-03 17:40:43
  * @FilePath: /koala-server/src/backstage/schema/BackendProductListSchema.ts
  */
 
@@ -11,6 +11,7 @@ import { EProductStatus, EDefaultSelect } from 'src/global/enums/EProduct';
 
 export const ProductListRequestParams = Joi.object({
   categoriesId: Joi.string().allow(''),
+  productId: Joi.string().allow(''),
   productStatus: Joi.string()
     .allow(
       EProductStatus.OFF_SHELF,
@@ -29,6 +30,7 @@ export const ProductListRequestParams = Joi.object({
     .min(10)
     .required(),
 });
+
 export const productReviewRequestParams = Joi.object({
   page: Joi.number()
     .min(1)

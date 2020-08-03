@@ -2,13 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:16:00
- * @LastEditTime: 2020-07-30 15:18:38
+ * @LastEditTime: 2020-08-03 17:41:04
  * @FilePath: /koala-server/src/backstage/interface/IProductList.ts
  */
 
 import { EProductStatus, EDefaultSelect } from 'src/global/enums/EProduct';
 
 export interface IProductListRequest {
+  productId: string;
   categoriesId: string;
   productStatus: EProductStatus | EDefaultSelect;
   userId: EDefaultSelect | number;

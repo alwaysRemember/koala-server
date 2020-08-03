@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-30 16:38:39
+ * @LastEditTime: 2020-08-03 17:44:02
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -468,6 +468,7 @@ export class BackendProductService {
       userId,
       minAmount,
       maxAmount,
+      productId,
     }: IProductListRequest,
     token: string,
   ): Promise<{ total: number; list: Array<IProductItemResponse> }> {
@@ -524,6 +525,10 @@ export class BackendProductService {
       }
       // 过滤掉删除的商品
       db.andWhere('product.isDel = 0');
+
+      if (productId) {
+        db.andWhere('product.id =:id', { id: productId });
+      }
 
       // 用户查表
       const user = await this.backendUserService.backendFindByUserId(
