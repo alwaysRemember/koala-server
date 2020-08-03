@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-07-30 15:34:31
+ * @LastEditTime: 2020-07-30 16:38:39
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -600,6 +600,72 @@ export class BackendProductService {
       await this.productRepository.save(product);
     } catch (e) {
       throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取审核中的产品
+   */
+  async getProductReviewList({
+    page,
+    pageSize,
+  }: {
+    page: number;
+    pageSize: number;
+  }): Promise<{
+    total: number;
+    list: Array<IProductItemResponse>;
+  }> {
+    try {
+      const db = this.productRepository.createQueryBuilder('product');
+
+      db.select([
+        'product.id as productId',
+        'product.productName as productName',
+        'mainImg.path as productMainImg',
+        'product.productStatus as productStatus',
+        'user.username as username',
+        'categories.categoriesName as categoriesName',
+        'detail.productAmount as productAmount',
+        'detail.productBrief as productBrief',
+        'product.createTime as createTime',
+        'product.updateTime as updateTime',
+      ]);
+      db.leftJoin(
+        ProductMainImg,
+        'mainImg',
+        'mainImg.id = product.productmainImgId',
+      );
+      db.leftJoin(
+        BackendUser,
+        'user',
+        'user.userId = product.backendUserUserId',
+      );
+      db.leftJoin(
+        Categories,
+        'categories',
+        'categories.id = product.categoriesId',
+      );
+      db.leftJoin(
+        ProductDetail,
+        'detail',
+        'detail.id = product.productDetailId',
+      );
+      db.where('product.isDel = 0');
+      db.andWhere(`product.productStatus=:status`, {
+        status: EProductStatus.UNDER_REVIEW,
+      });
+
+      const list = await db
+        .skip((page - 1) * pageSize)
+        .take(pageSize)
+        .addOrderBy('product.updateTime', 'ASC')
+        .getRawMany();
+      const total = await db.getCount();
+
+      return { list, total };
+    } catch (e) {
+      throw new BackendException('获取审核中商品失败', e);
     }
   }
 

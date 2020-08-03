@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:29:56
- * @LastEditTime: 2020-07-24 21:15:19
+ * @LastEditTime: 2020-07-30 16:34:13
  * @FilePath: /koala-server/src/backstage/controller/BackendProductListController.ts
  */
 import {
@@ -14,7 +14,10 @@ import {
   Req,
 } from '@nestjs/common';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { ProductListRequestParams } from '../schema/BackendProductListSchema';
+import {
+  ProductListRequestParams,
+  productReviewRequestParams,
+} from '../schema/BackendProductListSchema';
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
@@ -45,6 +48,29 @@ export class BackendProductListController {
       const data = await this.backendProductService.getProductList(
         params,
         token,
+      );
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      productReviewRequestParams,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('/get-product-review-list')
+  public async getPorductReviewList(
+    @Body() params: { page: number; pageSize: number },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.backendProductService.getProductReviewList(
+        params,
       );
       return result.success(data);
     } catch (e) {

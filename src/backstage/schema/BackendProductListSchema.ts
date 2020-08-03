@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:14:32
- * @LastEditTime: 2020-07-24 16:09:55
+ * @LastEditTime: 2020-07-30 16:18:42
  * @FilePath: /koala-server/src/backstage/schema/BackendProductListSchema.ts
  */
 
@@ -22,6 +22,14 @@ export const ProductListRequestParams = Joi.object({
   userId: Joi.any().required(),
   minAmount: Joi.number().required(),
   maxAmount: Joi.number().required(),
+  page: Joi.number()
+    .min(1)
+    .required(),
+  pageSize: Joi.number()
+    .min(10)
+    .required(),
+});
+export const productReviewRequestParams = Joi.object({
   page: Joi.number()
     .min(1)
     .required(),
