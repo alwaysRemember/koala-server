@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-07-29 18:15:16
+ * @LastEditTime: 2020-08-04 14:30:20
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -25,8 +25,10 @@ import {
   BackendProductDetailSchema,
   BackendGetProductDetailSchema,
   BackendDelProductSchema,
+  BackendUpdateProductStatus,
 } from '../schema/BackendProductDetailSchema';
 import { BackendProductService } from '../service/BackendProductService';
+import { IUpdateProductStatus } from '../interface/IProductDetail';
 
 @Controller('/product')
 export class BackendProductDetailController {
@@ -160,6 +162,29 @@ export class BackendProductDetailController {
     const result = new ResultVoUtil();
     try {
       await this.backendProductService.delProduct(productId);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 更新商品状态
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendUpdateProductStatus,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/update-product-status')
+  public async updatePorductStatus(@Body() params: IUpdateProductStatus) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendProductService.updateProductStatus(params);
       return result.success();
     } catch (e) {
       return result.error(e.message);

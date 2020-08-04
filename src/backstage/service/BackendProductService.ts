@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-03 17:44:02
+ * @LastEditTime: 2020-08-04 17:25:52
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -13,6 +13,7 @@ import {
   IUploadProductVideo,
   IProductResponse,
   IUploadProductMainImg,
+  IUpdateProductStatus,
 } from '../interface/IProductDetail';
 import { ProductBannerRepository } from '../../global/repository/ProductBannerRepository';
 import { HOST } from '../../config/FileConfig';
@@ -28,7 +29,11 @@ import { RedisCacheService } from './RedisCacheService';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { BackendUserService } from './BackendUserService';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
-import { EProductStatus, EDefaultSelect } from 'src/global/enums/EProduct';
+import {
+  EProductStatus,
+  EDefaultSelect,
+  EProductStatusTransfer,
+} from 'src/global/enums/EProduct';
 import { EBackendUserType } from 'src/backstage/enums/EBackendUserType';
 import {
   getManager,
@@ -50,6 +55,7 @@ import {
 import { Categories } from 'src/global/dataobject/Categories.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
+import { Mail } from 'src/utils/Mail';
 
 @Injectable()
 export class BackendProductService {
@@ -671,6 +677,66 @@ export class BackendProductService {
       return { list, total };
     } catch (e) {
       throw new BackendException('获取审核中商品失败', e);
+    }
+  }
+
+  /**
+   * 更新产品状态
+   * @param param
+   */
+  async updateProductStatus({
+    productId,
+    productStatus,
+  }: IUpdateProductStatus) {
+    try {
+      let product: Product;
+      try {
+        product = await this.productRepository.findOne(productId, {
+          join: {
+            alias: 'product',
+            leftJoinAndSelect: {
+              backendUser: 'product.backendUser',
+            },
+          },
+        });
+      } catch (e) {
+        await Promise.reject({ message: '没有查询到对应的商品', e });
+      }
+
+      if (!product) {
+        await Promise.reject({ message: '产品信息获取失败' });
+      }
+      // 判断传入的状态
+      switch (productStatus) {
+        case EProductStatus.OFF_SHELF:
+          product.productStatus = EProductStatus.OFF_SHELF;
+          break;
+        case EProductStatus.PUT_ON_SHELF:
+          product.productStatus = EProductStatus.PUT_ON_SHELF;
+          break;
+        default:
+          await Promise.reject({ message: `${productStatus}非合法的状态` });
+      }
+      await this.productRepository.save(product);
+
+      /**
+       * 判断是否有邮箱
+       */
+      if (!product?.backendUser?.email) {
+        return;
+      }
+      // 状态变更后通知产品所属人
+      new Mail(
+        '产品状态变更',
+        {
+          产品ID: product.id,
+          变更结果: EProductStatusTransfer[product.productStatus],
+          产品名称: product.productName,
+        },
+        product.backendUser.email,
+      ).send();
+    } catch (e) {
+      throw new BackendException(e.message, e);
     }
   }
 
