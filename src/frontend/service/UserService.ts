@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-08-05 17:15:54
+ * @LastEditTime: 2020-08-05 17:23:25
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -47,7 +47,6 @@ export class FrontUserService {
     params: IUpdateUserPhone,
     openid: string,
   ): Promise<{ phone: string }> {
-    // const pc = new WXBizDataCrypt(appId);
 
     try {
       // 获取用户信息
@@ -55,7 +54,6 @@ export class FrontUserService {
       if (!user) {
         Promise.reject({ message: '不存在当前用户' });
       }
-      console.log(params);
 
       const pc = new WXBizDataCrypt(appId, user.sessionKey);
       const { purePhoneNumber } = pc.decryptData(

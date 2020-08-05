@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:37:18
- * @LastEditTime: 2020-07-28 11:56:21
+ * @LastEditTime: 2020-08-05 17:42:18
  * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -43,6 +43,7 @@ export class BackendAppletUsersService {
           'country',
           'province',
           'city',
+          'phone',
           'createTime',
           'updateTime',
         ],
