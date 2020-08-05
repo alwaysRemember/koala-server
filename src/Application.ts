@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-07-07 18:36:50
+ * @LastEditTime: 2020-08-05 16:37:17
  * @FilePath: /koala-server/src/Application.ts
  */
 
@@ -13,9 +13,11 @@ import { BackendControllerModule } from './backstage/modules/BackendControllerMo
 import { RedisClientModule } from './global/modules/RedisClientModule';
 import { BackendAuthMiddlewareModule } from './backstage/modules/BackendAuthMiddlewareModule';
 import { FrontControllerModule } from './frontend/modules/FrontControllerModule';
+import { FrontAuthMiddlewareModule } from './frontend/modules/FrontAuthMiddlewareModule';
 @Module({
   imports: [
     BackendAuthMiddlewareModule,
+    FrontAuthMiddlewareModule,
     MysqlModule,
     RedisClientModule,
     BackendControllerModule,

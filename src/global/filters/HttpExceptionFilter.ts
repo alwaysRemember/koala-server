@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-07-17 16:08:22
+ * @LastEditTime: 2020-08-05 14:41:16
  * @FilePath: /koala-server/src/global/filters/HttpExceptionFilter.ts
  */
 import {
@@ -44,7 +44,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message: exception.message,
       header: JSON.stringify(request.headers),
       exception: JSON.stringify(exception),
-    }).send();
+    });
+    // TODO .send();
 
     response
       .status(HttpStatus.OK)

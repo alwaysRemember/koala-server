@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:21:13
- * @LastEditTime: 2020-07-01 18:51:24
- * @FilePath: /koala-background-server/src/frontend/schema/FrontUserSchema.ts
+ * @LastEditTime: 2020-08-05 17:12:43
+ * @FilePath: /koala-server/src/frontend/schema/FrontUserSchema.ts
  */
 
 import * as Joi from '@hapi/joi';
@@ -21,4 +21,9 @@ export const UserLoginSchema = Joi.object({
   language: Joi.string()
     .valid(EUserLanguage.EN, EUserLanguage.ZH_CN, EUserLanguage.ZH_TW)
     .default(EUserLanguage.EN),
+});
+
+export const UpdateUserPhone = Joi.object({
+  iv: Joi.string().required(),
+  encryptedData: Joi.string().required(),
 });

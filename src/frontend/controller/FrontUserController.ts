@@ -3,23 +3,38 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-07-22 11:32:32
+ * @LastEditTime: 2020-08-05 16:05:39
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
-import { Controller, Post, HttpCode, UsePipes, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  HttpCode,
+  UsePipes,
+  Body,
+  Req,
+} from '@nestjs/common';
 import axios from 'axios';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { UserLoginSchema } from 'src/frontend/schema/FrontUserSchema';
+import {
+  UserLoginSchema,
+  UpdateUserPhone,
+} from 'src/frontend/schema/FrontUserSchema';
 import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/User';
 import { FrontUserService } from 'src/frontend/service/UserService';
 import { appId, AppSecret } from 'src/config/projectConfig';
 import { FrontUser } from 'src/global/dataobject/User.entity';
+import { IUpdateUserPhone } from '../interface/FrontUser';
 
 @Controller('/front')
-export class Logincontroller {
+export class FrontUserController {
   constructor(private readonly frontUserService: FrontUserService) {}
 
+  /**
+   * 小程序登录接口
+   * @param user
+   */
   @HttpCode(200)
   @Post('/login')
   @UsePipes(new ReqParamCheck(UserLoginSchema, ({ type }) => type === 'body'))
@@ -56,6 +71,23 @@ export class Logincontroller {
         userInfo,
       );
       return result.success(saveUserInfo);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 更新用户的手机号
+   * @param params
+   */
+  @HttpCode(200)
+  @Post('/update-user-phone')
+  @UsePipes(new ReqParamCheck(UpdateUserPhone, ({ type }) => type === 'body'))
+  public async updateUserPhone(@Body() params: IUpdateUserPhone, @Req() req) {
+    const result = new ResultVoUtil();
+    try {
+      const { phone } = await this.frontUserService.updateUserPhone(params,req.headers.openid);
+      return result.success({ phone });
     } catch (e) {
       return result.error(e.message);
     }
