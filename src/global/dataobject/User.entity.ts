@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 14:38:08
- * @LastEditTime: 2020-08-05 15:22:58
+ * @LastEditTime: 2020-08-06 16:14:30
  * @FilePath: /koala-server/src/global/dataobject/User.entity.ts
  */
 import {
@@ -73,6 +73,7 @@ export class FrontUser {
 
   @Column({
     comment: '手机号',
+    default: null,
   })
   phone: string;
 
