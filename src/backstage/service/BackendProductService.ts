@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-04 17:25:52
+ * @LastEditTime: 2020-08-06 12:16:42
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -56,6 +56,7 @@ import { Categories } from 'src/global/dataobject/Categories.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { Mail } from 'src/utils/Mail';
+import { reportErr } from 'src/utils/ReportError';
 
 @Injectable()
 export class BackendProductService {
@@ -483,7 +484,7 @@ export class BackendProductService {
     try {
       // 判断token是否存在
       const userStr = await this.redisService.get(token);
-      if (!userStr) await Promise.reject({ message: '用户登录态不正确' });
+      if (!userStr) await reportErr({ message: '用户登录态不正确' });
 
       const { userId: tokenUserId }: BackendUser = JSON.parse(userStr);
       const db = this.productRepository
@@ -540,7 +541,7 @@ export class BackendProductService {
       const user = await this.backendUserService.backendFindByUserId(
         tokenUserId,
       );
-      if (!user) await Promise.reject({ message: '用户不存在' });
+      if (!user) await reportErr({ message: '用户不存在' });
 
       // 非管理员用户则只能看自己的 || 选择了某个用户的数据
       if (
@@ -558,7 +559,7 @@ export class BackendProductService {
           categoriesId,
         );
         if (!categories)
-          await Promise.reject({ message: '当前选择的商品分类不正确' });
+          await reportErr({ message: '当前选择的商品分类不正确' });
         db.andWhere('product.categoriesId =:id', { id: categories.id });
       }
 
@@ -601,7 +602,7 @@ export class BackendProductService {
     try {
       const product = await this.productRepository.findOne(productId);
       if (!product) {
-        Promise.reject({
+        await reportErr({
           message: '查询不到此商品',
         });
       }
@@ -700,11 +701,11 @@ export class BackendProductService {
           },
         });
       } catch (e) {
-        await Promise.reject({ message: '没有查询到对应的商品', e });
+        await reportErr({ message: '没有查询到对应的商品', e });
       }
 
       if (!product) {
-        await Promise.reject({ message: '产品信息获取失败' });
+        await reportErr({ message: '产品信息获取失败' });
       }
       // 判断传入的状态
       switch (productStatus) {
@@ -715,7 +716,7 @@ export class BackendProductService {
           product.productStatus = EProductStatus.PUT_ON_SHELF;
           break;
         default:
-          await Promise.reject({ message: `${productStatus}非合法的状态` });
+          await reportErr({ message: `${productStatus}非合法的状态` });
       }
       await this.productRepository.save(product);
 

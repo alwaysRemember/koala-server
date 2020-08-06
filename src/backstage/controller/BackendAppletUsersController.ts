@@ -2,24 +2,20 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:32:12
- * @LastEditTime: 2020-07-28 11:54:26
+ * @LastEditTime: 2020-08-06 14:19:06
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletUsersController.ts
  */
-import {
-  Controller,
-  Get,
-  HttpCode,
-  UsePipes,
-  Post,
-  Body,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UsePipes } from '@nestjs/common';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { BackendAppletUsersListRequestSchema } from '../schema/BackendAppletUsersSchema';
-import { SetPermissionsForController } from '../utils';
+import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { IBackendAppletUsersListRequestParams } from '../form/BackendAppletUsersForm';
-import { ResultVoUtil } from 'src/utils/ResultVoUtil';
+import {
+  BackendAppletUsersListRequestSchema,
+  BackendGetUserForPhoneSchema,
+} from '../schema/BackendAppletUsersSchema';
 import { BackendAppletUsersService } from '../service/BackendAppletUsersService';
+import { SetPermissionsForController } from '../utils';
 
 @Controller('/backend-applet-user')
 export class BackendAppletUsersController {
@@ -54,6 +50,25 @@ export class BackendAppletUsersController {
         total,
         list,
       });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendGetUserForPhoneSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('get-user-for-phone')
+  public async getUserForPhone(@Body() { phone }: { phone: string }) {
+    const result = new ResultVoUtil();
+    try {
+      const list = await this.backendAppletUsersService.getUserForPhone(phone);
+      return result.success(list);
     } catch (e) {
       return result.error(e.message);
     }

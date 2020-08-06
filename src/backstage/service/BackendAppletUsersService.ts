@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:37:18
- * @LastEditTime: 2020-08-05 17:42:18
+ * @LastEditTime: 2020-08-06 14:42:39
  * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -10,6 +10,7 @@ import { IBackendAppletUsersListRequestParams } from 'src/backstage/form/Backend
 import { IFrontUser } from 'src/global/form/User';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { BackendException } from 'src/backstage/exception/backendException';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class BackendAppletUsersService {
@@ -59,6 +60,23 @@ export class BackendAppletUsersService {
       return { list, total };
     } catch (e) {
       throw new BackendException('获取用户列表失败');
+    }
+  }
+
+  /**
+   * 根据手机号获取用户
+   * @param phone
+   */
+  async getUserForPhone(phone: string) {
+    try {
+      return this.frontUserRepository.find({
+        select: ['userId', 'phone', 'nickName'],
+        where: {
+          phone: Like(`${phone}%`),
+        },
+      });
+    } catch (e) {
+      throw new BackendException('获取小程序用户失败', e);
     }
   }
 }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-08-03 15:14:15
+ * @LastEditTime: 2020-08-06 12:20:13
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -16,17 +16,18 @@ import {
   IBackendUserChangePasswordForm,
   IBackendUserListForm,
 } from 'src/backstage/form/BackendUserForm';
-import {
-  EbackendFindWithUserType,
-  EBackendUserType,
-} from 'src/backstage/enums/EBackendUserType';
-import { FindManyOptions, Like } from 'typeorm';
+import { EbackendFindWithUserType } from 'src/backstage/enums/EBackendUserType';
+import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
+import { FrontUser } from 'src/global/dataobject/User.entity';
+import { reportErr } from 'src/utils/ReportError';
 
 @Injectable()
 export class BackendUserService {
   constructor(
     @InjectRepository(BackendUserRepository)
     private readonly backendUserRepository: BackendUserRepository,
+    @InjectRepository(FrontUserRepository)
+    private readonly frontUserRepository: FrontUserRepository,
   ) {}
 
   /**
@@ -71,15 +72,9 @@ export class BackendUserService {
       if (user.oldPassword === user.newPassword) {
         throw new BackendException('新密码与当前密码一致');
       }
+      data.password = user.newPassword;
 
-      await this.backendUserRepository.updateUser(
-        new BackendUser(
-          data.userId,
-          user.username,
-          user.newPassword,
-          data.userType,
-        ),
-      );
+      await this.backendUserRepository.updateUser(data);
     } catch (e) {
       throw new BackendException(e.message);
     }
@@ -91,16 +86,42 @@ export class BackendUserService {
    */
   async backendAddUser(user: IBackendUserForm) {
     try {
-      const data: BackendUser = await this.backendUserRepository.findByUsername(
-        user.username,
-      );
+      let data: BackendUser;
+      try {
+        data = await this.backendUserRepository.findByUsername(user.username);
+      } catch (e) {
+        await reportErr({ message: '用户查询失败', e });
+      }
       // 判断是否存在用户
       if (data) {
-        throw new BackendException('用户名重复，请重新输入');
+        await reportErr({ message: '用户名重复，请重新输入' });
       }
-      await this.backendUserRepository.insert(user);
+
+      // 判断所选小程序用户是否存在
+      let appletUser: FrontUser;
+      try {
+        appletUser = await this.frontUserRepository.findOne(user.appletUserId);
+      } catch (e) {
+        await reportErr({ message: '小程序用户读取失败', e });
+      }
+      if (!appletUser) {
+        await reportErr({ message: '所选小程序用户不存在' });
+      }
+
+      const result = new BackendUser();
+      result.appletUserId = user.appletUserId;
+      result.email = user.email;
+      result.password = user.password;
+      result.userType = user.userType;
+      result.username = user.username;
+
+      try {
+        await this.backendUserRepository.insert(result);
+      } catch (e) {
+        await reportErr({ message: '添加管理员失败', e });
+      }
     } catch (e) {
-      throw new BackendException(e.message);
+      throw new BackendException(e.message, e);
     }
   }
 

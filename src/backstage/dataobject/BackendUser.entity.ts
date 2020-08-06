@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:53:23
- * @LastEditTime: 2020-08-03 12:16:36
+ * @LastEditTime: 2020-08-06 16:05:20
  * @FilePath: /koala-server/src/backstage/dataobject/BackendUser.entity.ts
  */
 import {
@@ -49,21 +49,14 @@ export class BackendUser {
   )
   products: Array<Product>;
 
+  @Column({
+    comment: '用户在小程序中的id',
+  })
+  appletUserId: number;
+
   @CreateDateColumn({ comment: '创建时间' })
   createTime: string;
 
   @UpdateDateColumn({ comment: '更新时间' })
   updateTime: string;
-
-  constructor(
-    userId: number,
-    username: string,
-    password: string,
-    userType: EBackendUserType,
-  ) {
-    this.userId = userId;
-    this.username = username;
-    this.password = password;
-    this.userType = userType;
-  }
 }

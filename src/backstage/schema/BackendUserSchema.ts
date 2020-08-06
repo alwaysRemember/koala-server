@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-02 11:22:22
- * @LastEditTime: 2020-08-03 17:10:26
+ * @LastEditTime: 2020-08-06 11:54:26
  * @FilePath: /koala-server/src/backstage/schema/BackendUserSchema.ts
  */
 
@@ -27,6 +27,7 @@ export const BackendAddUserSchema = Joi.object({
     .required(),
   password: Joi.string().required(),
   userType: Joi.number().required(),
+  appletUserId: Joi.number().required(),
   email: Joi.string()
     .email()
     .required(),
