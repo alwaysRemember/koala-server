@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-06 12:16:42
+ * @LastEditTime: 2020-08-06 17:09:10
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -484,7 +484,7 @@ export class BackendProductService {
     try {
       // 判断token是否存在
       const userStr = await this.redisService.get(token);
-      if (!userStr) await reportErr({ message: '用户登录态不正确' });
+      if (!userStr) await reportErr('用户登录态不正确');
 
       const { userId: tokenUserId }: BackendUser = JSON.parse(userStr);
       const db = this.productRepository
@@ -541,7 +541,7 @@ export class BackendProductService {
       const user = await this.backendUserService.backendFindByUserId(
         tokenUserId,
       );
-      if (!user) await reportErr({ message: '用户不存在' });
+      if (!user) await reportErr('用户不存在');
 
       // 非管理员用户则只能看自己的 || 选择了某个用户的数据
       if (
@@ -558,8 +558,7 @@ export class BackendProductService {
         const categories = await this.backendCategoriesService.findById(
           categoriesId,
         );
-        if (!categories)
-          await reportErr({ message: '当前选择的商品分类不正确' });
+        if (!categories) await reportErr('当前选择的商品分类不正确');
         db.andWhere('product.categoriesId =:id', { id: categories.id });
       }
 
@@ -602,9 +601,7 @@ export class BackendProductService {
     try {
       const product = await this.productRepository.findOne(productId);
       if (!product) {
-        await reportErr({
-          message: '查询不到此商品',
-        });
+        await reportErr('查询不到此商品');
       }
       product.isDel = true; // 设置删除状态
       product.productStatus = EProductStatus.OFF_SHELF; // 设置下架
@@ -701,11 +698,11 @@ export class BackendProductService {
           },
         });
       } catch (e) {
-        await reportErr({ message: '没有查询到对应的商品', e });
+        await reportErr('没有查询到对应的商品', e);
       }
 
       if (!product) {
-        await reportErr({ message: '产品信息获取失败' });
+        await reportErr("产品信息获取失败");
       }
       // 判断传入的状态
       switch (productStatus) {
@@ -716,7 +713,7 @@ export class BackendProductService {
           product.productStatus = EProductStatus.PUT_ON_SHELF;
           break;
         default:
-          await reportErr({ message: `${productStatus}非合法的状态` });
+          await reportErr(`${productStatus}非合法的状态`);
       }
       await this.productRepository.save(product);
 

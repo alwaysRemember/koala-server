@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-08-06 16:19:55
+ * @LastEditTime: 2020-08-06 17:10:48
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -31,7 +31,7 @@ export class FrontUserService {
       try {
         currentUser = await this.findByOpenid(user.openid);
       } catch (e) {
-        await reportErr({ message: '查找用户数据失败', e });
+        await reportErr('查找用户数据失败', e);
       }
 
       //判断是否已存在   已存在则是更新用户信息 否则保存
@@ -39,14 +39,14 @@ export class FrontUserService {
         try {
           await this.frontUserRepository.update(currentUser.userId, user);
         } catch (e) {
-          await reportErr({ message: '更新用户信息失败', e });
+          await reportErr('更新用户信息失败', e);
         }
         return Object.assign({}, currentUser, user);
       } else {
         try {
           return await this.frontUserRepository.save(user);
         } catch (e) {
-          await reportErr({ message: '登录用户失败', e });
+          await reportErr('登录用户失败', e);
         }
       }
     } catch (e) {
@@ -71,7 +71,7 @@ export class FrontUserService {
       // 获取用户信息
       const user = await this.findByOpenid(openid);
       if (!user) {
-        await reportErr({ message: '不存在当前用户' });
+        await reportErr('不存在当前用户');
       }
 
       const pc = new WXBizDataCrypt(appId, user.sessionKey);

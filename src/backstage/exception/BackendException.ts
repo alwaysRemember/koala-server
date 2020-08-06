@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 17:49:46
- * @LastEditTime: 2020-07-15 18:53:41
+ * @LastEditTime: 2020-08-06 18:15:12
  * @FilePath: /koala-server/src/backstage/exception/backendException.ts
  */
 import { HttpException, HttpStatus } from '@nestjs/common';
@@ -16,7 +16,10 @@ export class BackendException extends HttpException {
     new SaveLogUtil({
       title: '*******BackendException*******',
       message,
-      originalMessage,
+      originalMessage:
+        typeof originalMessage === 'string'
+          ? originalMessage
+          : JSON.stringify(originalMessage),
     }).saveError();
     super(message, HttpStatus.OK);
   }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-02 11:22:22
- * @LastEditTime: 2020-08-06 11:54:26
+ * @LastEditTime: 2020-08-06 17:03:01
  * @FilePath: /koala-server/src/backstage/schema/BackendUserSchema.ts
  */
 
@@ -76,4 +76,9 @@ export const BackendUpdateAdminUserSchema = Joi.object({
 
 export const BackendDeleteAdminUserSchema = Joi.object({
   userId: Joi.number().required(),
+});
+
+export const BackendBindAppletUserSchema = Joi.object({
+  userId: Joi.number().required(),
+  appletUserId: Joi.number().required(),
 });

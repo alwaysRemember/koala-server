@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-07-24 14:57:17
+ * @LastEditTime: 2020-08-06 17:23:44
  * @FilePath: /koala-server/src/backstage/controller/BackendUserController.ts
  */
 import {
@@ -26,6 +26,7 @@ import {
   BackendUserListSchema,
   BackendUpdateAdminUserSchema,
   BackendDeleteAdminUserSchema,
+  BackendBindAppletUserSchema,
 } from 'src/backstage/schema/BackendUserSchema';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { ETokenEnums } from 'src/backstage/enums/TokenEnums';
@@ -37,11 +38,11 @@ import {
 } from 'src/backstage/form/BackendUserForm';
 import { SetPermissionsForController } from '../utils';
 import {
-  EbackendFindWithUserType,
   EBackendUserType,
 } from '../enums/EBackendUserType';
 import { BackendUserService } from '../service/BackendUserService';
 import { RedisCacheService } from '../service/RedisCacheService';
+import { IBindAppletUser } from '../interface/IBackendUser';
 
 @Controller('/backend-user')
 export class BackendUserController {
@@ -237,6 +238,29 @@ export class BackendUserController {
       return result.success(null);
     } catch (e) {
       return result.error(e.meesage);
+    }
+  }
+
+  /**
+   * 后台用户和小程序用户关联
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      BackendBindAppletUserSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/bind-applet-user')
+  public async bindAppletUser(@Body() params: IBindAppletUser) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendUserService.bindAppletUser(params);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
     }
   }
 }

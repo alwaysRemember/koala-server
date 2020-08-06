@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-08-06 12:20:13
+ * @LastEditTime: 2020-08-06 18:12:40
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
@@ -20,6 +20,7 @@ import { EbackendFindWithUserType } from 'src/backstage/enums/EBackendUserType';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { reportErr } from 'src/utils/ReportError';
+import { IBindAppletUser } from '../interface/IBackendUser';
 
 @Injectable()
 export class BackendUserService {
@@ -90,11 +91,11 @@ export class BackendUserService {
       try {
         data = await this.backendUserRepository.findByUsername(user.username);
       } catch (e) {
-        await reportErr({ message: '用户查询失败', e });
+        await reportErr('用户查询失败', e);
       }
       // 判断是否存在用户
       if (data) {
-        await reportErr({ message: '用户名重复，请重新输入' });
+        await reportErr('用户名重复，请重新输入');
       }
 
       // 判断所选小程序用户是否存在
@@ -102,10 +103,10 @@ export class BackendUserService {
       try {
         appletUser = await this.frontUserRepository.findOne(user.appletUserId);
       } catch (e) {
-        await reportErr({ message: '小程序用户读取失败', e });
+        await reportErr('小程序用户读取失败', e);
       }
       if (!appletUser) {
-        await reportErr({ message: '所选小程序用户不存在' });
+        await reportErr('所选小程序用户不存在');
       }
 
       const result = new BackendUser();
@@ -118,7 +119,7 @@ export class BackendUserService {
       try {
         await this.backendUserRepository.insert(result);
       } catch (e) {
-        await reportErr({ message: '添加管理员失败', e });
+        await reportErr('添加管理员失败', e);
       }
     } catch (e) {
       throw new BackendException(e.message, e);
@@ -139,6 +140,22 @@ export class BackendUserService {
     total: number;
   }> {
     const db = this.backendUserRepository.createQueryBuilder('user');
+    db.select([
+      'user.userId as userId',
+      'user.userType as userType',
+      'user.email as email',
+      'user.username as username',
+      'user.password as password',
+      'user.createTime as createTime',
+      'user.updateTime as updateTime',
+      'appletUser.nickName as appletUserName',
+      'appletUser.phone as appletUserPhone',
+    ]);
+    db.leftJoin(
+      FrontUser,
+      'appletUser',
+      'appletUser.userId = user.appletUserId',
+    );
 
     try {
       // 判断是否有权限条件
@@ -156,7 +173,7 @@ export class BackendUserService {
         .skip((page - 1) * number)
         .take(number)
         .addOrderBy('updateTime', 'DESC')
-        .getMany();
+        .getRawMany();
       const total = await db.getCount();
       return { list, total };
     } catch (e) {
@@ -213,6 +230,46 @@ export class BackendUserService {
       return await this.backendUserRepository.findOne(userId);
     } catch (e) {
       throw new BackendException(e.message);
+    }
+  }
+
+  /**
+   * 关联管理员和小程序用户
+   * @param IBindAppletUser
+   */
+  async bindAppletUser({ userId, appletUserId }: IBindAppletUser) {
+    try {
+      let user: BackendUser;
+      let appletUser: FrontUser;
+      try {
+        // 查询管理员
+        user = await this.backendUserRepository.findOne(userId);
+      } catch (e) {
+        await reportErr('查询当前选择的后台用户出错', e);
+      }
+      if (!user) await reportErr('当前选择的后台用户不存在');
+
+      // 判断是否数据无变化
+      if (user.appletUserId && user.appletUserId === appletUserId) {
+        await reportErr('当前后台用户已绑定了此小程序用户');
+      }
+
+      try {
+        // 查询小程序用户
+        appletUser = await this.frontUserRepository.findOne(appletUserId);
+      } catch (e) {
+        await reportErr('当前选择的小程序用户出错', e);
+      }
+      if (!appletUser) await reportErr('当前选择的小程序用户不存在');
+
+      user.appletUserId = appletUser.userId;
+      try {
+        await this.backendUserRepository.save(user);
+      } catch (e) {
+        await reportErr('更新后台用户与小程序用户关系出错', e);
+      }
+    } catch (e) {
+      throw new BackendException(e.message, e);
     }
   }
 }
