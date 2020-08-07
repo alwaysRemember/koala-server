@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:29:56
- * @LastEditTime: 2020-08-05 17:37:34
+ * @LastEditTime: 2020-08-07 14:55:51
  * @FilePath: /koala-server/src/backstage/controller/BackendProductListController.ts
  */
 import {
@@ -17,6 +17,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   ProductListRequestParams,
   productReviewRequestParams,
+  getProductForProductIdParams,
 } from '../schema/BackendProductListSchema';
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
@@ -77,6 +78,33 @@ export class BackendProductListController {
         params,
       );
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 根据产品id获取产品
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      getProductForProductIdParams,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/get-product-by-productId')
+  public async getProductByProductId(
+    @Body() { productId }: { productId: string },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const list = await this.backendProductService.getProductByProductId(
+        productId,
+      );
+      return result.success(list);
     } catch (e) {
       return result.error(e.message);
     }

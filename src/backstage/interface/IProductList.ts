@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:16:00
- * @LastEditTime: 2020-08-03 17:41:04
+ * @LastEditTime: 2020-08-07 15:23:55
  * @FilePath: /koala-server/src/backstage/interface/IProductList.ts
  */
 
@@ -30,4 +30,9 @@ export interface IProductItemResponse {
   productBrief: string;
   createTime: Date;
   updateTime: Date;
+}
+
+export interface IProductByIdItem {
+  id: string;
+  productName: string;
 }

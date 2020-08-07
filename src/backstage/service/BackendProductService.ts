@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-06 17:09:10
+ * @LastEditTime: 2020-08-07 15:11:55
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -51,6 +51,7 @@ import { BackendCategoriesService } from './BackendCategoriesService';
 import {
   IProductListRequest,
   IProductItemResponse,
+  IProductByIdItem,
 } from '../interface/IProductList';
 import { Categories } from 'src/global/dataobject/Categories.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
@@ -702,7 +703,7 @@ export class BackendProductService {
       }
 
       if (!product) {
-        await reportErr("产品信息获取失败");
+        await reportErr('产品信息获取失败');
       }
       // 判断传入的状态
       switch (productStatus) {
@@ -733,6 +734,29 @@ export class BackendProductService {
         },
         product.backendUser.email,
       ).send();
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 根据产品id获取产品
+   * @param param0
+   */
+  async getProductByProductId(productId: string) {
+    try {
+      try {
+        const db = this.productRepository.createQueryBuilder('product');
+        db.select([
+          'product.id as id',
+          'product.productName as productName',
+        ]);
+        db.where('product.id = :id', { id: productId });
+        let list: Array<IProductByIdItem> = await db.getRawMany();
+        return list;
+      } catch (e) {
+        await reportErr('获取商品失败', e);
+      }
     } catch (e) {
       throw new BackendException(e.message, e);
     }
