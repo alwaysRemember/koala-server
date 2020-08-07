@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-07-28 12:04:16
+ * @LastEditTime: 2020-08-07 11:07:57
  * @FilePath: /koala-server/src/backstage/service/BackendCategoriesService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -93,7 +93,7 @@ export class BackendCategoriesService {
         .addSelect(defaultParams.select)
         .skip((page - 1) * pageSize)
         .take(pageSize)
-        .addOrderBy('updateTime', 'ASC')
+        .addOrderBy('updateTime', "DESC")
         .getMany();
       const total = await db.getCount();
       return { list, total };
@@ -129,7 +129,11 @@ export class BackendCategoriesService {
       if (!data) {
         throw new BackendException('查询不到此标签信息');
       }
-      await this.categoriesRepository.update(params.id, params);
+      data.categoriesName = params.categoriesName;
+      data.isUse = params.isUse;
+      data.isShowOnHome = params.isShowOnHome;
+
+      await this.categoriesRepository.save(data);
     } catch (e) {
       throw new BackendException(e.message);
     }
