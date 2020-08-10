@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 11:32:23
- * @LastEditTime: 2020-07-24 15:33:45
+ * @LastEditTime: 2020-08-10 14:06:42
  * @FilePath: /koala-server/src/backstage/modules/BackendControllerModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -14,6 +14,7 @@ import { BackendAppletUsersModule } from './BackendAppletUsersModule';
 import { BackendMediaLibraryModule } from './BackendMediaLibraryModule';
 import { BackendProductModule } from './BackendProductModule';
 import { RedisCacheService } from '../service/RedisCacheService';
+import { BackendAppletHomeModule } from './BackendAppletHomeModule';
 
 const list = [
   BackendUserModule,
@@ -21,6 +22,7 @@ const list = [
   BackendAppletUsersModule,
   BackendMediaLibraryModule,
   BackendProductModule,
+  BackendAppletHomeModule
 ];
 
 @Module({
