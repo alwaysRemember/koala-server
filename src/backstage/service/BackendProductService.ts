@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-07 15:11:55
+ * @LastEditTime: 2020-08-10 15:35:43
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -58,6 +58,7 @@ import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { Mail } from 'src/utils/Mail';
 import { reportErr } from 'src/utils/ReportError';
+import UploadFile from 'src/utils/UploadFile';
 
 @Injectable()
 export class BackendProductService {
@@ -79,11 +80,11 @@ export class BackendProductService {
    */
   async uploadProductBanner(file: File): Promise<IUploadProductBanner> {
     const fileName = `${new Date().getTime()}_${file.originalname}`;
-    const filePath = join(IMAGE, fileName);
+    const uploadFile = new UploadFile(fileName, 'IMAGE');
+    let filePath: string;
 
     try {
-      const imgWrite = createWriteStream(filePath);
-      imgWrite.write(file.buffer);
+      filePath = uploadFile.save(file);
 
       const productBanner = new ProductBanner();
       productBanner.fileName = fileName;
@@ -102,10 +103,7 @@ export class BackendProductService {
         size: productBanner.size,
       };
     } catch (e) {
-      try {
-        accessSync(filePath);
-        unlinkSync(filePath);
-      } catch (e) {}
+      uploadFile.delate();
       throw new BackendException('上传banner失败', e.message);
     }
   }
@@ -116,10 +114,10 @@ export class BackendProductService {
    */
   async uploadProductVideo(file: File): Promise<IUploadProductVideo> {
     const fileName = `${new Date().getTime()}_${file.originalname}`;
-    const filePath = join(VIDEO, fileName);
+    const uploadFile = new UploadFile(fileName, 'VIDEO');
+    let filePath: string;
     try {
-      const write = createWriteStream(filePath);
-      write.write(file.buffer);
+      filePath = uploadFile.save(file);
       const video = new ProductVideo();
       video.path = `${HOST}/video/${fileName}`;
       video.relativePath = filePath;
@@ -133,10 +131,7 @@ export class BackendProductService {
         size: file.size,
       };
     } catch (e) {
-      try {
-        accessSync(filePath);
-        unlinkSync(filePath);
-      } catch (e) {}
+      uploadFile.delate();
       throw new BackendException('上传视频失败', e.message);
     }
   }
@@ -147,10 +142,11 @@ export class BackendProductService {
    */
   async uploadProductMainImg(file: File): Promise<IUploadProductMainImg> {
     const fileName = `${new Date().getTime()}_${file.originalname}`;
-    const filePath = join(IMAGE, fileName);
+    let filePath: string;
+    const uploadFile = new UploadFile(fileName, 'IMAGE');
     try {
-      const write = createWriteStream(filePath);
-      write.write(file.buffer);
+      filePath = uploadFile.save(file);
+
       const img = new ProductMainImg();
       img.path = `${HOST}/image/${fileName}`;
       img.relativePath = filePath;
@@ -163,10 +159,7 @@ export class BackendProductService {
         size: file.size,
       };
     } catch (e) {
-      try {
-        accessSync(filePath);
-        unlinkSync(filePath);
-      } catch (e) {}
+      uploadFile.delate();
       throw new BackendException('上传主图失败', e.message);
     }
   }
@@ -747,10 +740,7 @@ export class BackendProductService {
     try {
       try {
         const db = this.productRepository.createQueryBuilder('product');
-        db.select([
-          'product.id as id',
-          'product.productName as productName',
-        ]);
+        db.select(['product.id as id', 'product.productName as productName']);
         db.where('product.id = :id', { id: productId });
         let list: Array<IProductByIdItem> = await db.getRawMany();
         return list;

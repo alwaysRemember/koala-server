@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-07-23 14:56:09
+ * @LastEditTime: 2020-08-10 15:32:19
  * @FilePath: /koala-server/src/backstage/service/BackendMediaLibraryService.ts
  */
 import { join } from 'path';
@@ -16,6 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HOST } from 'src/config/FileConfig';
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
+import UploadFile from 'src/utils/UploadFile';
 
 @Injectable()
 export class BackendMediaLibraryService {
@@ -35,23 +36,12 @@ export class BackendMediaLibraryService {
 
     // 保存的文件名
     const fileName = `${new Date().getTime()}_${file.originalname}`;
-
-    // 根据文件类型放入不同文件夹
-    const filePath = join(
-      fileType === EMediaType.AUDIO
-        ? AUDIO
-        : fileType === EMediaType.VIDEO
-        ? VIDEO
-        : fileType === EMediaType.IMAGE
-        ? IMAGE
-        : HOME,
-      fileName,
-    );
+    let filePath: string;
+    const uploadFile = new UploadFile(fileName, fileType);
 
     try {
       // 写入文件
-      const writeFile = createWriteStream(filePath);
-      writeFile.write(file.buffer);
+      filePath = uploadFile.save(file);
 
       // 生成访问链接
       const path = `${HOST}/${fileType.toLowerCase()}/${fileName}`;
@@ -67,11 +57,7 @@ export class BackendMediaLibraryService {
 
       return { path, id: identifiers[0].id };
     } catch (e) {
-      try {
-        // 如果有错误判断文件是否写入，写入则删除
-        await accessSync(filePath);
-        await unlinkSync(filePath);
-      } catch (e) {}
+      uploadFile.delate();
       throw new BackendException('上传文件出错', e.message);
     }
   }

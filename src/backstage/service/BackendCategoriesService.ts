@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-08-07 11:07:57
+ * @LastEditTime: 2020-08-10 15:32:09
  * @FilePath: /koala-server/src/backstage/service/BackendCategoriesService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -20,6 +20,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Categories } from 'src/global/dataobject/Categories.entity';
 import { HOST } from 'src/config/FileConfig';
 import { InsertResult, FindManyOptions } from 'typeorm';
+import UploadFile from 'src/utils/UploadFile';
 
 @Injectable()
 export class BackendCategoriesService {
@@ -35,11 +36,11 @@ export class BackendCategoriesService {
    */
   async save(file: File, data: IAddCategories): Promise<InsertResult> {
     const fileName = `${new Date().getTime()}_${file.originalname}`;
-    const filePath = join(IMAGE, fileName);
+    const uploadFile = new UploadFile(fileName, 'IMAGE');
+    let filePath: string;
     try {
       // 写入文件
-      const writeImage = createWriteStream(filePath);
-      writeImage.write(file.buffer);
+      filePath = uploadFile.save(file);
 
       // 存入数据库
       const categories = new Categories();
@@ -52,10 +53,7 @@ export class BackendCategoriesService {
       return await this.categoriesRepository.insert(categories);
     } catch (e) {
       // 如果写入出错的情况下判断文件是否存在，存在则删除文件
-      try {
-        await accessSync(filePath);
-        await unlinkSync(filePath);
-      } catch (e) {}
+      uploadFile.delate();
       throw new BackendException('新增商品分类出错');
     }
   }
@@ -93,7 +91,7 @@ export class BackendCategoriesService {
         .addSelect(defaultParams.select)
         .skip((page - 1) * pageSize)
         .take(pageSize)
-        .addOrderBy('updateTime', "DESC")
+        .addOrderBy('updateTime', 'DESC')
         .getMany();
       const total = await db.getCount();
       return { list, total };
