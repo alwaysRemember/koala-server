@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:49:07
- * @LastEditTime: 2020-08-10 16:54:38
+ * @LastEditTime: 2020-08-11 13:52:48
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletHomeController.ts
  */
 import {
@@ -20,7 +20,11 @@ import { EBackendUserType } from '../enums/EBackendUserType';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { AppletHomeRemoveBannerImgSchema } from '../schema/BackendAppletHomeSchema';
+import {
+  AppletHomeRemoveBannerImgSchema,
+  AppletHomeAddBannerSchema,
+} from '../schema/BackendAppletHomeSchema';
+import { IAppletHomeAddBannerRequest } from '../interface/IAppletHome';
 
 @Controller('/applet-home')
 export class BackendAppletHomeController {
@@ -69,6 +73,22 @@ export class BackendAppletHomeController {
       return result.success();
     } catch (e) {
       return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(AppletHomeAddBannerSchema, ({ type }) => type === 'body'),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/add-banner')
+  public async addBanner(@Body() params: IAppletHomeAddBannerRequest) {
+    const result = new ResultVoUtil();
+    try {
+      await this.appletHomeBannerService.addBanner(params);
+      return result.success();
+    } catch (e) {
+      return result.error(e.meesage);
     }
   }
 }
