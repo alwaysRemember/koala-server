@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:48:16
- * @LastEditTime: 2020-08-11 14:09:54
+ * @LastEditTime: 2020-08-11 18:36:50
  * @FilePath: /koala-server/src/backstage/service/BackendAppletHomeBannerService.ts
  */
 
@@ -20,6 +20,7 @@ import { Product } from 'src/global/dataobject/Product.entity';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { AppletHomeBanner } from 'src/global/dataobject/AppletHomeBanner.entity';
+import { getManager, EntityManager } from 'typeorm';
 
 @Injectable()
 export class BackendAppletHomeBannerService {
@@ -126,6 +127,70 @@ export class BackendAppletHomeBannerService {
       banner.productId = product.id;
       banner.bannerImg = bannerImg;
       await this.appletHomeBannerRepository.save(banner);
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取banner列表
+   */
+  async getBannerList() {
+    try {
+      try {
+        const db = this.appletHomeBannerRepository.createQueryBuilder('banner');
+        db.leftJoin(
+          AppletHomeBannerImg,
+          'bannerImg',
+          'bannerImg.id = banner.bannerImgId',
+        );
+        db.select([
+          'banner.id as id',
+          'banner.productId as productId',
+          'banner.type as type',
+          'bannerImg.path as imgPath',
+        ]);
+        const list = await db.getRawMany();
+        return list;
+      } catch (e) {
+        await reportErr('获取banner列表失败', e);
+      }
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 删除banner
+   * @param id
+   */
+  async deleteBanner(id: number) {
+    try {
+      let banner: AppletHomeBanner;
+      try {
+        banner = await this.appletHomeBannerRepository.findOne(id, {
+          join: {
+            alias: 'banner',
+            leftJoinAndSelect: {
+              bannerImg: 'banner.bannerImg',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取banner信息失败', e);
+      }
+      if (!banner) await reportErr('获取不到要删除的banner数据');
+
+      try {
+        await getManager().transaction(async (entityManager: EntityManager) => {
+          await entityManager.remove(banner);
+          await entityManager.remove(banner.bannerImg);
+          accessSync(banner.bannerImg.relativePath);
+          unlinkSync(banner.bannerImg.relativePath);
+        });
+      } catch (e) {
+        await reportErr('删除banner失败', e);
+      }
     } catch (e) {
       throw new BackendException(e.message, e);
     }

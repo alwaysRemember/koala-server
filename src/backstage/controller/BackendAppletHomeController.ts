@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:49:07
- * @LastEditTime: 2020-08-11 13:52:48
+ * @LastEditTime: 2020-08-11 18:24:31
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletHomeController.ts
  */
 import {
@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   Body,
   UsePipes,
+  Get,
 } from '@nestjs/common';
 import { BackendAppletHomeBannerService } from '../service/BackendAppletHomeBannerService';
 import { SetPermissionsForController } from '../utils';
@@ -23,6 +24,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   AppletHomeRemoveBannerImgSchema,
   AppletHomeAddBannerSchema,
+  AppletHomeDeleteBannerSchema,
 } from '../schema/BackendAppletHomeSchema';
 import { IAppletHomeAddBannerRequest } from '../interface/IAppletHome';
 
@@ -76,6 +78,10 @@ export class BackendAppletHomeController {
     }
   }
 
+  /**
+   * 新增banner
+   * @param params
+   */
   @HttpCode(200)
   @UsePipes(
     new ReqParamCheck(AppletHomeAddBannerSchema, ({ type }) => type === 'body'),
@@ -88,7 +94,46 @@ export class BackendAppletHomeController {
       await this.appletHomeBannerService.addBanner(params);
       return result.success();
     } catch (e) {
-      return result.error(e.meesage);
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取banner列表
+   */
+  @HttpCode(200)
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Get('get-banner-list')
+  public async getBannerList() {
+    const result = new ResultVoUtil();
+    try {
+      const list = await this.appletHomeBannerService.getBannerList();
+      return result.success(list);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 删除banner
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      AppletHomeDeleteBannerSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.ADMIN)
+  @Post('/delete-banner')
+  public async deleteBanner(@Body() { id }: { id: number }) {
+    const result = new ResultVoUtil();
+    try {
+      await this.appletHomeBannerService.deleteBanner(id);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
     }
   }
 }
