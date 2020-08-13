@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-08-10 15:32:09
+ * @LastEditTime: 2020-08-13 14:19:35
  * @FilePath: /koala-server/src/backstage/service/BackendCategoriesService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -21,6 +21,7 @@ import { Categories } from 'src/global/dataobject/Categories.entity';
 import { HOST } from 'src/config/FileConfig';
 import { InsertResult, FindManyOptions } from 'typeorm';
 import UploadFile from 'src/utils/UploadFile';
+import { reportErr } from 'src/utils/ReportError';
 
 @Injectable()
 export class BackendCategoriesService {
@@ -123,9 +124,25 @@ export class BackendCategoriesService {
    */
   async updateCategories(params: IUpdateCategories) {
     try {
+      // 判断是否已经满了7个显示在主页的分类
+      if (params.isShowOnHome) {
+        let length: number;
+        try {
+          const [, l] = await this.categoriesRepository.findAndCount({
+            isShowOnHome: true,
+          });
+          length = l;
+        } catch (e) {
+          await reportErr('查询当前已经显示在首页的分类出错', e);
+        }
+        if (length >= 7) {
+          await reportErr('显示在首页的分类过多');
+        }
+      }
+
       const data = await this.categoriesRepository.findOne(params.id);
       if (!data) {
-        throw new BackendException('查询不到此标签信息');
+        await reportErr('查询不到此标签信息');
       }
       data.categoriesName = params.categoriesName;
       data.isUse = params.isUse;
@@ -133,7 +150,7 @@ export class BackendCategoriesService {
 
       await this.categoriesRepository.save(data);
     } catch (e) {
-      throw new BackendException(e.message);
+      throw new BackendException(e.message, e);
     }
   }
 
