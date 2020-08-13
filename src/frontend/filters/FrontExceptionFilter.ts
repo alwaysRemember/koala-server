@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 17:51:59
- * @LastEditTime: 2020-08-05 15:42:32
+ * @LastEditTime: 2020-08-13 15:08:11
  * @FilePath: /koala-server/src/frontend/filters/FrontExceptionFilter.ts
  */
 import { HttpExceptionFilter } from '../../global/filters/HttpExceptionFilter';
@@ -26,7 +26,7 @@ export class FrontExceptionFilter implements HttpExceptionFilter {
 
     new SaveLogUtil({
       title: '*******FrontExceptionFilter*******',
-      token: request.headers['token'] as string,
+      openid: request.headers['openid'] as string,
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,
       message: exception.message,

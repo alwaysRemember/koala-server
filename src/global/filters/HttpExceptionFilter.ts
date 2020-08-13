@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-08-05 14:41:16
+ * @LastEditTime: 2020-08-13 15:10:15
  * @FilePath: /koala-server/src/global/filters/HttpExceptionFilter.ts
  */
 import {
@@ -31,6 +31,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     new SaveLogUtil({
       title: '*******httpExceptionFilter*******',
       token: request.headers['token'] as string,
+      openid: request.headers['openid'] as string,
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,
       message: exception.message,
@@ -39,6 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     new Mail('KOALA - ERROR - CODE', {
       token: request.headers['token'] as string,
+      openid: request.headers['openid'] as string,
       body: JSON.stringify(request.body),
       originalUrl: request.originalUrl,
       message: exception.message,

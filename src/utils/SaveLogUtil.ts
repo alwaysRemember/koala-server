@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 18:15:41
- * @LastEditTime: 2020-06-05 19:05:02
- * @FilePath: /koala-background-server/src/utils/SaveLogUtil.ts
+ * @LastEditTime: 2020-08-13 15:18:53
+ * @FilePath: /koala-server/src/utils/SaveLogUtil.ts
  */
 
 import { sysErr } from 'src/config/LogConfig';
@@ -15,7 +15,7 @@ export class SaveLogUtil {
   }
 
   saveError() {
-    sysErr.error(this.logStr);
+    sysErr.error(`\n ${this.logStr}`);
   }
 
   private objectTransferStr() {
