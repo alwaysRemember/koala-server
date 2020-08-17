@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-10 15:35:43
+ * @LastEditTime: 2020-08-17 14:08:05
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -230,6 +230,7 @@ export class BackendProductService {
       product.backendUser = user;
       product.categories = categories;
       product.productName = data.name;
+      product.productType = data.productType;
 
       // 判断当前用户权限
       // 如果不是管理员，并且产品状态为上线，则需要改为待审核，等待管理员手动上线

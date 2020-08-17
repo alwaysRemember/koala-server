@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-07-29 18:37:41
+ * @LastEditTime: 2020-08-17 14:06:57
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -42,6 +42,13 @@ export class Product {
     comment: '产品状态',
   })
   productStatus: EProductStatus;
+
+  @Column({
+    type: 'boolean',
+    default: true,
+    comment: '是否为7天无理由商品',
+  })
+  productType: boolean;
 
   @Column({
     default: false,

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:23:02
- * @LastEditTime: 2020-08-04 14:24:38
+ * @LastEditTime: 2020-08-17 14:08:34
  * @FilePath: /koala-server/src/backstage/schema/BackendProductDetailSchema.ts
  */
 
@@ -15,6 +15,7 @@ export const BackendProductDetailSchema = Joi.object({
   productStatus: Joi.string()
     .allow(EProductStatus.OFF_SHELF, EProductStatus.PUT_ON_SHELF)
     .required(),
+  productType: Joi.boolean().required(),
   categoriesId: Joi.string().required(),
   productDetail: Joi.string().required(),
   productBrief: Joi.string().required(),
