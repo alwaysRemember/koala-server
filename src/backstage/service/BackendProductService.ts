@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-17 15:09:34
+ * @LastEditTime: 2020-08-17 16:22:53
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -417,6 +417,7 @@ export class BackendProductService {
       const {
         productName: name,
         productStatus,
+        productType,
         categories: { id: categoriesId },
         productVideo,
       } = product;
@@ -425,11 +426,13 @@ export class BackendProductService {
         productAmount: amount,
         productContent: productDetail,
         productBrief,
+        productParameter,
       } = detail;
 
       return {
         name,
         productStatus,
+        productType,
         categoriesId,
         amount,
         productBrief,
@@ -452,6 +455,7 @@ export class BackendProductService {
           name: mainImg.fileName,
           url: mainImg.path,
         },
+        productParameter: productParameter || [],
       };
     } catch (e) {
       throw new BackendException(e.message);
