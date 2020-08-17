@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-07-29 18:37:50
+ * @LastEditTime: 2020-08-17 15:12:29
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import {
@@ -37,4 +37,9 @@ export class ProductDetail {
   })
   productAmount: number;
 
+  @Column({
+    type: 'json',
+    comment: '产品简介',
+  })
+  productParameter: object;
 }

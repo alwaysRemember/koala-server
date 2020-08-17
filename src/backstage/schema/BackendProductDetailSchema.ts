@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:23:02
- * @LastEditTime: 2020-08-17 14:08:34
+ * @LastEditTime: 2020-08-17 15:04:56
  * @FilePath: /koala-server/src/backstage/schema/BackendProductDetailSchema.ts
  */
 
@@ -42,6 +42,14 @@ export const BackendProductDetailSchema = Joi.object({
   videoId: Joi.string().required(),
   delVideoIdList: Joi.array()
     .items(Joi.string())
+    .required(),
+  productParameter: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string().required(),
+        value: Joi.string().required(),
+      }),
+    )
     .required(),
 });
 

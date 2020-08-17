@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-17 14:08:05
+ * @LastEditTime: 2020-08-17 15:09:34
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -199,6 +199,7 @@ export class BackendProductService {
       productDetail.productAmount = data.amount;
       productDetail.productBrief = data.productBrief;
       productDetail.productContent = data.productDetail;
+      productDetail.productParameter = data.productParameter;
 
       // 判断是否更新产品
       if (hasProduct) {
