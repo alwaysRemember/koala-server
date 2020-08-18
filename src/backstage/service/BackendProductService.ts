@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-18 15:44:27
+ * @LastEditTime: 2020-08-18 16:29:02
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -298,11 +298,6 @@ export class BackendProductService {
           const { id } = await entityManage.save(ProductDetail, productDetail);
           product.productDetailId = id;
 
-          // 拍平配置数组
-          const list: Array<IProductConfig> = arrayFlat<IProductConfig>(
-            data.productConfigList,
-          );
-
           try {
             const list = await Promise.all(
               data.productConfigDelList.map(
@@ -317,7 +312,7 @@ export class BackendProductService {
           try {
             // 保存ProductConfig
             const productConfigList = await Promise.all(
-              list.map(async ({ id, amount, name, categoryName }) => {
+              data.productConfigList.map(async ({ id, amount, name, categoryName }) => {
                 const productConfig = new ProductConfig();
                 productConfig.amount = amount;
                 productConfig.name = name;
@@ -395,10 +390,10 @@ export class BackendProductService {
           return result.id;
         })
         .catch(e => {
-          throw new BackendException('写入数据失败', e.message);
+          throw new BackendException('写入数据失败', e);
         });
     } catch (e) {
-      throw new BackendException(e.message);
+      throw new BackendException(e.message,e);
     }
   }
 
