@@ -2,11 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:22:10
- * @LastEditTime: 2020-08-17 15:08:41
+ * @LastEditTime: 2020-08-18 15:34:44
  * @FilePath: /koala-server/src/backstage/form/BackendProductDetailForm.ts
  */
 
 import { EProductStatus } from 'src/global/enums/EProduct';
+import { IProductConfig } from '../interface/IProductDetail';
 
 export interface IProductDetail {
   productId?: string;
@@ -26,4 +27,6 @@ export interface IProductDetail {
   mainImgId: string;
   delMainImgIdList: Array<string>;
   productParameter: Array<{ key: string; value: string }>;
+  productConfigList: Array<Array<IProductConfig>>;
+  productConfigDelList: Array<number>;
 }

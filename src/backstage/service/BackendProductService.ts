@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-17 16:22:53
+ * @LastEditTime: 2020-08-18 15:44:27
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -14,6 +14,7 @@ import {
   IProductResponse,
   IUploadProductMainImg,
   IUpdateProductStatus,
+  IProductConfig,
 } from '../interface/IProductDetail';
 import { ProductBannerRepository } from '../../global/repository/ProductBannerRepository';
 import { HOST } from '../../config/FileConfig';
@@ -59,6 +60,8 @@ import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRe
 import { Mail } from 'src/utils/Mail';
 import { reportErr } from 'src/utils/ReportError';
 import UploadFile from 'src/utils/UploadFile';
+import { ProductConfig } from 'src/global/dataobject/ProductConfig.entity';
+import { arrayFlat } from 'src/utils';
 
 @Injectable()
 export class BackendProductService {
@@ -294,6 +297,40 @@ export class BackendProductService {
           // 保存详情
           const { id } = await entityManage.save(ProductDetail, productDetail);
           product.productDetailId = id;
+
+          // 拍平配置数组
+          const list: Array<IProductConfig> = arrayFlat<IProductConfig>(
+            data.productConfigList,
+          );
+
+          try {
+            const list = await Promise.all(
+              data.productConfigDelList.map(
+                async id => await entityManage.findOne(ProductConfig, id),
+              ),
+            );
+            await entityManage.remove(ProductConfig, list);
+          } catch (e) {
+            await reportErr('删除配置失败', e);
+          }
+
+          try {
+            // 保存ProductConfig
+            const productConfigList = await Promise.all(
+              list.map(async ({ id, amount, name, categoryName }) => {
+                const productConfig = new ProductConfig();
+                productConfig.amount = amount;
+                productConfig.name = name;
+                productConfig.categoryName = categoryName;
+                if (id) productConfig.id = id;
+                return await entityManage.save(ProductConfig, productConfig);
+              }),
+            );
+            product.productConfigList = productConfigList;
+          } catch (e) {
+            await reportErr('保存商品详情失败', e);
+          }
+
           const result = await entityManage.save(Product, product);
 
           // 判断banner是否更改
@@ -388,13 +425,17 @@ export class BackendProductService {
           'product.productVideo',
           'productVideo',
         )
+        .leftJoinAndMapMany(
+          'product.productConfigList',
+          'product.productConfigList',
+          'productConfig',
+        )
         .where('product.id = :id', { id: productId })
         .getOne();
 
       if (!product) {
         throw new BackendException('查询不到此商品');
       }
-
       const detail = await this.productDetailRepository.findOne(
         product.productDetailId,
       );
@@ -420,6 +461,7 @@ export class BackendProductService {
         productType,
         categories: { id: categoriesId },
         productVideo,
+        productConfigList,
       } = product;
 
       const {
@@ -456,6 +498,7 @@ export class BackendProductService {
           url: mainImg.path,
         },
         productParameter: productParameter || [],
+        productConfigList,
       };
     } catch (e) {
       throw new BackendException(e.message);

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:29:02
- * @LastEditTime: 2020-08-17 16:22:43
+ * @LastEditTime: 2020-08-18 14:43:14
  * @FilePath: /koala-server/src/backstage/interface/IProductDetail.ts
  */
 
@@ -40,6 +40,14 @@ export interface IProductResponse {
   videoData: IUploadProductVideo;
   mainImg: IUploadProductMainImg;
   productParameter: Array<{ key: string; value: string }>;
+  productConfigList: Array<IProductConfig>;
+}
+
+export interface IProductConfig {
+  id?: number;
+  name: string;
+  amount: number;
+  categoryName: string;
 }
 
 export interface IUpdateProductStatus {
