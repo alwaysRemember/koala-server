@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-18 16:29:02
+ * @LastEditTime: 2020-08-19 19:07:43
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -248,11 +248,9 @@ export class BackendProductService {
       }
 
       // 关联banner文件
-      const banner: Array<ProductBanner | undefined> = await Promise.all(
-        (data.bannerIdList || []).map(
-          async (id: string) => await this.productBannerRepository.findOne(id),
-        ),
-      );
+      const banner: Array<
+        ProductBanner | undefined
+      > = await this.productBannerRepository.findByIds(data.bannerIdList);
       // 过滤掉不存在的banner
       product.productBanner = this.filterArray<ProductBanner | undefined>(
         banner,
@@ -261,12 +259,7 @@ export class BackendProductService {
       // 关联详情中的媒体文件
       const mediaList: Array<
         ProductMediaLibrary | undefined
-      > = await Promise.all(
-        (data.mediaIdList || []).map(
-          async (id: string) =>
-            await this.productMediaLibraryRepository.findOne(id),
-        ),
-      );
+      > = await this.productMediaLibraryRepository.findByIds(data.mediaIdList);
       product.productMediaLibrary = this.filterArray<
         ProductMediaLibrary | undefined
       >(mediaList);
@@ -299,10 +292,9 @@ export class BackendProductService {
           product.productDetailId = id;
 
           try {
-            const list = await Promise.all(
-              data.productConfigDelList.map(
-                async id => await entityManage.findOne(ProductConfig, id),
-              ),
+            const list = await entityManage.findByIds(
+              ProductConfig,
+              data.productConfigDelList,
             );
             await entityManage.remove(ProductConfig, list);
           } catch (e) {
@@ -311,15 +303,19 @@ export class BackendProductService {
 
           try {
             // 保存ProductConfig
-            const productConfigList = await Promise.all(
-              data.productConfigList.map(async ({ id, amount, name, categoryName }) => {
+            let productConfigList = data.productConfigList.map(
+              ({ id, amount, name, categoryName }) => {
                 const productConfig = new ProductConfig();
                 productConfig.amount = amount;
                 productConfig.name = name;
                 productConfig.categoryName = categoryName;
                 if (id) productConfig.id = id;
-                return await entityManage.save(ProductConfig, productConfig);
-              }),
+                return productConfig;
+              },
+            );
+            productConfigList = await entityManage.save(
+              ProductConfig,
+              productConfigList,
             );
             product.productConfigList = productConfigList;
           } catch (e) {
@@ -335,9 +331,9 @@ export class BackendProductService {
                 id: In(data.delBannerIdList),
               },
             );
+            await this.productBannerRepository.remove(delBannerList);
             delBannerList.forEach(async (item: ProductBanner) => {
               const { relativePath } = item;
-              await this.productBannerRepository.remove(item);
               accessSync(relativePath);
               unlinkSync(relativePath);
             });
@@ -350,9 +346,9 @@ export class BackendProductService {
                 id: In(data.delVideoIdList),
               },
             );
+            await this.productVideoRepository.remove(delVideoList);
             delVideoList.forEach(async (item: ProductVideo) => {
               const { relativePath } = item;
-              await this.productVideoRepository.remove(item);
               accessSync(relativePath);
               unlinkSync(relativePath);
             });
@@ -365,9 +361,9 @@ export class BackendProductService {
                 id: In(data.delMediaIdList),
               },
             );
+            await this.productMediaLibraryRepository.remove(delMediaList);
             delMediaList.forEach(async (item: ProductMediaLibrary) => {
               const { relativePath } = item;
-              await this.productMediaLibraryRepository.remove(item);
               accessSync(relativePath);
               unlinkSync(relativePath);
             });
@@ -379,9 +375,10 @@ export class BackendProductService {
                 id: In(data.delMainImgIdList),
               },
             );
+
+            await this.productMainImgRepository.remove(delMainImgIdList);
             delMainImgIdList.forEach(async item => {
               const { relativePath } = item;
-              await this.productMainImgRepository.remove(item);
               accessSync(relativePath);
               unlinkSync(relativePath);
             });
@@ -393,7 +390,7 @@ export class BackendProductService {
           throw new BackendException('写入数据失败', e);
         });
     } catch (e) {
-      throw new BackendException(e.message,e);
+      throw new BackendException(e.message, e);
     }
   }
 
