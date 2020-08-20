@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:23:02
- * @LastEditTime: 2020-08-19 17:39:04
+ * @LastEditTime: 2020-08-20 15:15:23
  * @FilePath: /koala-server/src/backstage/schema/BackendProductDetailSchema.ts
  */
 
@@ -64,6 +64,7 @@ export const BackendProductDetailSchema = Joi.object({
   productConfigDelList: Joi.array()
     .items(Joi.number())
     .required(),
+  productDeliveryCity: Joi.string().required(),
 });
 
 export const BackendGetProductDetailSchema = Joi.object({
