@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-08-20 17:44:59
+ * @LastEditTime: 2020-08-25 15:04:42
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -81,6 +81,7 @@ export class ProductService {
         productParameter,
         productConfigList,
         productDeliveryCity,
+        productSales: 100, // TODO 销量需要根据订单表进行计算
       };
     } catch (e) {
       throw new FrontException(e.message, e);

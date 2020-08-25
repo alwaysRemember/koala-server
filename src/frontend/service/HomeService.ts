@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-08-13 16:50:00
+ * @LastEditTime: 2020-08-25 16:29:15
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -43,14 +43,17 @@ export class HomeService {
               alias: 'banner',
               leftJoinAndSelect: {
                 bannerImg: 'banner.bannerImg',
+                product: 'banner.product',
               },
             },
           })
-        ).map(({ id, type, bannerImg: { path: imgUrl } }) => ({
+        ).map(({ id, type, product, bannerImg: { path: imgUrl } }) => ({
           id,
           type,
           imgUrl,
+          productId: product.id,
         }));
+        console.log(bannerList);
       } catch (e) {
         await reportErr('获取banner失败', e);
       }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:24:30
- * @LastEditTime: 2020-08-07 15:41:09
+ * @LastEditTime: 2020-08-25 16:35:50
  * @FilePath: /koala-server/src/global/dataobject/AppletHomeBanner.entity.ts
  */
 import {
@@ -16,6 +16,7 @@ import {
 } from 'typeorm';
 import { EAppletHomeBannerTypeEnum } from '../enums/EAppletHomeBanner';
 import { AppletHomeBannerImg } from './AppletHomeBannerImg.entity';
+import { Product } from './Product.entity';
 
 @Entity('tb_applet_home_banner')
 export class AppletHomeBanner {
@@ -30,11 +31,12 @@ export class AppletHomeBanner {
   })
   type: EAppletHomeBannerTypeEnum;
 
-  @Column({
-    comment: '关联的产品id',
-    default: null,
-  })
-  productId: string;
+  @OneToOne(
+    type => Product,
+    product => product.appletHomeBanner,
+  )
+  @JoinColumn()
+  product: Product;
 
   @OneToOne(
     type => AppletHomeBannerImg,

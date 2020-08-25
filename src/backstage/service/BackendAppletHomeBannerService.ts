@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:48:16
- * @LastEditTime: 2020-08-11 18:36:50
+ * @LastEditTime: 2020-08-25 16:31:33
  * @FilePath: /koala-server/src/backstage/service/BackendAppletHomeBannerService.ts
  */
 
@@ -124,7 +124,7 @@ export class BackendAppletHomeBannerService {
       if (!bannerImg) await reportErr('banner图片不存在，请重新上传');
 
       const banner = new AppletHomeBanner();
-      banner.productId = product.id;
+      banner.product = product;
       banner.bannerImg = bannerImg;
       await this.appletHomeBannerRepository.save(banner);
     } catch (e) {
@@ -144,9 +144,10 @@ export class BackendAppletHomeBannerService {
           'bannerImg',
           'bannerImg.id = banner.bannerImgId',
         );
+        db.leftJoin(Product, 'product', 'product.id = banner.productId');
         db.select([
           'banner.id as id',
-          'banner.productId as productId',
+          'product.id as productId',
           'banner.type as type',
           'bannerImg.path as imgPath',
         ]);
