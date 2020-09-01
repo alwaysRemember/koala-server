@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-08-21 14:49:44
+ * @LastEditTime: 2020-09-01 14:48:15
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -204,6 +204,7 @@ export class BackendProductService {
       productDetail.productContent = data.productDetail;
       productDetail.productParameter = data.productParameter;
       productDetail.productDeliveryCity = data.productDeliveryCity;
+      productDetail.productShipping = data.productShipping;
 
       // 判断是否更新产品
       if (hasProduct) {
@@ -463,6 +464,7 @@ export class BackendProductService {
         productBrief,
         productParameter,
         productDeliveryCity,
+        productShipping,
       } = detail;
 
       return {
@@ -494,6 +496,7 @@ export class BackendProductService {
         productParameter: productParameter || [],
         productConfigList,
         productDeliveryCity,
+        productShipping,
       };
     } catch (e) {
       throw new BackendException(e.message);

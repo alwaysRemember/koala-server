@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-08-20 15:16:12
+ * @LastEditTime: 2020-09-01 14:47:29
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import {
@@ -36,6 +36,13 @@ export class ProductDetail {
     comment: '产品金额',
   })
   productAmount: number;
+
+  @Column({
+    type: 'int',
+    comment: '产品运费',
+    default: 0,
+  })
+  productShipping: number;
 
   @Column({
     comment: '发货地',
