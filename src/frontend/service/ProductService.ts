@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-08-25 15:04:42
+ * @LastEditTime: 2020-09-03 15:13:42
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -61,6 +61,7 @@ export class ProductService {
         productBrief,
         productDeliveryCity,
         productParameter,
+        productShipping,
       } = productDetail;
       return {
         productId: id,
@@ -82,6 +83,8 @@ export class ProductService {
         productConfigList,
         productDeliveryCity,
         productSales: 100, // TODO 销量需要根据订单表进行计算
+        productShipping,
+        productFavorites: false, // TODO 收藏状态需要根据收藏表进行查找
       };
     } catch (e) {
       throw new FrontException(e.message, e);
