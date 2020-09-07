@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-08-25 16:29:15
+ * @LastEditTime: 2020-09-07 16:25:44
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -53,7 +53,6 @@ export class HomeService {
           imgUrl,
           productId: product.id,
         }));
-        console.log(bannerList);
       } catch (e) {
         await reportErr('获取banner失败', e);
       }

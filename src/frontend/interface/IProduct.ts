@@ -4,7 +4,7 @@ import { EProductStatus } from 'src/global/enums/EProduct';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:34:38
- * @LastEditTime: 2020-09-03 15:13:22
+ * @LastEditTime: 2020-09-07 16:17:54
  * @FilePath: /koala-server/src/frontend/interface/IProduct.ts
  */
 export interface IProductDetailResponse {
@@ -40,3 +40,9 @@ export interface IProductDetailFile {
 export interface IProductDetailVideo extends IProductDetailFile {}
 
 export interface IProductDetailBanner extends IProductDetailFile {}
+
+// 收藏商品
+export interface IFavoriteProductType {
+  productId: string;
+  favoriteType: boolean; // 收藏状态  T 收藏  F 取消收藏
+}

@@ -2,15 +2,26 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:55:19
- * @LastEditTime: 2020-08-20 17:27:21
+ * @LastEditTime: 2020-09-07 16:24:02
  * @FilePath: /koala-server/src/frontend/controller/FrontProductController.ts
  */
 
-import { Controller, HttpCode, Post, UsePipes, Body } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  Post,
+  UsePipes,
+  Body,
+  Req,
+} from '@nestjs/common';
 import { ProductService } from '../service/ProductService';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
-import { GetProductDetailSchema } from '../schema/FrontProductSchema';
+import {
+  GetProductDetailSchema,
+  FavoriteProductType,
+} from '../schema/FrontProductSchema';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
+import { IFavoriteProductType } from '../interface/IProduct';
 
 @Controller('/front/product')
 export class FrontProductController {
@@ -30,6 +41,26 @@ export class FrontProductController {
     try {
       const product = await this.productService.getProductDetail(productId);
       return result.success(product);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 收藏商品
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(FavoriteProductType, ({ type }) => type === 'body'),
+  )
+  @Post('favorite-product-type')
+  public async favoriteProduct(@Body() data: IFavoriteProductType, @Req() req) {
+    const result = new ResultVoUtil();
+    const { openid } = req.headers;
+    try {
+      await this.productService.favoriteProduct(data, openid);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }

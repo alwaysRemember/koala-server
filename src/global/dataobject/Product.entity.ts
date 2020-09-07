@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-08-25 16:28:07
+ * @LastEditTime: 2020-09-07 16:08:23
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -15,6 +15,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Categories } from './Categories.entity';
 import { ProductDetail } from './ProductDetail.entity';
@@ -26,6 +27,7 @@ import { ProductMediaLibrary } from './ProductMediaLibrary.entity';
 import { ProductMainImg } from './ProductMainImg.entity';
 import { ProductConfig } from './ProductConfig.entity';
 import { AppletHomeBanner } from './AppletHomeBanner.entity';
+import { FrontUser } from './User.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -111,6 +113,12 @@ export class Product {
     comment: '商品主图id',
   })
   productMainImgId: string;
+
+  @ManyToMany(
+    type => FrontUser,
+    frontUser => frontUser.favoriteProductList,
+  )
+  favoriteUserList: Array<FrontUser>;
 
   @CreateDateColumn({
     comment: '创建时间',

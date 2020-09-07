@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 14:38:08
- * @LastEditTime: 2020-08-06 16:14:30
+ * @LastEditTime: 2020-09-07 16:37:26
  * @FilePath: /koala-server/src/global/dataobject/User.entity.ts
  */
 import {
@@ -11,8 +11,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { EUserGender, EUserLanguage } from '../enums/EUserGlobal';
+import { Product } from './Product.entity';
 
 @Entity('tb_front_user')
 export class FrontUser {
@@ -84,6 +87,15 @@ export class FrontUser {
     comment: '用户语言',
   })
   language: EUserLanguage;
+
+  @ManyToMany(
+    type => Product,
+    product => product.favoriteUserList,
+  )
+  @JoinTable({
+    name: 'tb_favorite_product',
+  })
+  favoriteProductList: Array<Product>;
 
   @CreateDateColumn({
     comment: '创建时间',

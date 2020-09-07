@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-09-03 15:13:42
+ * @LastEditTime: 2020-09-07 16:50:58
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -13,13 +13,20 @@ import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepo
 import { FrontException } from '../exception/FrontException';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { reportErr } from 'src/utils/ReportError';
-import { IProductDetailResponse } from '../interface/IProduct';
+import {
+  IProductDetailResponse,
+  IFavoriteProductType,
+} from '../interface/IProduct';
+import { Product } from 'src/global/dataobject/Product.entity';
+import { FrontUser } from 'src/global/dataobject/User.entity';
+import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly productDetailRepository: ProductDetailRepository,
+    private readonly frontUserRepository: FrontUserRepository,
   ) {}
 
   /**
@@ -86,6 +93,69 @@ export class ProductService {
         productShipping,
         productFavorites: false, // TODO 收藏状态需要根据收藏表进行查找
       };
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 收藏商品状态
+   * @param data
+   * @param openid
+   */
+  async favoriteProduct(
+    { productId, favoriteType }: IFavoriteProductType,
+    openid: string,
+  ) {
+    try {
+      let product: Product;
+      let user: FrontUser;
+      // 查询商品
+      try {
+        product = await this.productRepository.findOne(productId);
+      } catch (e) {
+        await reportErr('查询不到商品失败', e);
+      }
+      if (!product) await reportErr('要收藏的商品不存在');
+
+      // 查询用户
+      try {
+        user = await this.frontUserRepository.findOne({
+          where: {
+            openid,
+          },
+          relations: ['favoriteProductList'],
+        });
+      } catch (e) {
+        await reportErr('查询当前用户失败', e);
+      }
+      if (!user) await reportErr('当前用户不存在');
+
+      // 是否已经收藏
+      const storedInFavorite: boolean = !!user.favoriteProductList.find(
+        product => product.id === productId,
+      );
+      // 判断收藏状态
+      if (favoriteType) {
+        // 收藏
+        // 判断当前产品是否已经被收藏过
+        if (storedInFavorite) await reportErr('当前商品已收藏');
+        user.favoriteProductList = user.favoriteProductList.concat([product]);
+      } else {
+        if (!storedInFavorite) await reportErr('当前商品未收藏');
+        // 取消收藏
+        user.favoriteProductList = user.favoriteProductList.reduce(
+          (prev, current) => {
+            if (current.id !== productId) {
+              prev.push(current);
+            }
+            return prev;
+          },
+          [],
+        );
+      }
+
+      await this.frontUserRepository.save(user);
     } catch (e) {
       throw new FrontException(e.message, e);
     }
