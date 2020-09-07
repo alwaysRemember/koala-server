@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-09-07 16:50:58
+ * @LastEditTime: 2020-09-07 17:18:24
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -33,7 +33,10 @@ export class ProductService {
    * 获取产品详情
    * @param productId
    */
-  async getProductDetail(productId: string): Promise<IProductDetailResponse> {
+  async getProductDetail(
+    productId: string,
+    openid: string,
+  ): Promise<IProductDetailResponse> {
     try {
       const product = await this.productRepository.findOne(productId, {
         join: {
@@ -53,6 +56,9 @@ export class ProductService {
       );
 
       if (!productDetail) await reportErr('获取不到当前商品的详情信息');
+
+      const {favoriteType} = await this._checkFavoriteProduct(openid, productId);
+
       const {
         id,
         productVideo,
@@ -91,7 +97,7 @@ export class ProductService {
         productDeliveryCity,
         productSales: 100, // TODO 销量需要根据订单表进行计算
         productShipping,
-        productFavorites: false, // TODO 收藏状态需要根据收藏表进行查找
+        productFavorites: favoriteType
       };
     } catch (e) {
       throw new FrontException(e.message, e);
@@ -106,10 +112,9 @@ export class ProductService {
   async favoriteProduct(
     { productId, favoriteType }: IFavoriteProductType,
     openid: string,
-  ) {
+  ): Promise<{ favoriteType: boolean }> {
     try {
       let product: Product;
-      let user: FrontUser;
       // 查询商品
       try {
         product = await this.productRepository.findOne(productId);
@@ -118,23 +123,11 @@ export class ProductService {
       }
       if (!product) await reportErr('要收藏的商品不存在');
 
-      // 查询用户
-      try {
-        user = await this.frontUserRepository.findOne({
-          where: {
-            openid,
-          },
-          relations: ['favoriteProductList'],
-        });
-      } catch (e) {
-        await reportErr('查询当前用户失败', e);
-      }
-      if (!user) await reportErr('当前用户不存在');
-
       // 是否已经收藏
-      const storedInFavorite: boolean = !!user.favoriteProductList.find(
-        product => product.id === productId,
-      );
+      const {
+        favoriteType: storedInFavorite,
+        user,
+      } = await this._checkFavoriteProduct(openid, productId);
       // 判断收藏状态
       if (favoriteType) {
         // 收藏
@@ -155,7 +148,45 @@ export class ProductService {
         );
       }
 
-      await this.frontUserRepository.save(user);
+      try {
+        await this.frontUserRepository.save(user);
+        return { favoriteType };
+      } catch (e) {
+        await reportErr('修改商品收藏状态失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 判断当前用户是否收藏了当前产品
+   * @param openid
+   * @param productId
+   */
+  async _checkFavoriteProduct(
+    openid: string,
+    productId: string,
+  ): Promise<{ favoriteType: boolean; user: FrontUser }> {
+    let user: FrontUser;
+    try {
+      try {
+        user = await this.frontUserRepository.findOne({
+          where: {
+            openid,
+          },
+          relations: ['favoriteProductList'],
+        });
+      } catch (e) {
+        await reportErr('查询当前用户失败', e);
+      }
+      if (!user) await reportErr('当前用户不存在');
+      return {
+        favoriteType: !!user.favoriteProductList.find(
+          product => product.id === productId,
+        ),
+        user,
+      };
     } catch (e) {
       throw new FrontException(e.message, e);
     }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:55:19
- * @LastEditTime: 2020-09-07 16:24:02
+ * @LastEditTime: 2020-09-07 17:04:47
  * @FilePath: /koala-server/src/frontend/controller/FrontProductController.ts
  */
 
@@ -36,10 +36,14 @@ export class FrontProductController {
     new ReqParamCheck(GetProductDetailSchema, ({ type }) => type === 'body'),
   )
   @Post('/get-product-detail')
-  public async getProductDeital(@Body() { productId }: { productId: string }) {
+  public async getProductDeital(
+    @Body() { productId }: { productId: string },
+    @Req() req,
+  ) {
     const result = new ResultVoUtil();
+    const { openid } = req.headers;
     try {
-      const product = await this.productService.getProductDetail(productId);
+      const product = await this.productService.getProductDetail(productId,openid);
       return result.success(product);
     } catch (e) {
       return result.error(e.message);
@@ -59,8 +63,11 @@ export class FrontProductController {
     const result = new ResultVoUtil();
     const { openid } = req.headers;
     try {
-      await this.productService.favoriteProduct(data, openid);
-      return result.success();
+      const { favoriteType } = await this.productService.favoriteProduct(
+        data,
+        openid,
+      );
+      return result.success({ favoriteType });
     } catch (e) {
       return result.error(e.message);
     }
