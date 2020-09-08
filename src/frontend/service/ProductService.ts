@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-09-07 17:18:24
+ * @LastEditTime: 2020-09-08 15:00:47
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -20,6 +20,7 @@ import {
 import { Product } from 'src/global/dataobject/Product.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 
 @Injectable()
 export class ProductService {
@@ -27,6 +28,7 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     private readonly productDetailRepository: ProductDetailRepository,
     private readonly frontUserRepository: FrontUserRepository,
+    private readonly productMainImgRepository: ProductMainImgRepository,
   ) {}
 
   /**
@@ -57,7 +59,19 @@ export class ProductService {
 
       if (!productDetail) await reportErr('获取不到当前商品的详情信息');
 
-      const {favoriteType} = await this._checkFavoriteProduct(openid, productId);
+      // 是否收藏
+      const { favoriteType } = await this._checkFavoriteProduct(
+        openid,
+        productId,
+      );
+      let productMainImg: string;
+      try {
+        productMainImg = await (
+          await this.productMainImgRepository.findOne(product.productMainImgId)
+        ).path;
+      } catch (e) {
+        await reportErr('获取商品主图失败', e);
+      }
 
       const {
         id,
@@ -97,7 +111,8 @@ export class ProductService {
         productDeliveryCity,
         productSales: 100, // TODO 销量需要根据订单表进行计算
         productShipping,
-        productFavorites: favoriteType
+        productFavorites: favoriteType,
+        productMainImg,
       };
     } catch (e) {
       throw new FrontException(e.message, e);

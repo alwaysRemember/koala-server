@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-09-07 16:08:23
+ * @LastEditTime: 2020-09-08 15:02:24
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -10,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
-  JoinColumn,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
@@ -18,13 +17,11 @@ import {
   ManyToMany,
 } from 'typeorm';
 import { Categories } from './Categories.entity';
-import { ProductDetail } from './ProductDetail.entity';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { EProductStatus } from '../enums/EProduct';
 import { ProductBanner } from './ProductBanner.entity';
 import { ProductVideo } from './ProductVideo.entity';
 import { ProductMediaLibrary } from './ProductMediaLibrary.entity';
-import { ProductMainImg } from './ProductMainImg.entity';
 import { ProductConfig } from './ProductConfig.entity';
 import { AppletHomeBanner } from './AppletHomeBanner.entity';
 import { FrontUser } from './User.entity';

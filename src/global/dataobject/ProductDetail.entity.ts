@@ -2,17 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-09-01 14:47:29
+ * @LastEditTime: 2020-09-08 15:02:13
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
 import {
   Entity,
   PrimaryGeneratedColumn,
-  OneToOne,
   Column,
-  JoinColumn,
 } from 'typeorm';
-import { Product } from './Product.entity';
 
 @Entity('tb_product_detail')
 export class ProductDetail {
