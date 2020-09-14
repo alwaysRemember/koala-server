@@ -1,8 +1,9 @@
+import { ShoppingAddress } from 'src/frontend/dataobject/ShoppingAddress.entity';
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 14:38:08
- * @LastEditTime: 2020-09-07 16:37:26
+ * @LastEditTime: 2020-09-14 16:51:08
  * @FilePath: /koala-server/src/global/dataobject/User.entity.ts
  */
 import {
@@ -13,6 +14,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
 } from 'typeorm';
 import { EUserGender, EUserLanguage } from '../enums/EUserGlobal';
 import { Product } from './Product.entity';
@@ -96,6 +98,12 @@ export class FrontUser {
     name: 'tb_favorite_product',
   })
   favoriteProductList: Array<Product>;
+
+  @ManyToOne(
+    type => ShoppingAddress,
+    shoppingAddress => shoppingAddress.appletUser,
+  )
+  shoppingAddressList: Array<ShoppingAddress>;
 
   @CreateDateColumn({
     comment: '创建时间',

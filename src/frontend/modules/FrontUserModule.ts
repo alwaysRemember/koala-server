@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:37:53
- * @LastEditTime: 2020-08-05 16:05:56
+ * @LastEditTime: 2020-09-14 16:57:36
  * @FilePath: /koala-server/src/frontend/modules/FrontUserModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -16,5 +16,6 @@ import { FrontUserService } from '../service/UserService';
   imports: [TypeOrmModule.forFeature([FrontUser, FrontUserRepository])],
   controllers: [FrontUserController],
   providers: [FrontUserService],
+  exports:[FrontUserService]
 })
 export class FrontUserModule {}
