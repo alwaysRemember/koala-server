@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { reportErr } from 'src/utils/ReportError';
+import { EntityManager, getManager } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
 import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
@@ -10,7 +11,7 @@ import { ShoppingAddressRepository } from '../repository/ShoppingAddressReposito
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:20:30
- * @LastEditTime: 2020-09-14 17:04:03
+ * @LastEditTime: 2020-09-15 16:33:16
  * @FilePath: /koala-server/src/frontend/service/ShoppingAddressService.ts
  */
 @Injectable()
@@ -47,10 +48,21 @@ export class ShoppingAddressService {
       try {
         // 查找用户
         const user = await this.frontUserRepository.findByOpenid(openid);
-
         // 关联用户
         shoppingAddress.appletUser = user;
-        await this.shoppingAddressRepository.save(shoppingAddress);
+
+        await getManager().transaction(async (entityManage: EntityManager) => {
+          // 判断是否为默认选择
+          if (isDefaultSelection) {
+            // 更新当前的记录为非默认
+            await entityManage
+              .createQueryBuilder()
+              .update(ShoppingAddress)
+              .set({ isDefaultSelection: false })
+              .execute();
+          }
+          await entityManage.save(ShoppingAddress, shoppingAddress);
+        });
       } catch (e) {
         await reportErr('保存地址失败', e);
       }
@@ -71,7 +83,7 @@ export class ShoppingAddressService {
         let user = await this.frontUserRepository.findByOpenid(openid);
         list = await this.shoppingAddressRepository.find({
           order: {
-            updateTime: 'ASC',
+            createTime: 'ASC',
           },
           where: {
             appletUser: user,
