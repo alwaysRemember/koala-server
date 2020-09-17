@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 16:07:04
- * @LastEditTime: 2020-09-14 16:14:59
+ * @LastEditTime: 2020-09-15 17:02:14
  * @FilePath: /koala-server/src/frontend/schema/FrontShoppingAddressSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -20,3 +20,7 @@ export const AddShoppingAddressSchema = Joi.object({
   address: Joi.string().required(),
   isDefaultSelection: Joi.boolean().required(),
 });
+
+export const deleteShoppingAddressSchema = Joi.object({
+  id:Joi.number().required()
+})

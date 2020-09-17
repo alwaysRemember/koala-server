@@ -11,7 +11,7 @@ import { ShoppingAddressRepository } from '../repository/ShoppingAddressReposito
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:20:30
- * @LastEditTime: 2020-09-15 16:33:16
+ * @LastEditTime: 2020-09-17 15:05:24
  * @FilePath: /koala-server/src/frontend/service/ShoppingAddressService.ts
  */
 @Injectable()
@@ -92,6 +92,55 @@ export class ShoppingAddressService {
         return list;
       } catch (e) {
         await reportErr('获取收货地址列表失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 删除收货地址
+   * @param id
+   */
+  async deleteShoppingAddress(id: number) {
+    try {
+      let data: ShoppingAddress;
+      try {
+        data = await this.shoppingAddressRepository.findOne(id);
+      } catch (e) {
+        await reportErr('查找删除记录出错', e);
+      }
+      if (!data) await reportErr('找不到要删除的数据');
+      try {
+        await this.shoppingAddressRepository.remove(data);
+      } catch (e) {
+        await reportErr('删除地址出错', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取默认地址
+   * @param openid
+   */
+  async getDefaultShoppingAddress(openid: string): Promise<ShoppingAddress> {
+    try {
+      try {
+        const user = await this.frontUserRepository.findByOpenid(openid);
+        if (!user) await reportErr('找不到当前的登录用户');
+        const address = await this.shoppingAddressRepository.findOne({
+          where: {
+            appletUser: user,
+            isDefaultSelection: true,
+          },
+        });
+        console.log(address);
+        
+        return address;
+      } catch (e) {
+        await reportErr('获取默认地址出错', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);

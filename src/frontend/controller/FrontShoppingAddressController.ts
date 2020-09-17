@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:19:42
- * @LastEditTime: 2020-09-14 17:01:55
+ * @LastEditTime: 2020-09-17 15:05:14
  * @FilePath: /koala-server/src/frontend/controller/FrontShoppingAddressController.ts
  */
 
@@ -18,7 +18,10 @@ import {
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
-import { AddShoppingAddressSchema } from '../schema/FrontShoppingAddressSchema';
+import {
+  AddShoppingAddressSchema,
+  deleteShoppingAddressSchema,
+} from '../schema/FrontShoppingAddressSchema';
 import { ShoppingAddressService } from '../service/ShoppingAddressService';
 
 @Controller('/front/shoppingAddress')
@@ -57,8 +60,50 @@ export class FrontShoppingAddressController {
   public async getShoppingAddressList(@Req() { headers: { openid } }) {
     const result = new ResultVoUtil();
     try {
-      const list = await this.shoppingAddressService.getShoppingAddressList(openid);
+      const list = await this.shoppingAddressService.getShoppingAddressList(
+        openid,
+      );
       return result.success(list);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 删除收货地址
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      deleteShoppingAddressSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @Post('/delete-shopping-address')
+  public async deleteShoppingAddress(@Body() { id }: { id: number }) {
+    const result = new ResultVoUtil();
+    try {
+      await this.shoppingAddressService.deleteShoppingAddress(id);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取默认地址
+   * @param param0
+   */
+  @HttpCode(200)
+  @Get('/get-default-shopping-address')
+  public async getDefaultShoppingAddress(@Req() { headers: { openid } }) {
+    const result = new ResultVoUtil();
+    try {
+      const address = await this.shoppingAddressService.getDefaultShoppingAddress(
+        openid,
+      );
+      return result.success(address);
     } catch (e) {
       return result.error(e.message);
     }
