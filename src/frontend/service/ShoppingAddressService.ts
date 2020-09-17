@@ -5,13 +5,14 @@ import { EntityManager, getManager } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
 import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
+import { IGetDefaultShoppingAddressResponse } from '../interface/ShoppingAddress';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
 
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:20:30
- * @LastEditTime: 2020-09-17 15:05:24
+ * @LastEditTime: 2020-09-17 15:17:28
  * @FilePath: /koala-server/src/frontend/service/ShoppingAddressService.ts
  */
 @Injectable()
@@ -125,7 +126,9 @@ export class ShoppingAddressService {
    * 获取默认地址
    * @param openid
    */
-  async getDefaultShoppingAddress(openid: string): Promise<ShoppingAddress> {
+  async getDefaultShoppingAddress(
+    openid: string,
+  ): Promise<IGetDefaultShoppingAddressResponse> {
     try {
       try {
         const user = await this.frontUserRepository.findByOpenid(openid);
@@ -136,9 +139,15 @@ export class ShoppingAddressService {
             isDefaultSelection: true,
           },
         });
-        console.log(address);
-        
-        return address;
+        const length = await this.shoppingAddressRepository.count({
+          where: {
+            appletUser: user,
+          },
+        });
+        return {
+          defaultAddress: address,
+          addressLength: length,
+        };
       } catch (e) {
         await reportErr('获取默认地址出错', e);
       }
