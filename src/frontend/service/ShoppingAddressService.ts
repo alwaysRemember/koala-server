@@ -12,7 +12,7 @@ import { ShoppingAddressRepository } from '../repository/ShoppingAddressReposito
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:20:30
- * @LastEditTime: 2020-09-17 15:17:28
+ * @LastEditTime: 2020-09-17 15:21:26
  * @FilePath: /koala-server/src/frontend/service/ShoppingAddressService.ts
  */
 @Injectable()
@@ -36,7 +36,7 @@ export class ShoppingAddressService {
       isDefaultSelection,
     }: IAddShoppingAddressParams,
     openid: string,
-  ) {
+  ): Promise<ShoppingAddress> {
     const shoppingAddress = new ShoppingAddress();
     shoppingAddress.address = address;
     shoppingAddress.name = name;
@@ -45,7 +45,7 @@ export class ShoppingAddressService {
     shoppingAddress.isDefaultSelection = isDefaultSelection;
     if (id) shoppingAddress.id = id;
     try {
-      let data: ShoppingAddress;
+      let result: ShoppingAddress;
       try {
         // 查找用户
         const user = await this.frontUserRepository.findByOpenid(openid);
@@ -62,8 +62,9 @@ export class ShoppingAddressService {
               .set({ isDefaultSelection: false })
               .execute();
           }
-          await entityManage.save(ShoppingAddress, shoppingAddress);
+          result = await entityManage.save(ShoppingAddress, shoppingAddress);
         });
+        return result;
       } catch (e) {
         await reportErr('保存地址失败', e);
       }

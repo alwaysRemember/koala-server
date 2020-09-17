@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:19:42
- * @LastEditTime: 2020-09-17 15:05:14
+ * @LastEditTime: 2020-09-17 15:23:39
  * @FilePath: /koala-server/src/frontend/controller/FrontShoppingAddressController.ts
  */
 
@@ -16,8 +16,11 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
+import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
+import { IGetDefaultShoppingAddressResponse } from '../interface/ShoppingAddress';
 import {
   AddShoppingAddressSchema,
   deleteShoppingAddressSchema,
@@ -42,11 +45,14 @@ export class FrontShoppingAddressController {
   public async AddShoppingAddress(
     @Body() params: IAddShoppingAddressParams,
     @Req() { headers: { openid } },
-  ) {
+  ): Promise<ResultVo<ShoppingAddress>> {
     const result = new ResultVoUtil();
     try {
-      await this.shoppingAddressService.addShoppingAddress(params, openid);
-      return result.success();
+      const data = await this.shoppingAddressService.addShoppingAddress(
+        params,
+        openid,
+      );
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }
@@ -57,7 +63,9 @@ export class FrontShoppingAddressController {
    */
   @HttpCode(200)
   @Get('/get-shopping-address-list')
-  public async getShoppingAddressList(@Req() { headers: { openid } }) {
+  public async getShoppingAddressList(
+    @Req() { headers: { openid } },
+  ): Promise<ResultVo<Array<ShoppingAddress>>> {
     const result = new ResultVoUtil();
     try {
       const list = await this.shoppingAddressService.getShoppingAddressList(
@@ -81,7 +89,9 @@ export class FrontShoppingAddressController {
     ),
   )
   @Post('/delete-shopping-address')
-  public async deleteShoppingAddress(@Body() { id }: { id: number }) {
+  public async deleteShoppingAddress(
+    @Body() { id }: { id: number },
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.shoppingAddressService.deleteShoppingAddress(id);
@@ -97,13 +107,15 @@ export class FrontShoppingAddressController {
    */
   @HttpCode(200)
   @Get('/get-default-shopping-address')
-  public async getDefaultShoppingAddress(@Req() { headers: { openid } }) {
+  public async getDefaultShoppingAddress(
+    @Req() { headers: { openid } },
+  ): Promise<ResultVo<IGetDefaultShoppingAddressResponse>> {
     const result = new ResultVoUtil();
     try {
-      const address = await this.shoppingAddressService.getDefaultShoppingAddress(
+      const data = await this.shoppingAddressService.getDefaultShoppingAddress(
         openid,
       );
-      return result.success(address);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

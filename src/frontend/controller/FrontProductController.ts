@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:55:19
- * @LastEditTime: 2020-09-07 17:04:47
+ * @LastEditTime: 2020-09-17 15:27:02
  * @FilePath: /koala-server/src/frontend/controller/FrontProductController.ts
  */
 
@@ -21,7 +21,11 @@ import {
   FavoriteProductType,
 } from '../schema/FrontProductSchema';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { IFavoriteProductType } from '../interface/IProduct';
+import {
+  IFavoriteProductType,
+  IProductDetailResponse,
+} from '../interface/IProduct';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/front/product')
 export class FrontProductController {
@@ -39,11 +43,14 @@ export class FrontProductController {
   public async getProductDeital(
     @Body() { productId }: { productId: string },
     @Req() req,
-  ) {
+  ): Promise<ResultVo<IProductDetailResponse>> {
     const result = new ResultVoUtil();
     const { openid } = req.headers;
     try {
-      const product = await this.productService.getProductDetail(productId,openid);
+      const product = await this.productService.getProductDetail(
+        productId,
+        openid,
+      );
       return result.success(product);
     } catch (e) {
       return result.error(e.message);
@@ -59,7 +66,10 @@ export class FrontProductController {
     new ReqParamCheck(FavoriteProductType, ({ type }) => type === 'body'),
   )
   @Post('favorite-product-type')
-  public async favoriteProduct(@Body() data: IFavoriteProductType, @Req() req) {
+  public async favoriteProduct(
+    @Body() data: IFavoriteProductType,
+    @Req() req,
+  ): Promise<ResultVo<{ favoriteType: boolean }>> {
     const result = new ResultVoUtil();
     const { openid } = req.headers;
     try {

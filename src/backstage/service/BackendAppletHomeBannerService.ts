@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:48:16
- * @LastEditTime: 2020-08-25 16:31:33
+ * @LastEditTime: 2020-09-17 15:34:01
  * @FilePath: /koala-server/src/backstage/service/BackendAppletHomeBannerService.ts
  */
 
@@ -15,12 +15,16 @@ import { AppletHomeBannerRepository } from 'src/global/repository/AppletHomeBann
 import { AppletHomeBannerImg } from 'src/global/dataobject/AppletHomeBannerImg.entity';
 import { HOST } from 'src/config/FileConfig';
 import { BackendException } from '../exception/backendException';
-import { IAppletHomeAddBannerRequest } from '../interface/IAppletHome';
+import {
+  IAppletHomeAddBannerResponse,
+  IAppletHomeGetBannerListResponseItem,
+} from '../interface/IAppletHome';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { AppletHomeBanner } from 'src/global/dataobject/AppletHomeBanner.entity';
 import { getManager, EntityManager } from 'typeorm';
+import { IAppletHomeAddBannerRequest } from '../form/BackendAppletUsersForm';
 
 @Injectable()
 export class BackendAppletHomeBannerService {
@@ -34,7 +38,7 @@ export class BackendAppletHomeBannerService {
    * 上传banner图片
    * @param file
    */
-  async uploadBannerImg(file: File) {
+  async uploadBannerImg(file: File): Promise<IAppletHomeAddBannerResponse> {
     const fileName = `${new Date().getTime()}_${file.originalname}`;
     const uploadFile = new UploadFile(fileName, 'IMAGE');
     let filePath: string;
@@ -135,7 +139,7 @@ export class BackendAppletHomeBannerService {
   /**
    * 获取banner列表
    */
-  async getBannerList() {
+  async getBannerList(): Promise<Array<IAppletHomeGetBannerListResponseItem>> {
     try {
       try {
         const db = this.appletHomeBannerRepository.createQueryBuilder('banner');
@@ -151,7 +155,9 @@ export class BackendAppletHomeBannerService {
           'banner.type as type',
           'bannerImg.path as imgPath',
         ]);
-        const list = await db.getRawMany();
+        const list = await db.getRawMany<
+          IAppletHomeGetBannerListResponseItem
+        >();
         return list;
       } catch (e) {
         await reportErr('获取banner列表失败', e);

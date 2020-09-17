@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:48:25
- * @LastEditTime: 2020-08-06 17:23:44
+ * @LastEditTime: 2020-09-17 15:49:01
  * @FilePath: /koala-server/src/backstage/controller/BackendUserController.ts
  */
 import {
@@ -37,12 +37,15 @@ import {
   IBackendUserLoginForm,
 } from 'src/backstage/form/BackendUserForm';
 import { SetPermissionsForController } from '../utils';
-import {
-  EBackendUserType,
-} from '../enums/EBackendUserType';
+import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendUserService } from '../service/BackendUserService';
 import { RedisCacheService } from '../service/RedisCacheService';
-import { IBindAppletUser } from '../interface/IBackendUser';
+import {
+  IBackendFindUserListResposne,
+  IBindAppletUser,
+  ILoginResponse,
+} from '../interface/IBackendUser';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/backend-user')
 export class BackendUserController {
@@ -59,7 +62,9 @@ export class BackendUserController {
   @UsePipes(new ReqParamCheck(BackendUserSchema, ({ type }) => type === 'body'))
   @HttpCode(200)
   @Post('/login')
-  public async backendLogin(@Body() user: IBackendUserLoginForm) {
+  public async backendLogin(
+    @Body() user: IBackendUserLoginForm,
+  ): Promise<ResultVo<ILoginResponse>> {
     const result = new ResultVoUtil();
     try {
       const data: BackendUser = await this.backendUserService.backendLogin(
@@ -99,7 +104,7 @@ export class BackendUserController {
   @Post('/change-password')
   public async bakcendChangePassword(
     @Body() user: IBackendUserChangePasswordForm,
-  ) {
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.backendUserService.backendChangePassword(user);
@@ -119,7 +124,9 @@ export class BackendUserController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/add-user')
-  public async backendAddUser(@Body() user: IBackendUserForm) {
+  public async backendAddUser(
+    @Body() user: IBackendUserForm,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.backendUserService.backendAddUser(user);
@@ -139,7 +146,9 @@ export class BackendUserController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/find-user-list')
-  public async backendFindUserList(@Body() params: IBackendUserListForm) {
+  public async backendFindUserList(
+    @Body() params: IBackendUserListForm,
+  ): Promise<ResultVo<IBackendFindUserListResposne>> {
     const result = new ResultVoUtil();
 
     try {
@@ -164,7 +173,7 @@ export class BackendUserController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Get('/get-all-user-list')
-  public async backendGetAllUserList() {
+  public async backendGetAllUserList(): Promise<ResultVo<Array<BackendUser>>> {
     const result = new ResultVoUtil();
     try {
       const list = await this.backendUserService.backendFindUserList();
@@ -187,7 +196,10 @@ export class BackendUserController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/update-admin-user')
-  public async backendUpdateAdminUser(@Req() req, @Body() user: BackendUser) {
+  public async backendUpdateAdminUser(
+    @Req() req,
+    @Body() user: BackendUser,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
 
     // 获取当前登录的用户id
@@ -222,7 +234,7 @@ export class BackendUserController {
   public async backendDeleteAdminUser(
     @Req() req,
     @Body() { userId }: { userId: number },
-  ) {
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
 
     // 获取当前登录的用户id
@@ -254,7 +266,9 @@ export class BackendUserController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/bind-applet-user')
-  public async bindAppletUser(@Body() params: IBindAppletUser) {
+  public async bindAppletUser(
+    @Body() params: IBindAppletUser,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.backendUserService.bindAppletUser(params);

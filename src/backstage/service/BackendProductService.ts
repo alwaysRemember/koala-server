@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-09-01 14:48:15
+ * @LastEditTime: 2020-09-17 15:53:23
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -789,7 +789,9 @@ export class BackendProductService {
         const db = this.productRepository.createQueryBuilder('product');
         db.select(['product.id as id', 'product.productName as productName']);
         db.where('product.id = :id', { id: productId });
-        let list: Array<IProductByIdItem> = await db.getRawMany();
+        let list: Array<IProductByIdItem> = await db.getRawMany<
+          IProductByIdItem
+        >();
         return list;
       } catch (e) {
         await reportErr('获取商品失败', e);

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:37:18
- * @LastEditTime: 2020-08-06 14:42:39
+ * @LastEditTime: 2020-09-17 15:37:51
  * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -11,6 +11,7 @@ import { IFrontUser } from 'src/global/form/User';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { BackendException } from 'src/backstage/exception/backendException';
 import { Like } from 'typeorm';
+import { FrontUser } from 'src/global/dataobject/User.entity';
 
 @Injectable()
 export class BackendAppletUsersService {
@@ -67,7 +68,7 @@ export class BackendAppletUsersService {
    * 根据手机号获取用户
    * @param phone
    */
-  async getUserForPhone(phone: string) {
+  async getUserForPhone(phone: string): Promise<Array<FrontUser>> {
     try {
       return this.frontUserRepository.find({
         select: ['userId', 'phone', 'nickName'],

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-24 15:29:56
- * @LastEditTime: 2020-08-07 14:55:51
+ * @LastEditTime: 2020-09-17 15:53:35
  * @FilePath: /koala-server/src/backstage/controller/BackendProductListController.ts
  */
 import {
@@ -22,8 +22,14 @@ import {
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { IProductListRequest } from '../interface/IProductList';
+import {
+  IProductByIdItem,
+  IProductItemResponse,
+  IProductListRequest,
+} from '../interface/IProductList';
 import { BackendProductService } from '../service/BackendProductService';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
+import { IProductResponse } from '../interface/IProductDetail';
 
 @Controller('/product-list')
 export class BackendProductListController {
@@ -43,14 +49,17 @@ export class BackendProductListController {
   public async getProductList(
     @Body() params: IProductListRequest,
     @Req() { headers: { token } },
-  ) {
+  ): Promise<ResultVo<{ list: Array<IProductItemResponse>; total: number }>> {
     const result = new ResultVoUtil();
     try {
       const data = await this.backendProductService.getProductList(
         params,
         token,
       );
-      return result.success(data);
+      return result.success<{
+        list: Array<IProductItemResponse>;
+        total: number;
+      }>(data);
     } catch (e) {
       return result.error(e.message);
     }
@@ -71,7 +80,7 @@ export class BackendProductListController {
   @Post('/get-product-review-list')
   public async getPorductReviewList(
     @Body() params: { page: number; pageSize: number },
-  ) {
+  ): Promise<ResultVo<{ list: Array<IProductItemResponse>; total: number }>> {
     const result = new ResultVoUtil();
     try {
       const data = await this.backendProductService.getProductReviewList(
@@ -98,13 +107,13 @@ export class BackendProductListController {
   @Post('/get-product-by-productId')
   public async getProductByProductId(
     @Body() { productId }: { productId: string },
-  ) {
+  ): Promise<ResultVo<Array<IProductByIdItem>>> {
     const result = new ResultVoUtil();
     try {
       const list = await this.backendProductService.getProductByProductId(
         productId,
       );
-      return result.success(list);
+      return result.success<Array<IProductByIdItem>>(list);
     } catch (e) {
       return result.error(e.message);
     }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:18:57
- * @LastEditTime: 2020-08-04 14:30:20
+ * @LastEditTime: 2020-09-17 15:53:02
  * @FilePath: /koala-server/src/backstage/controller/BackendProductDetailController.ts
  */
 import {
@@ -28,7 +28,11 @@ import {
   BackendUpdateProductStatus,
 } from '../schema/BackendProductDetailSchema';
 import { BackendProductService } from '../service/BackendProductService';
-import { IUpdateProductStatus } from '../interface/IProductDetail';
+import {
+  IProductResponse,
+  IUpdateProductStatus,
+} from '../interface/IProductDetail';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/product')
 export class BackendProductDetailController {
@@ -115,11 +119,11 @@ export class BackendProductDetailController {
   public async uploadProduct(
     @Body() data: IProductDetail,
     @Req() { headers: { token } },
-  ) {
+  ): Promise<ResultVo<{id:string}>> {
     const result = new ResultVoUtil();
     try {
       const id = await this.backendProductService.uploadProduct(data, token);
-      return result.success({ id });
+      return result.success<{id:string}>({ id });
     } catch (e) {
       return result.error(e.message);
     }
@@ -138,7 +142,9 @@ export class BackendProductDetailController {
   )
   @SetPermissionsForController(EBackendUserType.PROXY)
   @Post('/get-product-detail')
-  public async getProductDetail(@Body() { productId }: { productId: string }) {
+  public async getProductDetail(
+    @Body() { productId }: { productId: string },
+  ): Promise<ResultVo<IProductResponse>> {
     const result = new ResultVoUtil();
     try {
       const data = await this.backendProductService.getProductDetail(productId);
@@ -158,7 +164,7 @@ export class BackendProductDetailController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('del-product')
-  public async delProduct(@Body() { productId }: { productId: string }) {
+  public async delProduct(@Body() { productId }: { productId: string }): Promise<ResultVo<null>>  {
     const result = new ResultVoUtil();
     try {
       await this.backendProductService.delProduct(productId);
@@ -181,7 +187,7 @@ export class BackendProductDetailController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/update-product-status')
-  public async updatePorductStatus(@Body() params: IUpdateProductStatus) {
+  public async updatePorductStatus(@Body() params: IUpdateProductStatus): Promise<ResultVo<null>>  {
     const result = new ResultVoUtil();
     try {
       await this.backendProductService.updateProductStatus(params);

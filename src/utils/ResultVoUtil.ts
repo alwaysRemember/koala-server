@@ -3,8 +3,8 @@
  * @LastEditors: Always
  * @email: 740905172@qq.com
  * @Date: 2019-12-18 17:52:18
- * @LastEditTime: 2020-06-16 18:33:59
- * @FilePath: /koala-background-server/src/utils/ResultVoUtil.ts
+ * @LastEditTime: 2020-09-17 15:49:12
+ * @FilePath: /koala-server/src/utils/ResultVoUtil.ts
  */
 
 import { ResultVo } from 'src/global/viewobject/ResultVo';
@@ -18,7 +18,7 @@ export class ResultVoUtil {
    * 成功
    * @param data 数据
    */
-  success<T>(data: any = null): ResultVo<T> {
+  success<T>(data: T = null): ResultVo<T> {
     return new ResultVo<T>(EResultVoStatus.OK, data, '成功');
   }
 

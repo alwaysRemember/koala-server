@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-08-05 16:05:39
+ * @LastEditTime: 2020-09-17 15:28:05
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import {
@@ -26,6 +26,7 @@ import { FrontUserService } from 'src/frontend/service/UserService';
 import { appId, AppSecret } from 'src/config/projectConfig';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { IUpdateUserPhone } from '../interface/FrontUser';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/front')
 export class FrontUserController {
@@ -38,7 +39,9 @@ export class FrontUserController {
   @HttpCode(200)
   @Post('/login')
   @UsePipes(new ReqParamCheck(UserLoginSchema, ({ type }) => type === 'body'))
-  public async login(@Body() user: IFrontUserLogin) {
+  public async login(
+    @Body() user: IFrontUserLogin,
+  ): Promise<ResultVo<FrontUser>> {
     const result = new ResultVoUtil();
     try {
       // 获取openid session_key
@@ -83,10 +86,16 @@ export class FrontUserController {
   @HttpCode(200)
   @Post('/update-user-phone')
   @UsePipes(new ReqParamCheck(UpdateUserPhone, ({ type }) => type === 'body'))
-  public async updateUserPhone(@Body() params: IUpdateUserPhone, @Req() req) {
+  public async updateUserPhone(
+    @Body() params: IUpdateUserPhone,
+    @Req() req,
+  ): Promise<ResultVo<{ phone: string }>> {
     const result = new ResultVoUtil();
     try {
-      const { phone } = await this.frontUserService.updateUserPhone(params,req.headers.openid);
+      const { phone } = await this.frontUserService.updateUserPhone(
+        params,
+        req.headers.openid,
+      );
       return result.success({ phone });
     } catch (e) {
       return result.error(e.message);

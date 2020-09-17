@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 17:35:34
- * @LastEditTime: 2020-07-28 11:57:49
+ * @LastEditTime: 2020-09-17 15:52:14
  * @FilePath: /koala-server/src/backstage/controller/BackendCategoriesController.ts
  */
 
@@ -33,6 +33,8 @@ import {
 import { SetPermissionsForController } from '../utils';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendCategoriesService } from '../service/BackendCategoriesService';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
+import { Categories } from 'src/global/dataobject/Categories.entity';
 
 @Controller('/backend-categories')
 export class BackendCategoriesController {
@@ -58,7 +60,7 @@ export class BackendCategoriesController {
   public async createCategories(
     @UploadedFile() file,
     @Body() data: IAddCategories,
-  ) {
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.backendCategoriesService.save(file, data);
@@ -81,7 +83,9 @@ export class BackendCategoriesController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/get-categories')
-  public async categoriesnList(@Body() data: ICategoriesList) {
+  public async categoriesnList(
+    @Body() data: ICategoriesList,
+  ): Promise<ResultVo<{ list: Array<Categories>; total: number }>> {
     const result = new ResultVoUtil();
     try {
       const {
@@ -104,11 +108,17 @@ export class BackendCategoriesController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.PROXY)
   @Get('/get-using-categories')
-  public async categoriesUseList() {
+  public async categoriesUseList(): Promise<
+    ResultVo<{
+      list: Array<Categories>;
+    }>
+  > {
     const result = new ResultVoUtil();
     try {
       const list = await this.backendCategoriesService.getAllCagetories(true);
-      return result.success({
+      return result.success<{
+        list: Array<Categories>;
+      }>({
         list,
       });
     } catch (e) {
@@ -129,7 +139,9 @@ export class BackendCategoriesController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/update-categories')
-  public async updateCategories(@Body() params: IUpdateCategories) {
+  public async updateCategories(
+    @Body() params: IUpdateCategories,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.backendCategoriesService.updateCategories(params);

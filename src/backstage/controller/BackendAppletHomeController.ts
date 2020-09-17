@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:49:07
- * @LastEditTime: 2020-08-11 18:24:31
+ * @LastEditTime: 2020-09-17 15:34:25
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletHomeController.ts
  */
 import {
@@ -26,7 +26,12 @@ import {
   AppletHomeAddBannerSchema,
   AppletHomeDeleteBannerSchema,
 } from '../schema/BackendAppletHomeSchema';
-import { IAppletHomeAddBannerRequest } from '../interface/IAppletHome';
+import {
+  IAppletHomeAddBannerResponse,
+  IAppletHomeGetBannerListResponseItem,
+} from '../interface/IAppletHome';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
+import { IAppletHomeAddBannerRequest } from '../form/BackendAppletUsersForm';
 
 @Controller('/applet-home')
 export class BackendAppletHomeController {
@@ -42,7 +47,9 @@ export class BackendAppletHomeController {
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @Post('/upload-banner-img')
-  public async uploadBannerImg(@UploadedFile() file) {
+  public async uploadBannerImg(
+    @UploadedFile() file,
+  ): Promise<ResultVo<IAppletHomeAddBannerResponse>> {
     const result = new ResultVoUtil();
     if (!file) {
       return result.error('请选择上传的图片');
@@ -68,7 +75,9 @@ export class BackendAppletHomeController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/remove-banner-img')
-  public async removeBannerImg(@Body() { id }: { id: string }) {
+  public async removeBannerImg(
+    @Body() { id }: { id: string },
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.appletHomeBannerService.removeBannerImg(id);
@@ -88,7 +97,9 @@ export class BackendAppletHomeController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/add-banner')
-  public async addBanner(@Body() params: IAppletHomeAddBannerRequest) {
+  public async addBanner(
+    @Body() params: IAppletHomeAddBannerRequest,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.appletHomeBannerService.addBanner(params);
@@ -104,7 +115,9 @@ export class BackendAppletHomeController {
   @HttpCode(200)
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Get('get-banner-list')
-  public async getBannerList() {
+  public async getBannerList(): Promise<
+    ResultVo<Array<IAppletHomeGetBannerListResponseItem>>
+  > {
     const result = new ResultVoUtil();
     try {
       const list = await this.appletHomeBannerService.getBannerList();
@@ -127,7 +140,9 @@ export class BackendAppletHomeController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('/delete-banner')
-  public async deleteBanner(@Body() { id }: { id: number }) {
+  public async deleteBanner(
+    @Body() { id }: { id: number },
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.appletHomeBannerService.deleteBanner(id);

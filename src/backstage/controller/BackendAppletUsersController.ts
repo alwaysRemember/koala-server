@@ -2,14 +2,17 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:32:12
- * @LastEditTime: 2020-08-06 14:19:06
+ * @LastEditTime: 2020-09-17 15:51:31
  * @FilePath: /koala-server/src/backstage/controller/BackendAppletUsersController.ts
  */
 import { Body, Controller, HttpCode, Post, UsePipes } from '@nestjs/common';
+import { FrontUser } from 'src/global/dataobject/User.entity';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
+import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { IBackendAppletUsersListRequestParams } from '../form/BackendAppletUsersForm';
+import { IGetAppletUserList } from '../interface/IBackendAppletUser';
 import {
   BackendAppletUsersListRequestSchema,
   BackendGetUserForPhoneSchema,
@@ -38,7 +41,7 @@ export class BackendAppletUsersController {
   @Post('/get-applet-user-list')
   public async getAppletUserList(
     @Body() params: IBackendAppletUsersListRequestParams,
-  ) {
+  ): Promise<ResultVo<IGetAppletUserList>> {
     const result = new ResultVoUtil();
 
     try {
@@ -46,7 +49,7 @@ export class BackendAppletUsersController {
         list,
         total,
       } = await this.backendAppletUsersService.getAppletUserList(params);
-      return result.success({
+      return result.success<IGetAppletUserList>({
         total,
         list,
       });
@@ -64,11 +67,13 @@ export class BackendAppletUsersController {
   )
   @SetPermissionsForController(EBackendUserType.ADMIN)
   @Post('get-user-for-phone')
-  public async getUserForPhone(@Body() { phone }: { phone: string }) {
+  public async getUserForPhone(
+    @Body() { phone }: { phone: string },
+  ): Promise<ResultVo<Array<FrontUser>>> {
     const result = new ResultVoUtil();
     try {
       const list = await this.backendAppletUsersService.getUserForPhone(phone);
-      return result.success(list);
+      return result.success<Array<FrontUser>>(list);
     } catch (e) {
       return result.error(e.message);
     }
