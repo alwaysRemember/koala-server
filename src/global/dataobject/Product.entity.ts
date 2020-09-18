@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-09-08 15:02:24
+ * @LastEditTime: 2020-09-18 18:14:53
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -25,6 +25,7 @@ import { ProductMediaLibrary } from './ProductMediaLibrary.entity';
 import { ProductConfig } from './ProductConfig.entity';
 import { AppletHomeBanner } from './AppletHomeBanner.entity';
 import { FrontUser } from './User.entity';
+import { Order } from './Order.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -104,6 +105,12 @@ export class Product {
     appletHomebanner => appletHomebanner.product,
   )
   appletHomeBanner: AppletHomeBanner;
+
+  @ManyToOne(
+    type => Order,
+    order => order.productList,
+  )
+  order: Order;
 
   @Column({
     length: 36,

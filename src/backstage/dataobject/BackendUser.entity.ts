@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-01 18:53:23
- * @LastEditTime: 2020-08-06 16:05:20
+ * @LastEditTime: 2020-09-18 18:01:27
  * @FilePath: /koala-server/src/backstage/dataobject/BackendUser.entity.ts
  */
 import {
@@ -18,6 +18,7 @@ import {
   EbackendFindWithUserType,
 } from '../enums/EBackendUserType';
 import { Product } from 'src/global/dataobject/Product.entity';
+import { Order } from 'src/global/dataobject/Order.entity';
 
 @Entity('tb_backend_user')
 export class BackendUser {
@@ -48,6 +49,12 @@ export class BackendUser {
     product => product.backendUser,
   )
   products: Array<Product>;
+
+  @OneToMany(
+    type => Order,
+    order => order.backendUser,
+  )
+  orderList: Array<Order>;
 
   @Column({
     comment: '用户在小程序中的id',
