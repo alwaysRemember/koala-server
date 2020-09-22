@@ -19,8 +19,8 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
-import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
-import { IGetDefaultShoppingAddressResponse } from '../interface/ShoppingAddress';
+import { IAddShoppingAddressParams } from '../form/IShoppingAddress';
+import { IGetDefaultShoppingAddressResponse } from '../interface/IShoppingAddress';
 import {
   AddShoppingAddressSchema,
   deleteShoppingAddressSchema,

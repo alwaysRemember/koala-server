@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-08-06 17:10:48
+ * @LastEditTime: 2020-09-22 17:39:34
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { IFrontUserSave } from 'src/global/form/User';
 import { FrontUser } from 'src/global/dataobject/User.entity';
-import { IUpdateUserPhone } from '../interface/FrontUser';
+import { IUpdateUserPhone } from '../interface/IFrontUser';
 import { appId } from 'src/config/projectConfig';
 import { FrontException } from '../exception/FrontException';
 import WXBizDataCrypt from '../../utils/WXBizDataCrypt';
@@ -27,12 +27,7 @@ export class FrontUserService {
   // 保存用户
   async save(user: IFrontUserSave): Promise<FrontUser> {
     try {
-      let currentUser: FrontUser;
-      try {
-        currentUser = await this.findByOpenid(user.openid);
-      } catch (e) {
-        await reportErr('查找用户数据失败', e);
-      }
+      const currentUser = await this.findByOpenid(user.openid);
 
       //判断是否已存在   已存在则是更新用户信息 否则保存
       if (currentUser) {
@@ -56,7 +51,13 @@ export class FrontUserService {
 
   // 根据openid查找用户
   async findByOpenid(openid: string): Promise<FrontUser> {
-    return await this.frontUserRepository.findByOpenid(openid);
+    try {
+      const user = await this.frontUserRepository.findByOpenid(openid);
+      if (!user) await reportErr('未查到当前用户');
+      return user;
+    } catch (e) {
+      await reportErr(e.message, e);
+    }
   }
 
   /**
@@ -70,9 +71,6 @@ export class FrontUserService {
     try {
       // 获取用户信息
       const user = await this.findByOpenid(openid);
-      if (!user) {
-        await reportErr('不存在当前用户');
-      }
 
       const pc = new WXBizDataCrypt(appId, user.sessionKey);
       const { purePhoneNumber } = pc.decryptData(

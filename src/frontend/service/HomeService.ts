@@ -12,7 +12,7 @@ import {
   IBannerItem,
   ICategoriesItem,
   IFeaturedItem,
-} from '../interface/FrontHome';
+} from '../interface/IFrontHome';
 import { FrontException } from '../exception/FrontException';
 import { reportErr } from 'src/utils/ReportError';
 import { AppletHomeBannerRepository } from 'src/global/repository/AppletHomeBannerRepository';

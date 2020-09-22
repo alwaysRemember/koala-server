@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:55:54
- * @LastEditTime: 2020-08-20 15:34:24
+ * @LastEditTime: 2020-09-22 15:18:16
  * @FilePath: /koala-server/src/frontend/interface/IFrontHome.ts
  */
 
@@ -19,6 +19,7 @@ export interface IBannerItem {
   id: number;
   imgUrl: string;
   type: EAppletHomeBannerTypeEnum;
+  productId?: string;
 }
 
 // 分类

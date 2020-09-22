@@ -4,8 +4,8 @@ import { reportErr } from 'src/utils/ReportError';
 import { EntityManager, getManager } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
-import { IAddShoppingAddressParams } from '../form/ShoppingAddress';
-import { IGetDefaultShoppingAddressResponse } from '../interface/ShoppingAddress';
+import { IAddShoppingAddressParams } from '../form/IShoppingAddress';
+import { IGetDefaultShoppingAddressResponse } from '../interface/IShoppingAddress';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
 
 /*

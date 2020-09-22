@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-09-17 15:28:05
+ * @LastEditTime: 2020-09-22 15:19:08
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import {
@@ -25,7 +25,7 @@ import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/User';
 import { FrontUserService } from 'src/frontend/service/UserService';
 import { appId, AppSecret } from 'src/config/projectConfig';
 import { FrontUser } from 'src/global/dataobject/User.entity';
-import { IUpdateUserPhone } from '../interface/FrontUser';
+import { IUpdateUserPhone } from '../interface/IFrontUser';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/front')

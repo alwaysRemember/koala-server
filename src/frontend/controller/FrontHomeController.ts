@@ -9,7 +9,7 @@
 import { Controller, HttpCode, Post, Get } from '@nestjs/common';
 import { HomeService } from '../service/HomeService';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { IHomeData } from '../interface/FrontHome';
+import { IHomeData } from '../interface/IFrontHome';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 
 @Controller('/front/home')

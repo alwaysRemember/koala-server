@@ -1,9 +1,10 @@
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
+import { IOrderRemarkParams } from 'src/frontend/interface/IFrontOrder';
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-09-18 18:37:17
+ * @LastEditTime: 2020-09-22 19:04:26
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -17,6 +18,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EOrderType } from '../enums/EOrder';
+import { PayOrder } from './PayOrder.entity';
 import { Product } from './Product.entity';
 import { FrontUser } from './User.entity';
 
@@ -59,10 +61,11 @@ export class Order {
   })
   orderShipping: number;
 
-  @CreateDateColumn({
-    comment: '创建时间',
+  @Column({
+    type: 'json',
+    comment: '用户基于每个产品的备注',
   })
-  createTime: Date;
+  remarkList: Array<IOrderRemarkParams>;
 
   @Column({
     type: 'enum',
@@ -71,6 +74,17 @@ export class Order {
     comment: '订单状态',
   })
   orderType: EOrderType;
+
+  @ManyToOne(
+    type => PayOrder,
+    payOrder => payOrder.orderList,
+  )
+  payOrder: PayOrder;
+
+  @CreateDateColumn({
+    comment: '创建时间',
+  })
+  createTime: Date;
 
   @UpdateDateColumn({
     comment: '更新时间',

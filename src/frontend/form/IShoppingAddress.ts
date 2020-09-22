@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-14 15:55:10
- * @LastEditTime: 2020-09-14 15:55:27
- * @FilePath: /koala-server/src/frontend/form/ShoppingAddress.ts
+ * @LastEditTime: 2020-09-22 15:29:05
+ * @FilePath: /koala-server/src/frontend/form/IShoppingAddress.ts
  */
 
 export interface IAddShoppingAddressParams {
