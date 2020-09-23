@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:10:52
- * @LastEditTime: 2020-09-23 16:46:09
+ * @LastEditTime: 2020-09-23 17:13:47
  * @FilePath: /koala-server/src/frontend/wxPay/index.ts
  */
 import { ETradeType } from './enums';
@@ -59,7 +59,6 @@ export class WxPay {
     const ip = await publicIp.v4();
     params['spbill_create_ip'] = ip;
     params['sign'] = this.paySign(params);
-    console.log(tansferJsonToXml(params));
 
     try {
       const { data } = await Axios.post(
@@ -71,7 +70,6 @@ export class WxPay {
           },
         },
       );
-      console.log(data);
 
       const {
         return_code,

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-09-18 18:14:53
+ * @LastEditTime: 2020-09-23 18:59:39
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -15,6 +15,8 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToMany,
+  JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import { Categories } from './Categories.entity';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
@@ -106,11 +108,12 @@ export class Product {
   )
   appletHomeBanner: AppletHomeBanner;
 
-  @ManyToOne(
+  @ManyToMany(
     type => Order,
     order => order.productList,
   )
-  order: Order;
+  @JoinTable()
+  orderList: Array<Order>;
 
   @Column({
     length: 36,

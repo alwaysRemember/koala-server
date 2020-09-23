@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-23 14:38:12
+ * @LastEditTime: 2020-09-23 18:58:01
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -117,6 +117,7 @@ export class OrderService {
         (prev, current) => prev + current.amount,
         0,
       );
+      payOrder.frontUser = user;
       const result = await getManager()
         .transaction<ICreateOrderResponse>(
           async (entityManager: EntityManager) => {
@@ -136,6 +137,8 @@ export class OrderService {
           },
         )
         .catch(async e => {
+          console.log(e);
+          
           await reportErr('创建订单失败', e);
         });
       return result as ICreateOrderResponse;

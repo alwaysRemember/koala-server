@@ -4,7 +4,7 @@ import { IOrderRemarkParams } from 'src/frontend/interface/IFrontOrder';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-09-22 19:04:26
+ * @LastEditTime: 2020-09-23 18:20:00
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -12,6 +12,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -44,9 +45,9 @@ export class Order {
   })
   amount: number;
 
-  @OneToMany(
+  @ManyToMany(
     type => Product,
-    product => product.order,
+    product => product.orderList,
   )
   productList: Array<Product>;
 
