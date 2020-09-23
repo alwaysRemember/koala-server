@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:42:42
- * @LastEditTime: 2020-09-22 15:59:02
+ * @LastEditTime: 2020-09-23 14:42:53
  * @FilePath: /koala-server/src/frontend/schema/FrontOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -16,7 +16,9 @@ export const CreateOrderSchema = Joi.object({
         selectProductConfigList: Joi.array()
           .items(Joi.number())
           .required(),
-        remarks: Joi.string().required(),
+        remarks: Joi.string()
+          .allow('')
+          .required(),
       }),
     )
     .min(1)

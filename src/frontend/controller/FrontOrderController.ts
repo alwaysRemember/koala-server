@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-09-22 16:37:18
+ * @LastEditTime: 2020-09-23 12:22:05
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -26,6 +26,11 @@ import { OrderService } from '../service/OrderService';
 export class FrontOrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  /**
+   * 创建订单
+   * @param params
+   * @param param1
+   */
   @HttpCode(200)
   @UsePipes(new ReqParamCheck(CreateOrderSchema, ({ type }) => type === 'body'))
   @Post('/create-order')
@@ -36,7 +41,7 @@ export class FrontOrderController {
     const result = new ResultVoUtil();
     try {
       const data = await this.orderService.createOrder(params, openid);
-      return result.success<ICreateOrderResponse>();
+      return result.success<ICreateOrderResponse>(data);
     } catch (e) {
       return result.error(e.message);
     }

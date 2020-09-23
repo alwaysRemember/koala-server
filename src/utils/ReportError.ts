@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-06 12:13:05
- * @LastEditTime: 2020-09-22 16:48:37
+ * @LastEditTime: 2020-09-22 19:47:36
  * @FilePath: /koala-server/src/utils/ReportError.ts
  */
 

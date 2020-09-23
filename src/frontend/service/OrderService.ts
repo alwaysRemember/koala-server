@@ -2,13 +2,15 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-22 19:17:58
+ * @LastEditTime: 2020-09-23 14:38:12
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
 import { HttpException, Injectable } from '@nestjs/common';
+import Axios from 'axios';
 import { config } from 'rxjs';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
+import { appId, mchId } from 'src/config/projectConfig';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { PayOrder } from 'src/global/dataobject/PayOrder.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
@@ -28,6 +30,8 @@ import { FrontException } from '../exception/FrontException';
 import { ICreateOrderParams, IOrderItem } from '../form/IFrontOrder';
 import { ICreateOrderResponse } from '../interface/IFrontOrder';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
+import { WxPay } from '../wxPay';
+import { ETradeType } from '../wxPay/enums';
 import { FrontUserService } from './UserService';
 
 @Injectable()
@@ -45,7 +49,10 @@ export class OrderService {
    * 创建订单
    * @param data
    */
-  async createOrder(data: ICreateOrderParams, openid: string): Promise<void> {
+  async createOrder(
+    data: ICreateOrderParams,
+    openid: string,
+  ): Promise<ICreateOrderResponse> {
     try {
       let address: ShoppingAddress;
       let productList: Array<Product>;
@@ -107,13 +114,31 @@ export class OrderService {
       const payOrder = new PayOrder();
       payOrder.orderList = orderList;
       payOrder.payAmount = orderList.reduce(
-        (prev, current) => (prev += current.amount),
+        (prev, current) => prev + current.amount,
         0,
       );
-      await getManager().transaction(async (entityManager: EntityManager) => {
-        await entityManager.save(Order, orderList);
-        await entityManager.save(PayOrder, payOrder);
-      });
+      const result = await getManager()
+        .transaction<ICreateOrderResponse>(
+          async (entityManager: EntityManager) => {
+            await entityManager.save(Order, orderList);
+            const payOrderResult = await entityManager.save(PayOrder, payOrder);
+            const wxPay = new WxPay({
+              appid: appId,
+              mchId,
+              tradeType: ETradeType.JSAPI,
+            });
+            return (wxPay.createWxPayOrder({
+              body: 'GO购-商品购买',
+              amount: payOrder.payAmount,
+              orderId: payOrderResult.id,
+              openId: openid,
+            }) as unknown) as ICreateOrderResponse;
+          },
+        )
+        .catch(async e => {
+          await reportErr('创建订单失败', e);
+        });
+      return result as ICreateOrderResponse;
     } catch (e) {
       throw new FrontException(e.message, e);
     }
@@ -244,6 +269,10 @@ export class OrderService {
           }
           return prev;
         }, []);
+
+        // 判断产品配置是否都正常选择了
+        if (productConfig.length === selectProductConfigList.length) return;
+
         // 获取当前商品未选择的配置分类
         const currentProductNoSelectConfig = productConfig.reduce(
           (prev, current) => {

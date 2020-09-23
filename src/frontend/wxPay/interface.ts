@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:11:44
- * @LastEditTime: 2020-09-18 17:47:36
+ * @LastEditTime: 2020-09-23 14:40:20
  * @FilePath: /koala-server/src/frontend/wxPay/interface.ts
  */
 
@@ -22,7 +22,7 @@ export interface IWxPayOrderParams {
 }
 
 export interface ICreateWxPayOrderResponse {
-  timeStamp: number;
+  timeStamp: string;
   nonceStr: string;
   package: string;
   paySign: string;
