@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-23 18:58:01
+ * @LastEditTime: 2020-09-24 15:22:36
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -128,17 +128,27 @@ export class OrderService {
               mchId,
               tradeType: ETradeType.JSAPI,
             });
-            return (wxPay.createWxPayOrder({
+            const {
+              timeStamp,
+              nonceStr,
+              package: pg,
+              paySign,
+            } = await wxPay.createWxPayOrder({
               body: 'GO购-商品购买',
               amount: payOrder.payAmount,
               orderId: payOrderResult.id,
               openId: openid,
-            }) as unknown) as ICreateOrderResponse;
+            });
+            return {
+              timeStamp,
+              nonceStr,
+              package: pg,
+              paySign,
+              orderId: payOrderResult.id,
+            };
           },
         )
         .catch(async e => {
-          console.log(e);
-          
           await reportErr('创建订单失败', e);
         });
       return result as ICreateOrderResponse;
