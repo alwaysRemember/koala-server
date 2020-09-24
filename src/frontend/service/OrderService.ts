@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-24 15:22:36
+ * @LastEditTime: 2020-09-24 16:50:06
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -152,6 +152,28 @@ export class OrderService {
           await reportErr('创建订单失败', e);
         });
       return result as ICreateOrderResponse;
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 根据支付id获取订单
+   * @param payOrderId
+   */
+  async getPayOrder(payOrderId): Promise<Array<string>> {
+    try {
+      try {
+        const db = this.payOrderRepository.createQueryBuilder('payOrder');
+        const data = await db
+          .select(['order.id as id'])
+          .leftJoin(Order, 'order', 'order.payOrderId=payOrder.id')
+          .andWhere('payOrder.id = :id', { id: payOrderId })
+          .getRawMany();
+        return data.filter(item => item.id).map(item => item.id);
+      } catch (e) {
+        await reportErr('获取订单数据失败', e);
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }
