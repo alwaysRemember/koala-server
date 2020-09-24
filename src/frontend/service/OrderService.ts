@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-24 16:50:06
+ * @LastEditTime: 2020-09-24 17:21:33
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -109,6 +109,7 @@ export class OrderService {
         productList,
         user,
         data.buyProductList,
+        address,
       );
       // 创建支付订单记录
       const payOrder = new PayOrder();
@@ -188,6 +189,7 @@ export class OrderService {
     productList: Array<Product>,
     frontUser: FrontUser,
     buyProductList: Array<IOrderItem>,
+    shoppingAddress: ShoppingAddress,
   ): Promise<Array<Order>> {
     return await Promise.all(
       productList
@@ -272,6 +274,7 @@ export class OrderService {
               remark: item.remarks,
             }));
             order.orderType = EOrderType.PENDING_PAYMENT;
+            order.shoppingAddress = shoppingAddress;
             return order;
           },
         ),

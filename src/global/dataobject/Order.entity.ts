@@ -1,10 +1,11 @@
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
+import { ShoppingAddress } from 'src/frontend/dataobject/ShoppingAddress.entity';
 import { IOrderRemarkParams } from 'src/frontend/interface/IFrontOrder';
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-09-23 18:20:00
+ * @LastEditTime: 2020-09-24 17:23:49
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -61,6 +62,12 @@ export class Order {
     comment: '运费',
   })
   orderShipping: number;
+
+  @Column({
+    type:"json",
+    comment: '收货地址',
+  })
+  shoppingAddress: ShoppingAddress;
 
   @Column({
     type: 'json',
