@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-24 17:50:24
+ * @LastEditTime: 2020-09-24 18:38:34
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -24,11 +24,14 @@ import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepo
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { reportErr } from 'src/utils/ReportError';
-import { EntityManager, getManager } from 'typeorm';
+import { EntityManager, getManager, LessThanOrEqual, Not } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
 import { ICreateOrderParams, IOrderItem } from '../form/IFrontOrder';
-import { ICreateOrderResponse } from '../interface/IFrontOrder';
+import {
+  ICreateOrderResponse,
+  IShppingAddress,
+} from '../interface/IFrontOrder';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
 import { WxPay } from '../wxPay';
 import { ETradeType } from '../wxPay/enums';
@@ -109,7 +112,12 @@ export class OrderService {
         productList,
         user,
         data.buyProductList,
-        address,
+        {
+          name: address.name,
+          address: address.address,
+          area: address.area,
+          phone: address.phone,
+        },
       );
       // 创建支付订单记录
       const payOrder = new PayOrder();
@@ -119,7 +127,6 @@ export class OrderService {
         0,
       );
       payOrder.frontUser = user;
-      payOrder.expiration = new Date().getTime() + EOrderExpiration.CANCEL;
       const result = await getManager()
         .transaction<ICreateOrderResponse>(
           async (entityManager: EntityManager) => {
@@ -181,6 +188,30 @@ export class OrderService {
     }
   }
 
+  // 根据订单过期时间修改订单状态
+  async updateOrderTypeByOrderExpiration() {
+    await getManager().transaction(
+      'READ COMMITTED',
+      async (entityManager: EntityManager) => {
+        // 查询出已过期并且订单状态为待支付的订单
+        const list = await entityManager.find(Order, {
+          where: {
+            expiration: LessThanOrEqual(new Date().getTime()),
+            orderType: EOrderType.PENDING_PAYMENT,
+          },
+        });
+        if (!list.length) return;
+        await entityManager.update(
+          Order,
+          list.map(item => item.id),
+          {
+            orderType: EOrderType.CANCEL,
+          },
+        );
+      },
+    );
+  }
+
   /**
    * 创建订单列表
    * @param productList
@@ -190,7 +221,7 @@ export class OrderService {
     productList: Array<Product>,
     frontUser: FrontUser,
     buyProductList: Array<IOrderItem>,
-    shoppingAddress: ShoppingAddress,
+    shoppingAddress: IShppingAddress,
   ): Promise<Array<Order>> {
     return await Promise.all(
       productList
@@ -276,6 +307,9 @@ export class OrderService {
             }));
             order.orderType = EOrderType.PENDING_PAYMENT;
             order.shoppingAddress = shoppingAddress;
+            order.expiration = String(
+              new Date().getTime() + EOrderExpiration.CANCEL,
+            );
             return order;
           },
         ),

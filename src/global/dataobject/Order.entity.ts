@@ -1,11 +1,14 @@
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { ShoppingAddress } from 'src/frontend/dataobject/ShoppingAddress.entity';
-import { IOrderRemarkParams } from 'src/frontend/interface/IFrontOrder';
+import {
+  IOrderRemarkParams,
+  IShppingAddress,
+} from 'src/frontend/interface/IFrontOrder';
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-09-24 17:23:49
+ * @LastEditTime: 2020-09-24 18:35:58
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -64,10 +67,10 @@ export class Order {
   orderShipping: number;
 
   @Column({
-    type:"json",
+    type: 'json',
     comment: '收货地址',
   })
-  shoppingAddress: ShoppingAddress;
+  shoppingAddress: IShppingAddress;
 
   @Column({
     type: 'json',
@@ -88,6 +91,11 @@ export class Order {
     payOrder => payOrder.orderList,
   )
   payOrder: PayOrder;
+
+  @Column({
+    comment: '订单自动取消时间',
+  })
+  expiration: string;
 
   @CreateDateColumn({
     comment: '创建时间',

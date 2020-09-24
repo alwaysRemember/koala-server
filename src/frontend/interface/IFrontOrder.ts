@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-09-24 16:16:15
+ * @LastEditTime: 2020-09-24 18:30:48
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
@@ -21,4 +21,11 @@ export interface IOrderRemarkParams {
 
 export interface IGetOrderResponse {
   orderList: Array<string>;
+}
+
+export interface IShppingAddress {
+  name: string;
+  phone: string;
+  area: Array<string>;
+  address: string;
 }

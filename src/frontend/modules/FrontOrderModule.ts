@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:50
- * @LastEditTime: 2020-09-22 17:43:01
+ * @LastEditTime: 2020-09-24 18:04:38
  * @FilePath: /koala-server/src/frontend/modules/FrontOrderMOdule.ts
  */
 
@@ -20,6 +20,7 @@ import { PayOrderRepository } from 'src/global/repository/PayOrderRepository';
 import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
+import { OrderTasksService } from 'src/global/service/OrderTasksService';
 import { FrontOrderController } from '../controller/FrontOrderController';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
@@ -36,7 +37,7 @@ import { FrontUserModule } from './FrontUserModule';
     TypeOrmModule.forFeature([ProductDetail, ProductDetailRepository]),
     FrontUserModule,
   ],
-  providers: [OrderService],
+  providers: [OrderService, OrderTasksService],
   controllers: [FrontOrderController],
 })
 export class FrontOrderModule {}
