@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-24 17:21:33
+ * @LastEditTime: 2020-09-24 17:50:24
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -15,7 +15,7 @@ import { Order } from 'src/global/dataobject/Order.entity';
 import { PayOrder } from 'src/global/dataobject/PayOrder.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
-import { EOrderType } from 'src/global/enums/EOrder';
+import { EOrderExpiration, EOrderType } from 'src/global/enums/EOrder';
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
@@ -119,6 +119,7 @@ export class OrderService {
         0,
       );
       payOrder.frontUser = user;
+      payOrder.expiration = new Date().getTime() + EOrderExpiration.CANCEL;
       const result = await getManager()
         .transaction<ICreateOrderResponse>(
           async (entityManager: EntityManager) => {

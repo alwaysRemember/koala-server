@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:02:26
- * @LastEditTime: 2020-09-23 18:29:16
+ * @LastEditTime: 2020-09-24 17:48:38
  * @FilePath: /koala-server/src/global/dataobject/PayOrder.entity.ts
  */
 
@@ -70,6 +70,11 @@ export class PayOrder {
     default: 0,
   })
   cashFee: number;
+
+  @Column({
+    comment: '订单自动取消时间',
+  })
+  expiration: number;
 
   @Column({
     comment: '微信支付订单号',

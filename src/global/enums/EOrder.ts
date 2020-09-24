@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-09-18 18:33:27
+ * @LastEditTime: 2020-09-24 17:49:44
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
 
@@ -12,4 +12,8 @@ export enum EOrderType {
   TO_BE_RECEIVED = 'TO_BE_received', // 待收货
   COMMENT = 'COMMENT', // 待评价
   FINISHED = 'FINISHED', // 已完结
+}
+
+export enum EOrderExpiration {
+  CANCEL = 7200000, // 自动取消时间
 }
