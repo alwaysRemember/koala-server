@@ -2,12 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-23 16:52:54
- * @LastEditTime: 2020-09-23 19:13:47
+ * @LastEditTime: 2020-09-25 19:13:17
  * @FilePath: /koala-server/src/global/service/wxPayService.ts
  */
 
 import { Injectable } from '@nestjs/common';
 import { FrontUserService } from 'src/frontend/service/UserService';
+import { Mail } from 'src/utils/Mail';
 import { EntityManager, getManager } from 'typeorm';
 import { Order } from '../dataobject/Order.entity';
 import { PayOrder } from '../dataobject/PayOrder.entity';
@@ -63,12 +64,45 @@ export class WxPayService {
               orderType: EOrderType.TO_BE_DELIVERED,
             },
           );
+          try {
+            const orderList = await this.orderRepository.findByIds(
+              payOrder.orderList.map(({ id }) => id),
+              {
+                join: {
+                  alias: 'order',
+                  leftJoinAndSelect: {
+                    backendUser: 'order.backendUser',
+                    productList: 'order.productList',
+                  },
+                },
+              },
+            );
+            orderList.map(item => {
+              try {
+                new Mail(
+                  '有用户下单，请尽快处理！',
+                  {
+                    商品: `${item.productList.map(
+                      p =>
+                        `${p.productName} x${
+                          item.buyProductQuantityList.find(
+                            b => b.productId === p.id,
+                          )?.buyQuantity
+                        }\n`,
+                    )}`,
+                    收货信息: `${Object.keys(item.shoppingAddress)
+                      .map(key => item.shoppingAddress[key])
+                      .join('\n')}`,
+                  },
+                  item.backendUser.email,
+                ).send();
+              } catch (e) {}
+            });
+          } catch (e) {}
         },
       );
     } catch (e) {
-      console.log(e);
-      console.log('**************');
-      // this.checkOrder(data);
+      this.checkOrder(data);
     }
   }
 }

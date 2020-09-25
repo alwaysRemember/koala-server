@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-09-23 18:59:39
+ * @LastEditTime: 2020-09-25 19:00:46
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -112,7 +112,9 @@ export class Product {
     type => Order,
     order => order.productList,
   )
-  @JoinTable()
+  @JoinTable({
+    name: 'tb_product_related_tb_order',
+  })
   orderList: Array<Order>;
 
   @Column({
