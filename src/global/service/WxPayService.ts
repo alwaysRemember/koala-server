@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-23 16:52:54
- * @LastEditTime: 2020-09-25 19:13:17
+ * @LastEditTime: 2020-09-27 15:08:55
  * @FilePath: /koala-server/src/global/service/wxPayService.ts
  */
 
@@ -82,6 +82,7 @@ export class WxPayService {
                 new Mail(
                   '有用户下单，请尽快处理！',
                   {
+                    订单ID: item.id,
                     商品: `${item.productList.map(
                       p =>
                         `${p.productName} x${

@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-08 18:43:11
- * @LastEditTime: 2020-07-22 11:31:04
+ * @LastEditTime: 2020-09-27 18:17:15
  * @FilePath: /koala-server/src/backstage/guards/PermissionsGuard.ts
  */
 import { CanActivate, Injectable, ExecutionContext } from '@nestjs/common';
@@ -40,7 +40,6 @@ export class PermissionsGuard implements CanActivate {
 
     if (userStr) {
       const user: BackendUser = JSON.parse(userStr);
-
       // 校验用户权限
       if (user.userType >= permissions) {
         return true;

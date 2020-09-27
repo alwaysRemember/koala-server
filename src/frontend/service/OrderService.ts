@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-24 18:38:34
+ * @LastEditTime: 2020-09-27 18:32:09
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -30,7 +30,7 @@ import { FrontException } from '../exception/FrontException';
 import { ICreateOrderParams, IOrderItem } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
-  IShppingAddress,
+  IShoppingAddress,
 } from '../interface/IFrontOrder';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
 import { WxPay } from '../wxPay';
@@ -221,7 +221,7 @@ export class OrderService {
     productList: Array<Product>,
     frontUser: FrontUser,
     buyProductList: Array<IOrderItem>,
-    shoppingAddress: IShppingAddress,
+    shoppingAddress: IShoppingAddress,
   ): Promise<Array<Order>> {
     return await Promise.all(
       productList
@@ -255,7 +255,7 @@ export class OrderService {
             user: BackendUser; // 按代理分类后的当前代理
             productList: Array<Product>; // 购买当前代理下的产品列表
           }) => {
-            let orderShipping: number = 0; // 运费
+            let orderShopping: number = 0; // 运费
             const order = new Order();
             // 订单金额=((商品默认金额+商品配置金额)*商品数量+运费)^n
             const orderAmount = await (
@@ -277,7 +277,7 @@ export class OrderService {
                       );
                       return config.amount;
                     });
-                    orderShipping += productDetail.productShipping;
+                    orderShopping += productDetail.productShipping;
                     // 金额相加
                     return (
                       configAmountList.reduce(
@@ -300,7 +300,7 @@ export class OrderService {
               productId: item.productId,
               buyQuantity: item.buyQuantity,
             }));
-            order.orderShipping = orderShipping;
+            order.orderShopping = orderShopping;
             order.remarkList = buyProductList.map(item => ({
               productId: item.productId,
               remark: item.remarks,

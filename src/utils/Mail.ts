@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 18:22:25
- * @LastEditTime: 2020-08-04 16:44:24
+ * @LastEditTime: 2020-09-25 19:21:16
  * @FilePath: /koala-server/src/utils/Mail.ts
  */
 
@@ -12,6 +12,7 @@ import { SaveLogUtil } from './SaveLogUtil';
 export class Mail {
   private transporter;
   private mailOptions;
+  private sendUser: string = 'thj740905172@163.com';
   constructor(
     title: string,
     data: object,
@@ -22,7 +23,7 @@ export class Mail {
       port: 465,
       secureConnection: true,
       auth: {
-        user: 'thj740905172@163.com',
+        user: this.send,
         pass: 'QUHINJCPLBMMUTBN',
       },
     });
@@ -34,10 +35,10 @@ export class Mail {
     );
 
     this.mailOptions = {
-      from: '"KOALA - SYSTEM" <thj740905172@163.com>',
+      from: `"KOALA - SYSTEM" <${this.send}>`,
       to: toEmail,
       subject: title,
-      html: `<div>${sendHtml}</div`,
+      html: `<div>${sendHtml}</div>`,
     };
   }
 

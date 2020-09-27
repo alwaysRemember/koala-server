@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 17:03:49
- * @LastEditTime: 2020-08-10 14:05:49
+ * @LastEditTime: 2020-09-27 14:45:20
  * @FilePath: /koala-server/src/backstage/modules/BackendAuthMiddlewareModule.ts
  */
 import { NestModule, MiddlewareConsumer, Module } from '@nestjs/common';
@@ -19,6 +19,7 @@ import { BackendProductDetailController } from '../controller/BackendProductDeta
 import { RedisCacheService } from '../service/RedisCacheService';
 import { BackendProductListController } from '../controller/BackendProductListController';
 import { BackendAppletHomeController } from '../controller/BackendAppletHomeController';
+import { BackendOrderController } from '../controller/BackendOrderController';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BackendUser, BackendUserRepository])],
@@ -36,7 +37,8 @@ export class BackendAuthMiddlewareModule implements NestModule {
         BackendMediaLibraryController,
         BackendProductDetailController,
         BackendProductListController,
-        BackendAppletHomeController
+        BackendAppletHomeController,
+        BackendOrderController,
       );
   }
 }
