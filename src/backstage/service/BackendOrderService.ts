@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-09-27 18:34:44
+ * @LastEditTime: 2020-10-12 16:00:17
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -27,6 +27,12 @@ export class BackendOrderService {
     private readonly redisService: RedisCacheService,
     private readonly orderRepository: OrderRepository,
   ) {}
+
+  /**
+   * 获取订单列表
+   * @param param0
+   * @param token
+   */
   async getOrderList(
     {
       orderId,
@@ -81,7 +87,7 @@ export class BackendOrderService {
         'createTime',
       );
       dateSql && db.andWhere(dateSql, dateParams);
-      // 订单条件判断s
+      // 订单条件判断
       orderType !== EDefaultSelect.ALL &&
         db.andWhere('order.orderType=:orderType', { orderType });
       // 非管理员只能查看自己的数据 || 某个用户的数据
@@ -89,7 +95,7 @@ export class BackendOrderService {
         backendUser.userType !== EBackendUserType.ADMIN ||
         userId !== EDefaultSelect.ALL
       ) {
-        db.andWhere('order.backendUserId =:userId', {
+        db.andWhere('order.backendUserUserId =:userId', {
           userId:
             (userId !== EDefaultSelect.ALL && userId) || backendUser.userId,
         });
@@ -139,7 +145,7 @@ export class BackendOrderService {
       }
       if (max) {
         params.max = max;
-        str = `order.${key}>=:max`;
+        str = `order.${key}<=:max`;
       }
       if (max && min) {
         str = `order.${key}>=:min AND order.${key}<=:max`;
