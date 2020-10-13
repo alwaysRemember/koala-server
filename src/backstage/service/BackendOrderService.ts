@@ -2,20 +2,31 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-12 16:00:17
+ * @LastEditTime: 2020-10-13 15:56:56
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
 import { Injectable } from '@nestjs/common';
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
+import { Order } from 'src/global/dataobject/Order.entity';
+import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
+import { EOrderType } from 'src/global/enums/EOrder';
 import { EDefaultSelect } from 'src/global/enums/EProduct';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
+import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { reportErr } from 'src/utils/ReportError';
 import { BackendUser } from '../dataobject/BackendUser.entity';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendException } from '../exception/backendException';
 import { IGetOrderListRequestParams } from '../form/BackendOrderForm';
-import { IGetOrderListResponse, IOrderItem } from '../interface/IOrder';
+import {
+  IGetOrderListResponse,
+  IOrderDetailResponse,
+  IOrderItem,
+  IOrderLogisticsInfo,
+} from '../interface/IOrder';
 import { BackendUserRepository } from '../repository/BackendUserRepository';
 import { BackendUserService } from './BackendUserService';
 import { RedisCacheService } from './RedisCacheService';
@@ -26,6 +37,8 @@ export class BackendOrderService {
     private readonly backendUserRepository: BackendUserRepository,
     private readonly redisService: RedisCacheService,
     private readonly orderRepository: OrderRepository,
+    private readonly productDetailRepository: ProductDetailRepository,
+    private readonly productMainImgRepository: ProductMainImgRepository,
   ) {}
 
   /**
@@ -119,6 +132,107 @@ export class BackendOrderService {
           )},${address},${name},${phone}`;
           return item;
         }),
+      };
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取订单详情
+   * @param orderId
+   * @param token
+   */
+  async getOrderDetail(
+    orderId: string,
+    token: string,
+  ): Promise<IOrderDetailResponse> {
+    try {
+      let localUserStr: string;
+      let order: Order;
+      let mainImgList: Array<ProductMainImg>; // 商品主图list
+      let productDetailList: Array<ProductDetail>; // 商品详情list
+
+      // 获取当前用户
+      try {
+        localUserStr = await this.redisService.get(token);
+      } catch (e) {
+        await reportErr('获取当前登录用户失败', e);
+      }
+      if (!localUserStr) await reportErr('获取不到当前登录用户');
+      const { userId: localUserId, userType } = JSON.parse(localUserStr);
+
+      // 获取当前订单
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              backendUser: 'order.backendUser',
+              productList: 'order.productList',
+              logisticsInfo: 'order.logisticsInfo',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取订单失败', e);
+      }
+      // 判断权限||当前订单是否属于当前登录用户
+      if (
+        localUserId !== order.backendUser.userId &&
+        userType !== EBackendUserType.ADMIN
+      ) {
+        await reportErr('当前登录账号无权查看此订单');
+      }
+      // 获取商品信息
+      try {
+        mainImgList = await this.productMainImgRepository.findByIds(
+          order.productList.map(item => item.productMainImgId),
+          {
+            select: ['id', 'path'],
+          },
+        );
+        productDetailList = await this.productDetailRepository.findByIds(
+          order.productList.map(item => item.productDetailId),
+          {
+            select: ['id', 'productAmount', 'productShipping'],
+          },
+        );
+      } catch (e) {
+        await reportErr('获取订单详情失败', e);
+      }
+
+      // 组合数据
+      return {
+        deliveryInfo: {
+          name: order.shoppingAddress.name,
+          phone: order.shoppingAddress.phone,
+          area: order.shoppingAddress.area.join(' '),
+          address: order.shoppingAddress.address,
+        },
+        productList: order.productList.map(
+          ({ id, productName, productMainImgId, productDetailId }) => ({
+            productId: id,
+            name: productName,
+            img: mainImgList.find(data => data.id === productMainImgId).path,
+            buyQuantity: order.buyProductQuantityList.find(
+              data => data.productId === id,
+            ).buyQuantity,
+            amount: productDetailList.find(data => data.id === productDetailId)
+              .productAmount,
+            remark: order.remarkList.find(data => data.productId === id).remark,
+          }),
+        ),
+        logisticsInfo: order.logisticsInfo
+          ? {
+              courierName: order.logisticsInfo.name,
+              courierNum: order.logisticsInfo.num,
+            }
+          : null,
+        orderAmount: order.amount,
+        orderShopping: order.orderShopping,
+        orderType: order.orderType,
+        orderId: order.id,
       };
     } catch (e) {
       throw new BackendException(e.message, e);

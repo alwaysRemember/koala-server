@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:51:14
- * @LastEditTime: 2020-09-27 18:12:59
+ * @LastEditTime: 2020-10-13 14:53:43
  * @FilePath: /koala-server/src/backstage/schema/BackendOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -31,15 +31,14 @@ export const GetOrderListSchema = Joi.object({
       EOrderType.TO_BE_RECEIVED,
     )
     .required(),
-  /* userId:
-    Joi.number() ||
-    Joi.string()
-      .allow(EDefaultSelect.ALL)
-      .required(), */
   userId: Joi.allow(
     Joi.number(),
     Joi.string().allow(EDefaultSelect.ALL),
   ).required(),
   page: Joi.number().required(),
   pageSize: Joi.number().required(),
+});
+
+export const GetOrderDetailSchema = Joi.object({
+  orderId: Joi.string().required(),
 });
