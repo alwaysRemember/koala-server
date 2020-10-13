@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 18:22:25
- * @LastEditTime: 2020-09-25 19:21:16
+ * @LastEditTime: 2020-10-13 14:27:02
  * @FilePath: /koala-server/src/utils/Mail.ts
  */
 
@@ -45,7 +45,11 @@ export class Mail {
   send() {
     this.transporter.sendMail(this.mailOptions, error => {
       if (error) {
-        new SaveLogUtil(this.mailOptions).saveError();
+        new SaveLogUtil({
+          title: '邮件发送错误',
+          msg: error.message,
+          origin:JSON.stringify(error)
+        }).saveError();
       }
     });
   }

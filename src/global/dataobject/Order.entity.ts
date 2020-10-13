@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-09-27 18:32:01
+ * @LastEditTime: 2020-10-13 14:45:30
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -16,13 +16,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { EOrderType } from '../enums/EOrder';
+import { OrderLogisticsInfo } from './OrderLogisticsInfo.entity';
 import { PayOrder } from './PayOrder.entity';
 import { Product } from './Product.entity';
 import { FrontUser } from './User.entity';
@@ -62,6 +65,12 @@ export class Order {
   buyProductQuantityList: Array<{ productId: string; buyQuantity: number }>;
 
   @Column({
+    type: 'json',
+    comment: '每个产品购买的产品配置',
+  })
+  buyProductConfigList: Array<{ productId: string; configList: Array<number> }>;
+
+  @Column({
     comment: '运费',
   })
   orderShopping: number;
@@ -96,6 +105,13 @@ export class Order {
     comment: '订单自动取消时间',
   })
   expiration: string;
+
+  @OneToOne(
+    type => OrderLogisticsInfo,
+    orderLogisticsInfo => orderLogisticsInfo.order,
+  )
+  @JoinColumn()
+  logisticsInfo: OrderLogisticsInfo;
 
   @CreateDateColumn({
     comment: '创建时间',

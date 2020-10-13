@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-09-27 18:32:09
+ * @LastEditTime: 2020-10-12 16:48:51
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -299,6 +299,10 @@ export class OrderService {
             order.buyProductQuantityList = buyProductList.map(item => ({
               productId: item.productId,
               buyQuantity: item.buyQuantity,
+            }));
+            order.buyProductConfigList = buyProductList.map(item => ({
+              productId: item.productId,
+              configList: item.selectProductConfigList,
             }));
             order.orderShopping = orderShopping;
             order.remarkList = buyProductList.map(item => ({
