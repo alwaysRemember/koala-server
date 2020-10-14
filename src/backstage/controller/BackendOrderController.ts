@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:31:42
- * @LastEditTime: 2020-10-13 15:01:46
+ * @LastEditTime: 2020-10-14 19:08:09
  * @FilePath: /koala-server/src/backstage/controller/BackendOrderController.ts
  */
 import {
@@ -21,14 +21,17 @@ import { EBackendUserType } from '../enums/EBackendUserType';
 import {
   IGetOrderListRequestParams,
   IOrderDetailRequestParams,
+  IUpdateOrderLogisticsInfoRequestParams,
 } from '../form/BackendOrderForm';
 import {
   IGetOrderListResponse,
   IOrderDetailResponse,
+  IUpdateOrderLogisticsInfoResponse,
 } from '../interface/IOrder';
 import {
   GetOrderDetailSchema,
   GetOrderListSchema,
+  UpdateOrderLogisticsInfoSchema,
 } from '../schema/BackendOrderSchema';
 import { BackendOrderService } from '../service/BackendOrderService';
 import { SetPermissionsForController } from '../utils';
@@ -70,12 +73,36 @@ export class BackendOrderController {
   public async getOrderDetail(
     @Body() { orderId }: IOrderDetailRequestParams,
     @Req() { headers: { token } },
-  ) {
-    //: Promise<ResultVo<IOrderDetailResponse>>
+  ): Promise<ResultVo<IOrderDetailResponse>> {
     const result = new ResultVoUtil();
     try {
       const data = await this.backendOrderService.getOrderDetail(
         orderId,
+        token,
+      );
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      UpdateOrderLogisticsInfoSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('/update-order-logistics-info')
+  public async updateOrderLogisticsInfo(
+    @Body() params: IUpdateOrderLogisticsInfoRequestParams,
+    @Req() { headers: { token } },
+  ): Promise<ResultVo<IUpdateOrderLogisticsInfoResponse>> {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.backendOrderService.updateOrderLogisticsInfo(
+        params,
         token,
       );
       return result.success(data);

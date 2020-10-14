@@ -2,12 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 15:19:38
- * @LastEditTime: 2020-10-13 14:53:02
+ * @LastEditTime: 2020-10-14 17:29:39
  * @FilePath: /koala-server/src/backstage/interface/IOrder.ts
  */
 
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
 import { EOrderType } from 'src/global/enums/EOrder';
+import { IUpdateOrderLogisticsInfoDefaultParams } from '../form/BackendOrderForm';
 
 export interface IGetOrderListResponse {
   total: number;
@@ -51,5 +52,10 @@ export interface IOrderDetailProductItem {
 
 export interface IOrderLogisticsInfo {
   courierName: string; // 快递名称
+  courierCode: string;
   courierNum: string; // 快递单号
+}
+export interface IUpdateOrderLogisticsInfoResponse
+  extends IUpdateOrderLogisticsInfoDefaultParams {
+  orderType: EOrderType;
 }
