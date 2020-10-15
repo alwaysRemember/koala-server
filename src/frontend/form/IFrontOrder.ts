@@ -2,9 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:29:20
- * @LastEditTime: 2020-09-22 15:31:55
+ * @LastEditTime: 2020-10-15 15:56:18
  * @FilePath: /koala-server/src/frontend/form/IFrontOrder.ts
  */
+
+import { EOrderType } from 'src/global/enums/EOrder';
+
 /**
  * 下单接口所需参数
  */
@@ -17,9 +20,13 @@ export interface ICreateOrderParams {
  * 下单产品参数
  */
 export interface IOrderItem {
-    productId: string;
-    buyQuantity: number; // 购买数量
-    selectProductConfigList: Array<number>;
-    remarks: string;
-  }
-  
+  productId: string;
+  buyQuantity: number; // 购买数量
+  selectProductConfigList: Array<number>;
+  remarks: string;
+}
+
+export interface IGetOrderListRequestParams {
+  page: number;
+  orderType: EOrderType | 'ALL';
+}

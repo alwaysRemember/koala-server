@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-09-24 16:33:30
+ * @LastEditTime: 2020-10-15 16:53:31
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -17,12 +17,19 @@ import {
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { ICreateOrderParams } from '../form/IFrontOrder';
+import {
+  ICreateOrderParams,
+  IGetOrderListRequestParams,
+} from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
   IGetOrderResponse,
 } from '../interface/IFrontOrder';
-import { CreateOrderSchema, GetOrderSchema } from '../schema/FrontOrderSchema';
+import {
+  CreateOrderSchema,
+  GetOrderListSchema,
+  GetOrderSchema,
+} from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
 
 @Controller('/front/order')
@@ -64,6 +71,29 @@ export class FrontOrderController {
     try {
       const list = await this.orderService.getPayOrder(payOrderId);
       return result.success({ orderList: list });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取订单列表
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetOrderListSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-order-list')
+  public async getorderList(
+    @Body() params: IGetOrderListRequestParams,
+    @Req() { headers: { openid } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.orderService.getOrderList(params, openid);
+      
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

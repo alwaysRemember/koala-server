@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-12 16:48:51
+ * @LastEditTime: 2020-10-15 19:11:34
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -14,6 +14,8 @@ import { appId, mchId } from 'src/config/projectConfig';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { PayOrder } from 'src/global/dataobject/PayOrder.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
+import { ProductConfig } from 'src/global/dataobject/ProductConfig.entity';
+import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { EOrderExpiration, EOrderType } from 'src/global/enums/EOrder';
 import { EProductStatus } from 'src/global/enums/EProduct';
@@ -22,14 +24,21 @@ import { OrderRepository } from 'src/global/repository/OrderRepository';
 import { PayOrderRepository } from 'src/global/repository/PayOrderRepository';
 import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { reportErr } from 'src/utils/ReportError';
 import { EntityManager, getManager, LessThanOrEqual, Not } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
-import { ICreateOrderParams, IOrderItem } from '../form/IFrontOrder';
+import {
+  ICreateOrderParams,
+  IGetOrderListRequestParams,
+  IOrderItem,
+} from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
+  IGetOrderListResponse,
+  IProductItem,
   IShoppingAddress,
 } from '../interface/IFrontOrder';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
@@ -46,6 +55,9 @@ export class OrderService {
     private readonly shoppingAddressRepository: ShoppingAddressRepository,
     private readonly productRepository: ProductRepository,
     private readonly productDetailRepository: ProductDetailRepository,
+    private readonly frontUserRepository: FrontUserRepository,
+    private readonly productConfigRepository: ProductConfigRepository,
+    private readonly productMainImgRepository: ProductMainImgRepository,
   ) {}
 
   /**
@@ -210,6 +222,83 @@ export class OrderService {
         );
       },
     );
+  }
+
+  /**
+   * 获取订单列表
+   * @param params
+   * @param openid
+   */
+  async getOrderList({ page, orderType }: IGetOrderListRequestParams, openid) {
+    const TAKE_NUM = 10;
+    try {
+      // 获取用户
+      const user = await this.frontUserService.findByOpenid(openid);
+
+      try {
+        const db = this.orderRepository.createQueryBuilder('order');
+        // 获取当前用户的订单
+        db.leftJoin('order.frontUser', 'frontUser');
+        db.leftJoinAndSelect('order.productList', 'productList');
+        db.andWhere('order.frontUser.userId=:id', { id: user.userId });
+        // 判断订单状态
+        if (orderType !== 'ALL') {
+          db.andWhere('order.orderType =:orderType', { orderType });
+        }
+
+        const data = await db
+          .skip((page - 1) * TAKE_NUM)
+          .take(TAKE_NUM)
+          .addOrderBy('order.createTime', 'DESC')
+          .getMany();
+        const total = await db.getCount();
+
+        return {
+          total,
+          list: await Promise.all(
+            data.map(async item => ({
+              orderId: item.id,
+              orderType: item.orderType,
+              amount: item.amount,
+              productList: await Promise.all(
+                item.productList.map(async d => {
+                  // 提取产品配置的id
+                  const productConfigIdList = item.buyProductConfigList?.find(
+                    item => item.productId === d.id,
+                  ).configList;
+                  const productConfig: Array<ProductConfig> = await this.productConfigRepository.findByIds(
+                    productConfigIdList || [],
+                  );
+                  return {
+                    productId: d.id,
+                    name: d.productName,
+                    buyQuantity: item.buyProductQuantityList.find(
+                      item => item.productId === d.id,
+                    ).buyQuantity,
+                    productConfigList: productConfig.map(i => i.name),
+                    amount: await (
+                      await this.productDetailRepository.findOne(
+                        d.productDetailId,
+                      )
+                    ).productAmount,
+                    img: await (
+                      await this.productMainImgRepository.findOne(
+                        d.productMainImgId,
+                      )
+                    ).path,
+                  };
+                }),
+              ),
+            })),
+          ),
+          // list: data,
+        };
+      } catch (e) {
+        await reportErr('获取订单列表失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
   }
 
   /**

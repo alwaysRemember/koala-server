@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-14 19:19:09
+ * @LastEditTime: 2020-10-15 10:19:44
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -308,7 +308,9 @@ export class BackendOrderService {
             order.logisticsInfo = data;
           }
           // 修改订单状态为待收货
-          order.orderType = EOrderType.TO_BE_RECEIVED;
+          if (order.orderType === EOrderType.TO_BE_DELIVERED) {
+            order.orderType = EOrderType.TO_BE_RECEIVED;
+          }
           await entityManager.update(Order, order.id, order);
         })
         .catch(async e => {
