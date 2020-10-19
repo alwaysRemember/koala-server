@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-15 19:11:34
+ * @LastEditTime: 2020-10-19 15:17:41
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -16,6 +16,7 @@ import { PayOrder } from 'src/global/dataobject/PayOrder.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { ProductConfig } from 'src/global/dataobject/ProductConfig.entity';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { EOrderExpiration, EOrderType } from 'src/global/enums/EOrder';
 import { EProductStatus } from 'src/global/enums/EProduct';
@@ -138,6 +139,7 @@ export class OrderService {
         (prev, current) => prev + current.amount,
         0,
       );
+
       payOrder.frontUser = user;
       const result = await getManager()
         .transaction<ICreateOrderResponse>(
@@ -229,7 +231,10 @@ export class OrderService {
    * @param params
    * @param openid
    */
-  async getOrderList({ page, orderType }: IGetOrderListRequestParams, openid) {
+  async getOrderList(
+    { page, orderType }: IGetOrderListRequestParams,
+    openid,
+  ): Promise<IGetOrderListResponse> {
     const TAKE_NUM = 10;
     try {
       // 获取用户
@@ -237,7 +242,6 @@ export class OrderService {
 
       try {
         const db = this.orderRepository.createQueryBuilder('order');
-        // 获取当前用户的订单
         db.leftJoin('order.frontUser', 'frontUser');
         db.leftJoinAndSelect('order.productList', 'productList');
         db.andWhere('order.frontUser.userId=:id', { id: user.userId });
@@ -251,8 +255,8 @@ export class OrderService {
           .take(TAKE_NUM)
           .addOrderBy('order.createTime', 'DESC')
           .getMany();
-        const total = await db.getCount();
-
+        let total = await db.getCount();
+        total = Math.ceil(total / TAKE_NUM);
         return {
           total,
           list: await Promise.all(
@@ -260,6 +264,7 @@ export class OrderService {
               orderId: item.id,
               orderType: item.orderType,
               amount: item.amount,
+              updateTime: item.updateTime,
               productList: await Promise.all(
                 item.productList.map(async d => {
                   // 提取产品配置的id
@@ -269,6 +274,16 @@ export class OrderService {
                   const productConfig: Array<ProductConfig> = await this.productConfigRepository.findByIds(
                     productConfigIdList || [],
                   );
+                  const {
+                    productAmount: amount,
+                  }: ProductDetail = await this.productDetailRepository.findOne(
+                    d.productDetailId,
+                  );
+                  const {
+                    path: img,
+                  }: ProductMainImg = await this.productMainImgRepository.findOne(
+                    d.productMainImgId,
+                  );
                   return {
                     productId: d.id,
                     name: d.productName,
@@ -276,22 +291,13 @@ export class OrderService {
                       item => item.productId === d.id,
                     ).buyQuantity,
                     productConfigList: productConfig.map(i => i.name),
-                    amount: await (
-                      await this.productDetailRepository.findOne(
-                        d.productDetailId,
-                      )
-                    ).productAmount,
-                    img: await (
-                      await this.productMainImgRepository.findOne(
-                        d.productMainImgId,
-                      )
-                    ).path,
+                    amount,
+                    img,
                   };
                 }),
               ),
             })),
           ),
-          // list: data,
         };
       } catch (e) {
         await reportErr('获取订单列表失败', e);
@@ -349,35 +355,33 @@ export class OrderService {
             // 订单金额=((商品默认金额+商品配置金额)*商品数量+运费)^n
             const orderAmount = await (
               await Promise.all(
-                buyProductList.map(
-                  async ({
-                    productId,
+                productList.map(async ({ id: productId }) => {
+                  const {
                     selectProductConfigList,
                     buyQuantity,
-                  }) => {
-                    const product = productList.find(v => (v.id = productId));
-                    const productDetail = await this.productDetailRepository.findOne(
-                      product.productDetailId,
+                  } = buyProductList.find(item => item.productId === productId);
+                  const product = productList.find(v => (v.id = productId));
+                  const productDetail = await this.productDetailRepository.findOne(
+                    product.productDetailId,
+                  );
+                  // 计算选择的配置金额
+                  const configAmountList = selectProductConfigList.map(id => {
+                    const config = product.productConfigList.find(
+                      v => v.id === id,
                     );
-                    // 计算选择的配置金额
-                    const configAmountList = selectProductConfigList.map(id => {
-                      const config = product.productConfigList.find(
-                        v => v.id === id,
-                      );
-                      return config.amount;
-                    });
-                    orderShopping += productDetail.productShipping;
-                    // 金额相加
-                    return (
-                      configAmountList.reduce(
-                        (prev, current) => prev + current,
-                        productDetail.productAmount,
-                      ) *
-                        buyQuantity +
-                      productDetail.productShipping
-                    );
-                  },
-                ),
+                    return config.amount;
+                  });
+                  orderShopping += productDetail.productShipping;
+                  // 金额相加
+                  const amount =
+                    configAmountList.reduce(
+                      (prev, current) => prev + current,
+                      productDetail.productAmount,
+                    ) *
+                      buyQuantity +
+                    productDetail.productShipping;
+                  return amount;
+                }),
               )
             ).reduce((prev, current) => prev + current, 0);
 
@@ -421,7 +425,7 @@ export class OrderService {
     await Promise.all(
       buyProductList.map(async ({ productId, selectProductConfigList }) => {
         const currentProduct = productList.find(
-          value => (value.id = productId),
+          value => value.id === productId,
         );
         // 获取当前商品的配置分类
         const productConfig = currentProduct.productConfigList.reduce<
@@ -435,7 +439,6 @@ export class OrderService {
           }
           return prev;
         }, []);
-
         // 判断产品配置是否都正常选择了
         if (productConfig.length === selectProductConfigList.length) return;
 

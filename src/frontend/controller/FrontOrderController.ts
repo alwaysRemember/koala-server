@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-15 16:53:31
+ * @LastEditTime: 2020-10-15 19:19:53
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -23,6 +23,7 @@ import {
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
+  IGetOrderListResponse,
   IGetOrderResponse,
 } from '../interface/IFrontOrder';
 import {
@@ -88,11 +89,10 @@ export class FrontOrderController {
   public async getorderList(
     @Body() params: IGetOrderListRequestParams,
     @Req() { headers: { openid } },
-  ) {
+  ): Promise<ResultVo<IGetOrderListResponse>> {
     const result = new ResultVoUtil();
     try {
       const data = await this.orderService.getOrderList(params, openid);
-      
       return result.success(data);
     } catch (e) {
       return result.error(e.message);
