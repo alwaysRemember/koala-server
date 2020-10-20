@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-15 19:19:53
+ * @LastEditTime: 2020-10-20 16:30:05
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -18,6 +18,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import {
+  ICancelOrder,
   ICreateOrderParams,
   IGetOrderListRequestParams,
 } from '../form/IFrontOrder';
@@ -27,6 +28,7 @@ import {
   IGetOrderResponse,
 } from '../interface/IFrontOrder';
 import {
+  CancelOrderSchema,
   CreateOrderSchema,
   GetOrderListSchema,
   GetOrderSchema,
@@ -94,6 +96,23 @@ export class FrontOrderController {
     try {
       const data = await this.orderService.getOrderList(params, openid);
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 取消订单
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(new ReqParamCheck(CancelOrderSchema, ({ type }) => type === 'body'))
+  @Post('/cancel-order')
+  public async cancelOrder(@Body() { orderId }: ICancelOrder) {
+    const result = new ResultVoUtil();
+    try {
+      await this.orderService.cancelOrder(orderId);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }

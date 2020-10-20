@@ -2,12 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:10:52
- * @LastEditTime: 2020-09-23 17:13:47
+ * @LastEditTime: 2020-10-20 18:16:37
  * @FilePath: /koala-server/src/frontend/wxPay/index.ts
  */
 import { ETradeType } from './enums';
 import {
   ICreateWxPayOrderResponse,
+  IReturnOfGoodsParams,
   IWxPayOrderParams,
   IWxPayParams,
 } from './interface';
@@ -23,14 +24,13 @@ export class WxPay {
   private appid: string;
   private mchId: string;
   private tradeType: ETradeType;
-  private notifyUrl: string;
-  private terminalIP: string;
+  private notifyUrl: string = `${HOST}/api/wxPay/pay-notify`;
+  private returnOfGoodsNotifyUrl: string = `${HOST}/api/wxPay/return-of-goods-notify`;
   private defaultKey: string = 'xoXNQaLVMD1DusMmpHSi5110r7EyV8I2'; // 默认加密key
   constructor({ appid, mchId, tradeType = ETradeType.JSAPI }: IWxPayParams) {
     this.appid = appid;
     this.mchId = mchId;
     this.tradeType = tradeType;
-    this.notifyUrl = `${HOST}/api/wxPay/pay-notify`;
   }
 
   /**
@@ -107,6 +107,54 @@ export class WxPay {
           signType: 'MD5',
         }),
       };
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  async returnOfGoods({
+    transactionId,
+    totalFee,
+    refundFee,
+    refundDesc,
+  }: IReturnOfGoodsParams) {
+    const params = {
+      appid: this.appid,
+      mch_id: this.mchId,
+      nonce_str: this.createNoceStr(),
+      transaction_id: transactionId,
+      out_refund_no: this.createNoceStr(),
+      total_fee: totalFee,
+      refund_fee: refundFee,
+      refund_desc: refundDesc,
+      notify_url: this.returnOfGoodsNotifyUrl,
+    };
+    params['sign'] = this.paySign(params);
+    try {
+      const { data } = await Axios.post(
+        'https://api.mch.weixin.qq.com/secapi/pay/refund',
+        tansferJsonToXml(params),
+        {
+          headers: {
+            'Content-Type': 'text/xml;charset=utf-8',
+          },
+        },
+      );
+      console.log(data);
+      console.log("**********");
+      
+      
+      const { return_code, result_code, err_code_des } = {
+        return_code: transferXmlToJson(data, 'return_code'),
+        result_code: transferXmlToJson(data, 'result_code'),
+        err_code_des: transferXmlToJson(data, 'err_code_des'),
+      };
+      console.log(err_code_des);
+      console.log("*********");
+      
+      if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
+        await reportErr(err_code_des || '发起退款失败', JSON.stringify(data));
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }

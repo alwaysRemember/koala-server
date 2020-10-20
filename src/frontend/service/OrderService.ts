@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-19 15:17:41
+ * @LastEditTime: 2020-10-20 17:54:24
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -27,6 +27,7 @@ import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepo
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
+import { Mail } from 'src/utils/Mail';
 import { reportErr } from 'src/utils/ReportError';
 import { EntityManager, getManager, LessThanOrEqual, Not } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
@@ -49,6 +50,20 @@ import { FrontUserService } from './UserService';
 
 @Injectable()
 export class OrderService {
+  private cancelType: Array<EOrderType> = [
+    EOrderType.PENDING_PAYMENT,
+    EOrderType.TO_BE_DELIVERED,
+  ];
+  private returnOfGoodsType: Array<EOrderType> = [
+    EOrderType.TO_BE_RECEIVED,
+    EOrderType.COMMENT,
+    EOrderType.FINISHED,
+  ];
+
+  private paymentType: Array<EOrderType> = [EOrderType.PENDING_PAYMENT];
+
+  private confirmReceiptType: Array<EOrderType> = [EOrderType.TO_BE_RECEIVED];
+
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly payOrderRepository: PayOrderRepository,
@@ -373,14 +388,14 @@ export class OrderService {
                   });
                   orderShopping += productDetail.productShipping;
                   // 金额相加
-                  const amount =
+                  return (
                     configAmountList.reduce(
                       (prev, current) => prev + current,
                       productDetail.productAmount,
                     ) *
                       buyQuantity +
-                    productDetail.productShipping;
-                  return amount;
+                    productDetail.productShipping
+                  );
                 }),
               )
             ).reduce((prev, current) => prev + current, 0);
@@ -411,6 +426,100 @@ export class OrderService {
           },
         ),
     );
+  }
+  /**
+   * 取消订单
+   * @param orderId
+   */
+  async cancelOrder(orderId: string) {
+    try {
+      let order: Order;
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              payOrder: 'order.payOrder',
+              backendUser: 'order.backendUser',
+              productList: 'order.productList',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取订单信息失败', e);
+      }
+      if (!order) await reportErr('不存在当前要取消的订单');
+
+      // 判断状态是否合理
+      if (this.cancelType.indexOf(order.orderType) === -1)
+        await reportErr('当前订单状态不允许进行此操作');
+
+      // 如果是待付款的状态直接改变订单状态就行
+      if (order.orderType === EOrderType.PENDING_PAYMENT) {
+        order.orderType = EOrderType.CANCEL;
+        try {
+          await this.orderRepository.update(order.id, order);
+        } catch (e) {
+          await reportErr('取消订单失败', e);
+        }
+      }
+      // 如果是待发货状态则需要退款，并且把状态改为退款中
+      if (order.orderType === EOrderType.TO_BE_DELIVERED) {
+        await getManager()
+          .transaction(async (entityManager: EntityManager) => {
+            // 修改订单状态
+            await entityManager.update(Order, order.id, {
+              orderType: EOrderType.REFUNDING,
+            });
+            // 发起退款
+            await this.returnOfGoods(order);
+          })
+          .catch(async e => {
+            await reportErr('取消订单失败', e);
+          });
+      }
+      try {
+        new Mail(
+          '有用户取消订单，请尽快处理!!',
+          {
+            订单ID: order.id,
+            商品: `${order.productList.map(
+              p =>
+                `${p.productName} x${
+                  order.buyProductQuantityList.find(b => b.productId === p.id)
+                    ?.buyQuantity
+                }\n`,
+            )}`,
+            收货信息: `${Object.keys(order.shoppingAddress)
+              .map(key => order.shoppingAddress[key])
+              .join('\n')}`,
+          },
+          order.backendUser.email,
+        ).send();
+      } catch (e) {}
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 订单退货
+   * @param order
+   * @param refundDesc 退款原因
+   */
+  private async returnOfGoods(order: Order, refundDesc?: string) {
+    const wxPay = new WxPay({
+      appid: appId,
+      mchId,
+      tradeType: ETradeType.JSAPI,
+    });
+    const payOrder = await this.payOrderRepository.findOne(order.payOrder.id);
+    await wxPay.returnOfGoods({
+      transactionId: payOrder.transactionId,
+      refundFee: order.amount,
+      totalFee: payOrder.payAmount,
+      refundDesc: refundDesc ? refundDesc : `订单号: ${order.id} 发起退款`,
+    });
   }
 
   /**
