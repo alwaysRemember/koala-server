@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-20 17:54:24
+ * @LastEditTime: 2020-10-21 14:48:54
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -44,8 +44,8 @@ import {
   IShoppingAddress,
 } from '../interface/IFrontOrder';
 import { ShoppingAddressRepository } from '../repository/ShoppingAddressRepository';
-import { WxPay } from '../wxPay';
-import { ETradeType } from '../wxPay/enums';
+import { WxPay } from '../../utils/wxPay';
+import { ETradeType } from '../../utils/wxPay/enums';
 import { FrontUserService } from './UserService';
 
 @Injectable()
@@ -471,14 +471,11 @@ export class OrderService {
             await entityManager.update(Order, order.id, {
               orderType: EOrderType.REFUNDING,
             });
-            // 发起退款
-            await this.returnOfGoods(order);
           })
           .catch(async e => {
             await reportErr('取消订单失败', e);
           });
       }
-      try {
         new Mail(
           '有用户取消订单，请尽快处理!!',
           {
@@ -496,7 +493,6 @@ export class OrderService {
           },
           order.backendUser.email,
         ).send();
-      } catch (e) {}
     } catch (e) {
       throw new FrontException(e.message, e);
     }

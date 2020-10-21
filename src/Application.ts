@@ -2,10 +2,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:01:33
- * @LastEditTime: 2020-09-24 18:03:49
+ * @LastEditTime: 2020-10-20 19:14:14
  * @FilePath: /koala-server/src/Application.ts
  */
-
+import { join } from 'path';
 import { NestModule, Module, MiddlewareConsumer } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerMiddleware } from './global/middleware/LoggerMiddleware';
@@ -16,7 +16,6 @@ import { BackendAuthMiddlewareModule } from './backstage/modules/BackendAuthMidd
 import { FrontControllerModule } from './frontend/modules/FrontControllerModule';
 import { FrontAuthMiddlewareModule } from './frontend/modules/FrontAuthMiddlewareModule';
 import { wxPayModule } from './global/modules/wxPayModule';
-import { OrderTasksService } from './global/service/OrderTasksService';
 @Module({
   imports: [
     BackendAuthMiddlewareModule,

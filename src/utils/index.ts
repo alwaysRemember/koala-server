@@ -2,10 +2,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-18 15:04:19
- * @LastEditTime: 2020-09-23 15:09:00
+ * @LastEditTime: 2020-10-21 14:35:44
  * @FilePath: /koala-server/src/utils/index.ts
  */
-
+import * as xml2js from 'xml2js';
 /**
  * 数组拍平
  * @param list
@@ -24,11 +24,18 @@ export const arrayFlat = <T>(list: Array<Array<T>>): Array<T> =>
  * @param data
  * @param value
  */
-export const transferXmlToJson = (data: string, value): string => {
-  const f = data.toString().split(`<${value}>`);
-  const s = f[1].split(`</${value}>`);
-
-  return s[0].indexOf('CDATA') > -1 ? /[^CDATA\[]\w+/.exec(s[0])[0] : s[0];
+export const transferXmlToJson = (data: string): Promise<any> => {
+  return new Promise((res, rej) => {
+    const parser = new xml2js.Parser({
+      trim: true,
+      explicitArray: false,
+      explicitRoot: false,
+    });
+    parser.parseString(data, (err, result) => {
+      if (err) rej(err);
+      res(result);
+    });
+  });
 };
 
 /**

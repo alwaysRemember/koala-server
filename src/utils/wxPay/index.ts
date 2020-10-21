@@ -2,9 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:10:52
- * @LastEditTime: 2020-10-20 18:16:37
- * @FilePath: /koala-server/src/frontend/wxPay/index.ts
+ * @LastEditTime: 2020-10-21 14:39:47
+ * @FilePath: /koala-server/src/utils/wxPay/index.ts
  */
+import { join, resolve } from 'path';
+import * as https from 'https';
+import { readFileSync } from 'fs';
 import { ETradeType } from './enums';
 import {
   ICreateWxPayOrderResponse,
@@ -15,10 +18,11 @@ import {
 import * as publicIp from 'public-ip';
 import { HOST } from 'src/config/FileConfig';
 import * as crypto from 'crypto';
-import { FrontException } from '../exception/FrontException';
+import { FrontException } from '../../frontend/exception/FrontException';
 import Axios from 'axios';
 import { reportErr } from 'src/utils/ReportError';
 import { tansferJsonToXml, transferXmlToJson } from 'src/utils';
+import { HttpService } from '@nestjs/common';
 
 export class WxPay {
   private appid: string;
@@ -77,15 +81,7 @@ export class WxPay {
         result_code,
         nonce_str,
         prepay_id,
-        sign,
-      } = {
-        return_code: transferXmlToJson(data, 'return_code'),
-        return_msg: transferXmlToJson(data, 'return_msg'),
-        result_code: transferXmlToJson(data, 'result_code'),
-        nonce_str: transferXmlToJson(data, 'nonce_str'),
-        prepay_id: transferXmlToJson(data, 'prepay_id'),
-        sign: transferXmlToJson(data, 'sign'),
-      };
+      } = await transferXmlToJson(data);
 
       // 通信或者交易非成功的情况
       if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
@@ -130,33 +126,26 @@ export class WxPay {
       notify_url: this.returnOfGoodsNotifyUrl,
     };
     params['sign'] = this.paySign(params);
-    try {
-      const { data } = await Axios.post(
-        'https://api.mch.weixin.qq.com/secapi/pay/refund',
-        tansferJsonToXml(params),
-        {
-          headers: {
-            'Content-Type': 'text/xml;charset=utf-8',
-          },
+
+    const { data } = await Axios.post(
+      'https://api.mch.weixin.qq.com/secapi/pay/refund',
+      tansferJsonToXml(params),
+      {
+        headers: {
+          'Content-Type': 'text/xml;charset=utf-8',
         },
-      );
-      console.log(data);
-      console.log("**********");
-      
-      
-      const { return_code, result_code, err_code_des } = {
-        return_code: transferXmlToJson(data, 'return_code'),
-        result_code: transferXmlToJson(data, 'result_code'),
-        err_code_des: transferXmlToJson(data, 'err_code_des'),
-      };
-      console.log(err_code_des);
-      console.log("*********");
-      
-      if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
-        await reportErr(err_code_des || '发起退款失败', JSON.stringify(data));
-      }
-    } catch (e) {
-      throw new FrontException(e.message, e);
+        httpsAgent: new https.Agent({
+          pfx: readFileSync(join(resolve('./'), '/static/apiclient_cert.p12')),
+          passphrase: params.mch_id,
+        }),
+      },
+    );
+
+    const d = await transferXmlToJson(data);
+    const { return_code, result_code, err_code_des } = d;
+
+    if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
+      await reportErr(err_code_des || '发起退款失败', d);
     }
   }
 

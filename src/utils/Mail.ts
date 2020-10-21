@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 18:22:25
- * @LastEditTime: 2020-10-13 14:27:02
+ * @LastEditTime: 2020-10-21 14:47:03
  * @FilePath: /koala-server/src/utils/Mail.ts
  */
 
@@ -23,7 +23,7 @@ export class Mail {
       port: 465,
       secureConnection: true,
       auth: {
-        user: this.send,
+        user: this.sendUser,
         pass: 'QUHINJCPLBMMUTBN',
       },
     });
@@ -35,7 +35,7 @@ export class Mail {
     );
 
     this.mailOptions = {
-      from: `"KOALA - SYSTEM" <${this.send}>`,
+      from: `"KOALA - SYSTEM" <${this.sendUser}>`,
       to: toEmail,
       subject: title,
       html: `<div>${sendHtml}</div>`,
@@ -48,7 +48,7 @@ export class Mail {
         new SaveLogUtil({
           title: '邮件发送错误',
           msg: error.message,
-          origin:JSON.stringify(error)
+          origin: JSON.stringify(error),
         }).saveError();
       }
     });
