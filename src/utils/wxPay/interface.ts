@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:11:44
- * @LastEditTime: 2020-10-20 17:04:36
- * @FilePath: /koala-server/src/frontend/wxPay/interface.ts
+ * @LastEditTime: 2020-10-21 16:32:30
+ * @FilePath: /koala-server/src/utils/wxPay/interface.ts
  */
 
 import { ETradeType } from './enums';
@@ -26,6 +26,12 @@ export interface IReturnOfGoodsParams {
   totalFee: number; // 订单总金额
   refundFee: number; // 退款金额
   refundDesc: string; // 退款原因
+  outRefundNo?: string; // 退款单号
+}
+
+export interface IReturnOfGoodsResponse {
+  outRefundNo: string; // 商户退款单号
+  refundId: string; // 微信退款单号
 }
 
 export interface ICreateWxPayOrderResponse {

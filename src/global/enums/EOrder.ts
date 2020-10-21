@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-10-20 16:41:33
+ * @LastEditTime: 2020-10-21 17:25:11
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
 
@@ -19,4 +19,20 @@ export enum EOrderType {
 
 export enum EOrderExpiration {
   CANCEL = 7200000, // 自动取消时间(毫秒)
+}
+
+// 订单退款状态
+export enum EOrderRefundStatus {
+  NULL = 'NULL',
+  SUCCESS = 'SUCCESS', // 退款成功
+  REFUNDCLOSE = 'REFUNDCLOSE', // 退款关闭
+  PROCESSING = 'PROCESSING', // 退款处理中
+  CHANGE = 'CHANGE', // 退款异常
+}
+
+// 订单退款资金来源
+export enum EOrderRefundAccount {
+  NULL = 'NULL', // 未进行退款
+  REFUND_SOURCE_RECHARGE_FUNDS = 'REFUND_SOURCE_RECHARGE_FUNDS', // 可用余额退款/基本账户
+  REFUND_SOURCE_UNSETTLED_FUNDS = 'REFUND_SOURCE_UNSETTLED_FUNDS', // 未结算资金退款
 }

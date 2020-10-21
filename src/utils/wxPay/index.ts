@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:10:52
- * @LastEditTime: 2020-10-21 14:39:47
+ * @LastEditTime: 2020-10-21 17:10:20
  * @FilePath: /koala-server/src/utils/wxPay/index.ts
  */
 import { join, resolve } from 'path';
@@ -12,6 +12,7 @@ import { ETradeType } from './enums';
 import {
   ICreateWxPayOrderResponse,
   IReturnOfGoodsParams,
+  IReturnOfGoodsResponse,
   IWxPayOrderParams,
   IWxPayParams,
 } from './interface';
@@ -113,15 +114,16 @@ export class WxPay {
     totalFee,
     refundFee,
     refundDesc,
-  }: IReturnOfGoodsParams) {
+    outRefundNo,
+  }: IReturnOfGoodsParams): Promise<IReturnOfGoodsResponse> {
     const params = {
       appid: this.appid,
       mch_id: this.mchId,
       nonce_str: this.createNoceStr(),
       transaction_id: transactionId,
-      out_refund_no: this.createNoceStr(),
-      total_fee: totalFee,
-      refund_fee: refundFee,
+      out_refund_no: outRefundNo ? outRefundNo : this.createNoceStr(),
+      total_fee: process.env.NODE_ENV === 'development' ? 1 : totalFee,
+      refund_fee: process.env.NODE_ENV === 'development' ? 1 : refundFee,
       refund_desc: refundDesc,
       notify_url: this.returnOfGoodsNotifyUrl,
     };
@@ -142,11 +144,22 @@ export class WxPay {
     );
 
     const d = await transferXmlToJson(data);
-    const { return_code, result_code, err_code_des } = d;
+    const {
+      return_code,
+      result_code,
+      err_code_des,
+      out_trade_no,
+      out_refund_no,
+    } = d;
 
     if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
       await reportErr(err_code_des || '发起退款失败', d);
     }
+
+    return {
+      outRefundNo: out_trade_no,
+      refundId: out_refund_no,
+    };
   }
 
   /**

@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-13 14:45:30
+ * @LastEditTime: 2020-10-21 17:25:03
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -24,7 +24,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { EOrderType } from '../enums/EOrder';
+import {
+  EOrderRefundAccount,
+  EOrderRefundStatus,
+  EOrderType,
+} from '../enums/EOrder';
 import { OrderLogisticsInfo } from './OrderLogisticsInfo.entity';
 import { PayOrder } from './PayOrder.entity';
 import { Product } from './Product.entity';
@@ -112,6 +116,45 @@ export class Order {
   )
   @JoinColumn()
   logisticsInfo: OrderLogisticsInfo;
+
+  @Column({
+    comment: '微信退款单号',
+    default: null,
+  })
+  refundId: string;
+
+  @Column({
+    comment: '商户退款单号',
+    default: null,
+  })
+  outRefundNo: string;
+
+
+  @Column({
+    type: 'enum',
+    enum: EOrderRefundStatus,
+    default: null,
+    comment: '退款状态',
+  })
+  refundStatus: EOrderRefundStatus;
+
+  @Column({
+    type: 'enum',
+    enum: EOrderRefundAccount,
+    default: null,
+    comment: '退款资金来源',
+  })
+  refundAccount: EOrderRefundAccount;
+
+  @Column({
+    comment: '退款入账账户',
+  })
+  refundRecvAccount: string;
+
+  @Column({
+    comment: '退款成功时间',
+  })
+  refundSuccessTime: string;
 
   @CreateDateColumn({
     comment: '创建时间',

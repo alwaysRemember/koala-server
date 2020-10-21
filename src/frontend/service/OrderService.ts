@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-21 14:48:54
+ * @LastEditTime: 2020-10-21 16:29:46
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -498,25 +498,7 @@ export class OrderService {
     }
   }
 
-  /**
-   * 订单退货
-   * @param order
-   * @param refundDesc 退款原因
-   */
-  private async returnOfGoods(order: Order, refundDesc?: string) {
-    const wxPay = new WxPay({
-      appid: appId,
-      mchId,
-      tradeType: ETradeType.JSAPI,
-    });
-    const payOrder = await this.payOrderRepository.findOne(order.payOrder.id);
-    await wxPay.returnOfGoods({
-      transactionId: payOrder.transactionId,
-      refundFee: order.amount,
-      totalFee: payOrder.payAmount,
-      refundDesc: refundDesc ? refundDesc : `订单号: ${order.id} 发起退款`,
-    });
-  }
+
 
   /**
    * 判断购买的产品中是否选择了对应的产品配置

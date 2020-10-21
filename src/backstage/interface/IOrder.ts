@@ -2,12 +2,16 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 15:19:38
- * @LastEditTime: 2020-10-14 17:29:39
+ * @LastEditTime: 2020-10-21 17:24:55
  * @FilePath: /koala-server/src/backstage/interface/IOrder.ts
  */
 
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
-import { EOrderType } from 'src/global/enums/EOrder';
+import {
+  EOrderRefundAccount,
+  EOrderRefundStatus,
+  EOrderType,
+} from 'src/global/enums/EOrder';
 import { IUpdateOrderLogisticsInfoDefaultParams } from '../form/BackendOrderForm';
 
 export interface IGetOrderListResponse {
@@ -33,6 +37,11 @@ export interface IOrderDetailResponse {
   orderShopping: number; // 订单运费
   orderType: EOrderType;
   orderId: string;
+  refundId: string;
+  outRefundNo: string;
+  refundStatus: EOrderRefundStatus;
+  refundRecvAccount: string;
+  refundSuccessTime: string;
 }
 export interface IOrderDetailDeliveryInfo {
   name: string;

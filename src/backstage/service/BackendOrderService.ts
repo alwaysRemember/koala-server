@@ -2,23 +2,31 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-15 10:19:44
+ * @LastEditTime: 2020-10-21 17:24:42
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
 import { Injectable } from '@nestjs/common';
+import { appId, mchId } from 'src/config/projectConfig';
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
-import { EOrderType } from 'src/global/enums/EOrder';
+import {
+  EOrderRefundStatus,
+  EOrderType,
+} from 'src/global/enums/EOrder';
 import { EDefaultSelect } from 'src/global/enums/EProduct';
 import { OrderLogisticsInfoRepository } from 'src/global/repository/OrderLogisticsInfoRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
+import { PayOrderRepository } from 'src/global/repository/PayOrderRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { reportErr } from 'src/utils/ReportError';
+import { WxPay } from 'src/utils/wxPay';
+import { ETradeType } from 'src/utils/wxPay/enums';
+import { IReturnOfGoodsResponse } from 'src/utils/wxPay/interface';
 import { EntityManager, getManager } from 'typeorm';
 import { BackendUser } from '../dataobject/BackendUser.entity';
 import { EBackendUserType } from '../enums/EBackendUserType';
@@ -47,6 +55,7 @@ export class BackendOrderService {
     private readonly productDetailRepository: ProductDetailRepository,
     private readonly productMainImgRepository: ProductMainImgRepository,
     private readonly orderLogisticsInfoRepository: OrderLogisticsInfoRepository,
+    private readonly payOrderRepository: PayOrderRepository,
   ) {}
 
   /**
@@ -242,6 +251,11 @@ export class BackendOrderService {
         orderShopping: order.orderShopping,
         orderType: order.orderType,
         orderId: order.id,
+        refundId: order.refundId,
+        outRefundNo: order.outRefundNo,
+        refundStatus: order.refundStatus,
+        refundRecvAccount: order.refundRecvAccount,
+        refundSuccessTime: order.refundSuccessTime,
       };
     } catch (e) {
       throw new BackendException(e.message, e);
@@ -325,6 +339,82 @@ export class BackendOrderService {
     } catch (e) {
       throw new BackendException(e.message, e);
     }
+  }
+
+  /**
+   * 申请微信退款
+   * @param orderId
+   * @param token
+   */
+  async returnOfGoods(orderId: string, token: string) {
+    try {
+      let order: Order;
+      const { userId: localUserId, userType }: BackendUser = JSON.parse(
+        await this.redisService.get(token),
+      );
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              backendUser: 'order.backendUser',
+              payOrder: 'order.payOrder',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取退款订单出错', e);
+      }
+      if (!order) await reportErr('获取不到当前退款订单');
+      // 判断当前订单不属于当前登录用户并且当前用户不为管理员
+      if (
+        order.backendUser.userId !== localUserId &&
+        userType !== EBackendUserType.ADMIN
+      ) {
+        await reportErr('无权操作此订单');
+      }
+      // 判断是否退款中并且退款处理状态非未处理
+      if (
+        order.orderType === EOrderType.REFUNDING &&
+        order.refundStatus !== EOrderRefundStatus.NULL
+      ) {
+        await reportErr('当前订单正在退款处理中');
+      }
+      try {
+        await this._returnOfGoods(order);
+      } catch (e) {
+        await reportErr('申请微信退款失败', e);
+      }
+    } catch (e) {
+      throw new BackendException(e.message, e);
+    }
+  }
+
+  /**
+   * 订单退货
+   * @param order
+   * @param refundDesc 退款原因
+   */
+  private async _returnOfGoods(order: Order, refundDesc?: string) {
+    const wxPay = new WxPay({
+      appid: appId,
+      mchId,
+      tradeType: ETradeType.JSAPI,
+    });
+    const { payOrder } = order;
+    const data = await wxPay.returnOfGoods({
+      transactionId: payOrder.transactionId,
+      refundFee: order.amount,
+      totalFee: payOrder.payAmount,
+      refundDesc: refundDesc ? refundDesc : `订单号: ${order.id} 发起退款`,
+      outRefundNo: order.outRefundNo,
+    });
+    // 更新退款信息
+    await this.orderRepository.update(order.id, {
+      outRefundNo: data.outRefundNo,
+      refundId: data.refundId,
+      refundStatus: EOrderRefundStatus.NULL,
+    });
   }
 
   /**

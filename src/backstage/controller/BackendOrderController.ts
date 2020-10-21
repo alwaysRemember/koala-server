@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:31:42
- * @LastEditTime: 2020-10-14 19:08:09
+ * @LastEditTime: 2020-10-21 17:14:51
  * @FilePath: /koala-server/src/backstage/controller/BackendOrderController.ts
  */
 import {
@@ -21,6 +21,7 @@ import { EBackendUserType } from '../enums/EBackendUserType';
 import {
   IGetOrderListRequestParams,
   IOrderDetailRequestParams,
+  IReturnOfGoodsRequestParams,
   IUpdateOrderLogisticsInfoRequestParams,
 } from '../form/BackendOrderForm';
 import {
@@ -31,6 +32,7 @@ import {
 import {
   GetOrderDetailSchema,
   GetOrderListSchema,
+  ReturnOfGoodsSchema,
   UpdateOrderLogisticsInfoSchema,
 } from '../schema/BackendOrderSchema';
 import { BackendOrderService } from '../service/BackendOrderService';
@@ -106,6 +108,30 @@ export class BackendOrderController {
         token,
       );
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 申请微信退款
+   * @param params
+   * @param param1
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(ReturnOfGoodsSchema, ({ type }) => type === 'body'),
+  )
+  @SetPermissionsForController(EBackendUserType.PROXY)
+  @Post('/return-of-goods')
+  public async ReturnOfGoods(
+    @Body() params: IReturnOfGoodsRequestParams,
+    @Req() { headers: { token } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      await this.backendOrderService.returnOfGoods(params.orderId, token);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }

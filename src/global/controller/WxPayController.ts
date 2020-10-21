@@ -2,11 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:03:30
- * @LastEditTime: 2020-09-23 18:50:24
- * @FilePath: /koala-server/src/global/controller/WxPayController.ts
+ * @LastEditTime: 2020-10-21 17:12:59
+ * @FilePath: /koala-server/src/global/controller/wxPayController.ts
  */
 
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { transferXmlToJson } from 'src/utils';
 import { IWxPayNotifyData } from '../interface/WxPay';
 import { WxPayService } from '../service/wxPayService';
 
@@ -37,5 +38,14 @@ export class WxPayController {
       transactionId: xml['transaction_id'],
     };
     await this.wxPayService.checkOrder(data);
+  }
+  @HttpCode(200)
+  @Post('/return-of-goods-notify')
+  public async returnOfGoodsNotify(@Body() { xml }) {
+    const data = await transferXmlToJson(xml);
+    console.log(xml);
+    console.log('**********');
+    console.log(data);
+    
   }
 }
