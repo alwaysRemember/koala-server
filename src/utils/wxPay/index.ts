@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 16:10:52
- * @LastEditTime: 2020-10-21 17:10:20
+ * @LastEditTime: 2020-10-22 15:13:41
  * @FilePath: /koala-server/src/utils/wxPay/index.ts
  */
 import { join, resolve } from 'path';
@@ -24,6 +24,7 @@ import Axios from 'axios';
 import { reportErr } from 'src/utils/ReportError';
 import { tansferJsonToXml, transferXmlToJson } from 'src/utils';
 import { HttpService } from '@nestjs/common';
+import { mchApiKey } from 'src/config/projectConfig';
 
 export class WxPay {
   private appid: string;
@@ -31,7 +32,7 @@ export class WxPay {
   private tradeType: ETradeType;
   private notifyUrl: string = `${HOST}/api/wxPay/pay-notify`;
   private returnOfGoodsNotifyUrl: string = `${HOST}/api/wxPay/return-of-goods-notify`;
-  private defaultKey: string = 'xoXNQaLVMD1DusMmpHSi5110r7EyV8I2'; // 默认加密key
+  private defaultKey: string = mchApiKey; // 默认加密key
   constructor({ appid, mchId, tradeType = ETradeType.JSAPI }: IWxPayParams) {
     this.appid = appid;
     this.mchId = mchId;
@@ -148,8 +149,8 @@ export class WxPay {
       return_code,
       result_code,
       err_code_des,
-      out_trade_no,
       out_refund_no,
+      refund_id,
     } = d;
 
     if (return_code !== 'SUCCESS' || result_code !== 'SUCCESS') {
@@ -157,8 +158,8 @@ export class WxPay {
     }
 
     return {
-      outRefundNo: out_trade_no,
-      refundId: out_refund_no,
+      outRefundNo: out_refund_no,
+      refundId: refund_id,
     };
   }
 

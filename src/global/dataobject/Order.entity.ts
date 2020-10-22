@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-21 17:25:03
+ * @LastEditTime: 2020-10-22 15:30:36
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -129,7 +129,6 @@ export class Order {
   })
   outRefundNo: string;
 
-
   @Column({
     type: 'enum',
     enum: EOrderRefundStatus,
@@ -148,11 +147,13 @@ export class Order {
 
   @Column({
     comment: '退款入账账户',
+    default: null,
   })
   refundRecvAccount: string;
 
   @Column({
     comment: '退款成功时间',
+    default: null,
   })
   refundSuccessTime: string;
 

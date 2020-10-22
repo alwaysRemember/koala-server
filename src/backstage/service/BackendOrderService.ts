@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-21 17:24:42
+ * @LastEditTime: 2020-10-22 15:06:16
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -13,10 +13,7 @@ import { Order } from 'src/global/dataobject/Order.entity';
 import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
-import {
-  EOrderRefundStatus,
-  EOrderType,
-} from 'src/global/enums/EOrder';
+import { EOrderRefundStatus, EOrderType } from 'src/global/enums/EOrder';
 import { EDefaultSelect } from 'src/global/enums/EProduct';
 import { OrderLogisticsInfoRepository } from 'src/global/repository/OrderLogisticsInfoRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
@@ -380,11 +377,7 @@ export class BackendOrderService {
       ) {
         await reportErr('当前订单正在退款处理中');
       }
-      try {
-        await this._returnOfGoods(order);
-      } catch (e) {
-        await reportErr('申请微信退款失败', e);
-      }
+      await this._returnOfGoods(order);
     } catch (e) {
       throw new BackendException(e.message, e);
     }
@@ -409,12 +402,16 @@ export class BackendOrderService {
       refundDesc: refundDesc ? refundDesc : `订单号: ${order.id} 发起退款`,
       outRefundNo: order.outRefundNo,
     });
-    // 更新退款信息
-    await this.orderRepository.update(order.id, {
-      outRefundNo: data.outRefundNo,
-      refundId: data.refundId,
-      refundStatus: EOrderRefundStatus.NULL,
-    });
+    try {
+      // 更新退款信息
+      await this.orderRepository.update(order.id, {
+        outRefundNo: data.outRefundNo,
+        refundId: data.refundId,
+        refundStatus: EOrderRefundStatus.NULL,
+      });
+    } catch (e) {
+      await reportErr('更新退款信息失败', e);
+    }
   }
 
   /**

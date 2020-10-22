@@ -2,18 +2,23 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-23 16:52:54
- * @LastEditTime: 2020-09-27 15:08:55
+ * @LastEditTime: 2020-10-22 15:03:53
  * @FilePath: /koala-server/src/global/service/wxPayService.ts
  */
 
 import { Injectable } from '@nestjs/common';
+import { FrontException } from 'src/frontend/exception/FrontException';
 import { FrontUserService } from 'src/frontend/service/UserService';
 import { Mail } from 'src/utils/Mail';
+import { reportErr } from 'src/utils/ReportError';
 import { EntityManager, getManager } from 'typeorm';
 import { Order } from '../dataobject/Order.entity';
 import { PayOrder } from '../dataobject/PayOrder.entity';
-import { EOrderType } from '../enums/EOrder';
-import { IWxPayNotifyData } from '../interface/WxPay';
+import { EOrderRefundStatus, EOrderType } from '../enums/EOrder';
+import {
+  IWxPayNotifyData,
+  IWxPayReturnOfGoodsNotifyData,
+} from '../interface/IWxPay';
 import { OrderRepository } from '../repository/OrderRepository';
 import { PayOrderRepository } from '../repository/PayOrderRepository';
 
@@ -103,7 +108,52 @@ export class WxPayService {
         },
       );
     } catch (e) {
-      this.checkOrder(data);
+      // this.checkOrder(data);
+      throw new FrontException(`微信支付通知回调：${e.message}`, e);
+    }
+  }
+
+  /**
+   * 校验退款订单
+   * @param data
+   */
+  async checkReturnOfGoodsOrder({
+    refund_id,
+    refund_status,
+    success_time,
+    refund_recv_accout,
+    refund_account,
+  }: IWxPayReturnOfGoodsNotifyData) {
+    try {
+      // 根据微信退款单号查找订单
+      const order = await this.orderRepository.findOne({
+        where: {
+          refundId: refund_id,
+        },
+      });
+
+      if (!order)
+        await reportErr(`未根据当前微信退款单号查到订单：${refund_id}`);
+
+      // 如果存在退款成功时间则证明已经退款过了
+      if (order.refundSuccessTime)
+        await reportErr(`当前订单已经退款成功：${order.id}`);
+      getManager().transaction(
+        'REPEATABLE READ',
+        async (entityManager: EntityManager) => {
+          // 退款成功则改变订单状态
+          if (refund_status === EOrderRefundStatus.SUCCESS) {
+            order.orderType = EOrderType.SUCCESS_RETURN;
+          }
+          order.refundStatus = refund_status;
+          order.refundAccount = refund_account;
+          order.refundRecvAccount = refund_recv_accout;
+          order.refundSuccessTime = success_time;
+          await this.orderRepository.update(order.id, order);
+        },
+      );
+    } catch (e) {
+      throw new FrontException(`微信退款通知回调: ${e.message}`, e);
     }
   }
 }

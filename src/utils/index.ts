@@ -2,10 +2,13 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-18 15:04:19
- * @LastEditTime: 2020-10-21 14:35:44
+ * @LastEditTime: 2020-10-22 14:14:46
  * @FilePath: /koala-server/src/utils/index.ts
  */
 import * as xml2js from 'xml2js';
+import { mchApiKey } from 'src/config/projectConfig';
+import * as crypto from 'crypto';
+
 /**
  * 数组拍平
  * @param list
@@ -49,4 +52,18 @@ export const tansferJsonToXml = (data: Object): string => {
   }
   str += '</xml>';
   return str;
+};
+export const decryptWxNotifyData = async (str: string) => {
+  let mchKey = mchApiKey;
+  let md5 = crypto.createHash('md5');
+  let cipherChunks = [];
+  let md5key = md5
+    .update(mchKey)
+    .digest('hex')
+    .toLowerCase();
+  let decipher = crypto.createDecipheriv('AES-256-ECB', md5key, '');
+  decipher.setAutoPadding(true);
+    cipherChunks.push(decipher.update(str, 'base64', 'utf8'));
+    cipherChunks.push(decipher.final('utf8'));
+    return await transferXmlToJson(cipherChunks.join(''));
 };
