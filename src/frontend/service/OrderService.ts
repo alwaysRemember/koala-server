@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-21 16:29:46
+ * @LastEditTime: 2020-10-22 17:47:26
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -64,6 +64,11 @@ export class OrderService {
 
   private confirmReceiptType: Array<EOrderType> = [EOrderType.TO_BE_RECEIVED];
 
+  private wxPay = new WxPay({
+    appid: appId,
+    mchId,
+    tradeType: ETradeType.JSAPI,
+  });
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly payOrderRepository: PayOrderRepository,
@@ -161,17 +166,13 @@ export class OrderService {
           async (entityManager: EntityManager) => {
             await entityManager.save(Order, orderList);
             const payOrderResult = await entityManager.save(PayOrder, payOrder);
-            const wxPay = new WxPay({
-              appid: appId,
-              mchId,
-              tradeType: ETradeType.JSAPI,
-            });
+
             const {
               timeStamp,
               nonceStr,
               package: pg,
               paySign,
-            } = await wxPay.createWxPayOrder({
+            } = await this.wxPay.createWxPayOrder({
               body: 'GO购-商品购买',
               amount: payOrder.payAmount,
               orderId: payOrderResult.id,
@@ -317,6 +318,61 @@ export class OrderService {
       } catch (e) {
         await reportErr('获取订单列表失败', e);
       }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  // 生成支付订单
+  async orderPayment(orderId: string): Promise<ICreateOrderResponse> {
+    try {
+      let order: Order;
+
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              frontUser: 'order.frontUser',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取订单信息失败', e);
+      }
+      if (!order) await reportErr('未查询到当前订单');
+      const payOrder = new PayOrder();
+      payOrder.frontUser = order.frontUser;
+      payOrder.orderList = [order];
+      payOrder.payAmount = order.amount;
+      const result = await getManager()
+        .transaction<ICreateOrderResponse>(
+          async (entityManager: EntityManager) => {
+            const payOrderResult = await entityManager.save(PayOrder, payOrder);
+            const {
+              timeStamp,
+              nonceStr,
+              package: pg,
+              paySign,
+            } = await this.wxPay.createWxPayOrder({
+              body: 'GO购-商品购买',
+              amount: payOrder.payAmount,
+              orderId: payOrderResult.id,
+              openId: order.frontUser.openid,
+            });
+            return {
+              timeStamp,
+              nonceStr,
+              package: pg,
+              paySign,
+              orderId: payOrderResult.id,
+            };
+          },
+        )
+        .catch(async e => {
+          await reportErr('生成支付订单失败', e);
+        });
+      return result as ICreateOrderResponse;
     } catch (e) {
       throw new FrontException(e.message, e);
     }
@@ -476,29 +532,27 @@ export class OrderService {
             await reportErr('取消订单失败', e);
           });
       }
-        new Mail(
-          '有用户取消订单，请尽快处理!!',
-          {
-            订单ID: order.id,
-            商品: `${order.productList.map(
-              p =>
-                `${p.productName} x${
-                  order.buyProductQuantityList.find(b => b.productId === p.id)
-                    ?.buyQuantity
-                }\n`,
-            )}`,
-            收货信息: `${Object.keys(order.shoppingAddress)
-              .map(key => order.shoppingAddress[key])
-              .join('\n')}`,
-          },
-          order.backendUser.email,
-        ).send();
+      new Mail(
+        '有用户取消订单，请尽快处理!!',
+        {
+          订单ID: order.id,
+          商品: `${order.productList.map(
+            p =>
+              `${p.productName} x${
+                order.buyProductQuantityList.find(b => b.productId === p.id)
+                  ?.buyQuantity
+              }\n`,
+          )}`,
+          收货信息: `${Object.keys(order.shoppingAddress)
+            .map(key => order.shoppingAddress[key])
+            .join('\n')}`,
+        },
+        order.backendUser.email,
+      ).send();
     } catch (e) {
       throw new FrontException(e.message, e);
     }
   }
-
-
 
   /**
    * 判断购买的产品中是否选择了对应的产品配置

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:42:42
- * @LastEditTime: 2020-10-20 16:27:21
+ * @LastEditTime: 2020-10-22 16:33:41
  * @FilePath: /koala-server/src/frontend/schema/FrontOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -45,5 +45,9 @@ export const GetOrderListSchema = Joi.object({
 });
 
 export const CancelOrderSchema = Joi.object({
+  orderId: Joi.string().required(),
+});
+
+export const OrderPaymentSchema = Joi.object({
   orderId: Joi.string().required(),
 });

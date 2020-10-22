@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-20 16:30:05
+ * @LastEditTime: 2020-10-22 18:36:31
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -32,6 +32,7 @@ import {
   CreateOrderSchema,
   GetOrderListSchema,
   GetOrderSchema,
+  OrderPaymentSchema,
 } from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
 
@@ -108,11 +109,34 @@ export class FrontOrderController {
   @HttpCode(200)
   @UsePipes(new ReqParamCheck(CancelOrderSchema, ({ type }) => type === 'body'))
   @Post('/cancel-order')
-  public async cancelOrder(@Body() { orderId }: ICancelOrder) {
+  public async cancelOrder(
+    @Body() { orderId }: ICancelOrder,
+  ): Promise<ResultVo<null>> {
     const result = new ResultVoUtil();
     try {
       await this.orderService.cancelOrder(orderId);
       return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 发起微信支付
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(OrderPaymentSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/order-payment')
+  public async orderPayment(
+    @Body() { orderId }: { orderId: string },
+  ): Promise<ResultVo<ICreateOrderResponse>> {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.orderService.orderPayment(orderId);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }
