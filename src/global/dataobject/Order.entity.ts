@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-22 15:30:36
+ * @LastEditTime: 2020-10-23 18:19:38
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -30,6 +30,7 @@ import {
   EOrderType,
 } from '../enums/EOrder';
 import { OrderLogisticsInfo } from './OrderLogisticsInfo.entity';
+import { OrderRefund } from './OrderRefund.entity';
 import { PayOrder } from './PayOrder.entity';
 import { Product } from './Product.entity';
 import { FrontUser } from './User.entity';
@@ -156,6 +157,13 @@ export class Order {
     default: null,
   })
   refundSuccessTime: string;
+
+  @OneToOne(
+    type => OrderRefund,
+    orderRefund => orderRefund.order,
+  )
+  @JoinColumn()
+  orderRefund: OrderRefund;
 
   @CreateDateColumn({
     comment: '创建时间',

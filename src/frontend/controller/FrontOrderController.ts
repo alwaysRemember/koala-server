@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-22 18:36:31
+ * @LastEditTime: 2020-10-23 18:13:22
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -21,6 +21,7 @@ import {
   ICancelOrder,
   ICreateOrderParams,
   IGetOrderListRequestParams,
+  IReturnOfGoodsParams,
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
@@ -137,6 +138,21 @@ export class FrontOrderController {
     try {
       const data = await this.orderService.orderPayment(orderId);
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+  /**
+   * 退货退款
+   * @param params
+   */
+  @HttpCode(200)
+  @Post('/return-of-goods')
+  public async returnOfGoods(@Body() params: IReturnOfGoodsParams) {
+    const result = new ResultVoUtil();
+    try {
+      await this.orderService.returnOfGoods(params);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-22 17:47:26
+ * @LastEditTime: 2020-10-23 18:23:01
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -36,6 +36,7 @@ import {
   ICreateOrderParams,
   IGetOrderListRequestParams,
   IOrderItem,
+  IReturnOfGoodsParams,
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
@@ -47,6 +48,7 @@ import { ShoppingAddressRepository } from '../repository/ShoppingAddressReposito
 import { WxPay } from '../../utils/wxPay';
 import { ETradeType } from '../../utils/wxPay/enums';
 import { FrontUserService } from './UserService';
+import { OrderRefund } from 'src/global/dataobject/OrderRefund.entity';
 
 @Injectable()
 export class OrderService {
@@ -532,23 +534,85 @@ export class OrderService {
             await reportErr('取消订单失败', e);
           });
       }
-      new Mail(
-        '有用户取消订单，请尽快处理!!',
-        {
-          订单ID: order.id,
-          商品: `${order.productList.map(
-            p =>
-              `${p.productName} x${
-                order.buyProductQuantityList.find(b => b.productId === p.id)
-                  ?.buyQuantity
-              }\n`,
-          )}`,
-          收货信息: `${Object.keys(order.shoppingAddress)
-            .map(key => order.shoppingAddress[key])
-            .join('\n')}`,
-        },
-        order.backendUser.email,
-      ).send();
+      try {
+        new Mail(
+          '有用户取消订单，请尽快处理!!',
+          {
+            订单ID: order.id,
+            商品: `${order.productList.map(
+              p =>
+                `${p.productName} x${
+                  order.buyProductQuantityList.find(b => b.productId === p.id)
+                    ?.buyQuantity
+                }\n`,
+            )}`,
+            收货信息: `${Object.keys(order.shoppingAddress)
+              .map(key => order.shoppingAddress[key])
+              .join('\n')}`,
+          },
+          order.backendUser.email,
+        ).send();
+      } catch (e) {}
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 退货退款
+   * @param params
+   */
+  async returnOfGoods({ orderId, reason }: IReturnOfGoodsParams) {
+    try {
+      let order: Order;
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              backendUser: 'order.backendUser',
+              productList: 'order.productList',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取订单信息失败', e);
+      }
+      if (!order) await reportErr('当前退款订单不存在');
+      if (this.returnOfGoodsType.indexOf(order.orderType) === -1)
+        await reportErr('当前订单状态不允许进行此操作');
+      if (order.orderType === EOrderType.REFUNDING)
+        await reportErr('当前订单已在退款处理中');
+
+      // 修改订单状态&存储退款记录
+      await getManager().transaction(async (entityManager: EntityManager) => {
+        const orderRefund = new OrderRefund();
+        orderRefund.order = order;
+        orderRefund.reason = reason;
+        await entityManager.save(orderRefund);
+        await entityManager.update(Order, order.id, {
+          orderType: EOrderType.REFUNDING,
+        });
+        try {
+          new Mail(
+            '有用户取消订单，请尽快处理!!',
+            {
+              订单ID: order.id,
+              商品: `${order.productList.map(
+                p =>
+                  `${p.productName} x${
+                    order.buyProductQuantityList.find(b => b.productId === p.id)
+                      ?.buyQuantity
+                  }\n`,
+              )}`,
+              收货信息: `${Object.keys(order.shoppingAddress)
+                .map(key => order.shoppingAddress[key])
+                .join('\n')}`,
+            },
+            order.backendUser.email,
+          ).send();
+        } catch (e) {}
+      });
     } catch (e) {
       throw new FrontException(e.message, e);
     }
