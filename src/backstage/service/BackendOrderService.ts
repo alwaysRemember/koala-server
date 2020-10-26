@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-26 15:50:17
+ * @LastEditTime: 2020-10-26 16:35:21
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -269,7 +269,13 @@ export class BackendOrderService {
    * @param token
    */
   async updateOrderLogisticsInfo(
-    { orderId, code, name, num }: IUpdateOrderLogisticsInfoRequestParams,
+    {
+      orderId,
+      code,
+      name,
+      num,
+      isNeedExpress,
+    }: IUpdateOrderLogisticsInfoRequestParams,
     token: string,
   ): Promise<IUpdateOrderLogisticsInfoResponse> {
     try {
@@ -303,30 +309,42 @@ export class BackendOrderService {
 
       await getManager()
         .transaction(async (entityManager: EntityManager) => {
-          const logisticsInfo = new OrderLogisticsInfo();
-          logisticsInfo.code = code;
-          logisticsInfo.name = name;
-          logisticsInfo.num = num;
-          // 存在物流信息则为修改，不存在则为新增
-          if (order.logisticsInfo) {
-            logisticsInfo.id = order.logisticsInfo.id;
-            await entityManager.update(
-              OrderLogisticsInfo,
-              logisticsInfo.id,
-              logisticsInfo,
-            );
+          let delLogisticsInfoId: number;
+          // 是否需要使用快递
+          if (isNeedExpress) {
+            const logisticsInfo = new OrderLogisticsInfo();
+            logisticsInfo.code = code;
+            logisticsInfo.name = name;
+            logisticsInfo.num = num;
+            // 存在物流信息则为修改，不存在则为新增
+            if (order.logisticsInfo) {
+              logisticsInfo.id = order.logisticsInfo.id;
+              await entityManager.update(
+                OrderLogisticsInfo,
+                logisticsInfo.id,
+                logisticsInfo,
+              );
+            } else {
+              const data = await entityManager.save(
+                OrderLogisticsInfo,
+                logisticsInfo,
+              );
+              order.logisticsInfo = data;
+            }
           } else {
-            const data = await entityManager.save(
-              OrderLogisticsInfo,
-              logisticsInfo,
-            );
-            order.logisticsInfo = data;
+            delLogisticsInfoId = order.logisticsInfo.id;
+            order.logisticsInfo = null;
           }
-          // 修改订单状态为待收货
+          // 当订单状态为待发货的时候 修改订单状态为待收货
           if (order.orderType === EOrderType.TO_BE_DELIVERED) {
             order.orderType = EOrderType.TO_BE_RECEIVED;
           }
           await entityManager.update(Order, order.id, order);
+          if (delLogisticsInfoId) {
+            await entityManager.delete(OrderLogisticsInfo, delLogisticsInfoId);
+          }
+          // 不需要物流则无需发起推送
+          if (!isNeedExpress) return;
           // 向快递100发起物流推送申请
           try {
             Axios.post(
@@ -357,9 +375,9 @@ export class BackendOrderService {
         });
       return {
         orderType: EOrderType.TO_BE_RECEIVED,
-        name,
-        num,
-        code,
+        name: isNeedExpress ? name : '',
+        num: isNeedExpress ? num : '',
+        code: isNeedExpress ? code : '',
       };
     } catch (e) {
       throw new BackendException(e.message, e);

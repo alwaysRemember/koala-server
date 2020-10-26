@@ -3,7 +3,7 @@ import { EOrderType } from 'src/global/enums/EOrder';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:50:06
- * @LastEditTime: 2020-10-21 16:33:41
+ * @LastEditTime: 2020-10-26 16:16:12
  * @FilePath: /koala-server/src/backstage/form/BackendOrderForm.ts
  */
 
@@ -33,6 +33,7 @@ export interface IUpdateOrderLogisticsInfoDefaultParams {
 
 export interface IUpdateOrderLogisticsInfoRequestParams
   extends IUpdateOrderLogisticsInfoDefaultParams {
+  isNeedExpress: boolean;
   orderId: string;
 }
 
