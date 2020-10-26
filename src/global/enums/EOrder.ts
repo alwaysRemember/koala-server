@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-10-21 17:25:11
+ * @LastEditTime: 2020-10-26 15:24:49
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
 
@@ -15,6 +15,13 @@ export enum EOrderType {
   COMMENT = 'COMMENT', // 待评价
   FINISHED = 'FINISHED', // 已完结
   CANCEL = 'CANCEL', // 已取消
+}
+
+export enum EOrderExpressStatus {
+  POLLING = 'polling', // 监控中
+  SHUTDOWN = 'shutdown', // 结束
+  ABORT = 'abort', // 中止
+  UPDATEALL = 'updateall', // 重新推送
 }
 
 export enum EOrderExpiration {

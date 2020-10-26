@@ -2,12 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-22 15:06:16
+ * @LastEditTime: 2020-10-26 14:53:08
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
 import { Injectable } from '@nestjs/common';
-import { appId, mchId } from 'src/config/projectConfig';
+import Axios from 'axios';
+import { HOST } from 'src/config/FileConfig';
+import { appId, KUAIDI_100_KEY, mchId } from 'src/config/projectConfig';
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
@@ -323,6 +325,30 @@ export class BackendOrderService {
             order.orderType = EOrderType.TO_BE_RECEIVED;
           }
           await entityManager.update(Order, order.id, order);
+          // 向快递100发起物流推送申请
+          try {
+            Axios.post(
+              'https://poll.kuaidi100.com/poll',
+              {
+                schema: 'json',
+                param: {
+                  company: order.logisticsInfo.code,
+                  number: order.logisticsInfo.num,
+                  key: KUAIDI_100_KEY,
+                },
+                parameters: {
+                  callbackurl: `${HOST}/api/express/notify`,
+                },
+              },
+              {
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+              },
+            );
+          } catch (e) {
+            await reportErr('快递发起推送失败', e);
+          }
         })
         .catch(async e => {
           await reportErr('更新订单物流信息失败', e);

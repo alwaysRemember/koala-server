@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-23 18:19:38
+ * @LastEditTime: 2020-10-26 15:21:56
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -25,10 +25,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import {
+  EOrderExpressStatus,
   EOrderRefundAccount,
   EOrderRefundStatus,
   EOrderType,
 } from '../enums/EOrder';
+import { IExpressDataItem } from '../interface/IExpress';
 import { OrderLogisticsInfo } from './OrderLogisticsInfo.entity';
 import { OrderRefund } from './OrderRefund.entity';
 import { PayOrder } from './PayOrder.entity';
