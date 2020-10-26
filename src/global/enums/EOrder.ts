@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-10-26 15:24:49
+ * @LastEditTime: 2020-10-26 17:26:49
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
 
@@ -15,6 +15,12 @@ export enum EOrderType {
   COMMENT = 'COMMENT', // 待评价
   FINISHED = 'FINISHED', // 已完结
   CANCEL = 'CANCEL', // 已取消
+}
+
+// 财务状态
+export enum EFinancialStatus {
+  TO_BE_CHECKED_OUT = 'TO_BE_CHECKED_OUT', //  待结账
+  CHECKED_OUT = 'CHECKED_OUT', // 已结账
 }
 
 export enum EOrderExpressStatus {
