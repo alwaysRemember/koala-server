@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-23 18:23:01
+ * @LastEditTime: 2020-10-26 17:20:32
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -283,6 +283,7 @@ export class OrderService {
               orderType: item.orderType,
               amount: item.amount,
               updateTime: item.updateTime,
+              orderCheck: item.orderCheck,
               productList: await Promise.all(
                 item.productList.map(async d => {
                   // 提取产品配置的id

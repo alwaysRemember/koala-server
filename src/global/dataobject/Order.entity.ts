@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-26 15:21:56
+ * @LastEditTime: 2020-10-26 17:18:18
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -101,6 +101,13 @@ export class Order {
     comment: '订单状态',
   })
   orderType: EOrderType;
+
+  @Column({
+    type: 'bool',
+    default: false,
+    comment: '快递监控收货状态',
+  })
+  orderCheck: boolean;
 
   @ManyToOne(
     type => PayOrder,

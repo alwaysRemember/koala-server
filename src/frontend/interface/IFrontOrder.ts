@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-10-16 16:57:11
+ * @LastEditTime: 2020-10-26 17:19:59
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
@@ -40,6 +40,7 @@ export interface IGetOrderListResponse {
 export interface IOrderDataItem {
   orderId: string;
   orderType: EOrderType;
+  orderCheck: boolean;
   amount: number;
   productList: Array<IProductItem>;
   updateTime: Date;
