@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-26 14:53:08
+ * @LastEditTime: 2020-10-26 15:50:17
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -244,6 +244,8 @@ export class BackendOrderService {
               courierName: order.logisticsInfo.name,
               courierNum: order.logisticsInfo.num,
               courierCode: order.logisticsInfo.code,
+              signStatus: order.logisticsInfo.signStatus,
+              expressData: order.logisticsInfo.expressData,
             }
           : null,
         orderAmount: order.amount,

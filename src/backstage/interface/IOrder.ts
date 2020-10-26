@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 15:19:38
- * @LastEditTime: 2020-10-21 17:24:55
+ * @LastEditTime: 2020-10-26 15:49:51
  * @FilePath: /koala-server/src/backstage/interface/IOrder.ts
  */
 
@@ -12,6 +12,7 @@ import {
   EOrderRefundStatus,
   EOrderType,
 } from 'src/global/enums/EOrder';
+import { IExpressDataItem } from 'src/global/interface/IExpress';
 import { IUpdateOrderLogisticsInfoDefaultParams } from '../form/BackendOrderForm';
 
 export interface IGetOrderListResponse {
@@ -63,6 +64,8 @@ export interface IOrderLogisticsInfo {
   courierName: string; // 快递名称
   courierCode: string;
   courierNum: string; // 快递单号
+  signStatus: string;
+  expressData: Array<IExpressDataItem>;
 }
 export interface IUpdateOrderLogisticsInfoResponse
   extends IUpdateOrderLogisticsInfoDefaultParams {
