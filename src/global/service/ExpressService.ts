@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-26 14:30:26
- * @LastEditTime: 2020-10-26 17:18:59
+ * @LastEditTime: 2020-10-27 14:35:57
  * @FilePath: /koala-server/src/global/service/ExpressService.ts
  */
 import { Body, Injectable } from '@nestjs/common';
@@ -55,12 +55,13 @@ export class ExpressService {
       });
       // 判断订单是否签收
       if (order.orderCheck) return;
-      
+
       // 判断是否为已签收
       if (!!Number(ischeck)) {
         // 转为待评价
         order.orderType = EOrderType.COMMENT;
         order.orderCheck = true;
+        order.orderCheckTime = new Date(data[0].ftime);
       }
 
       orderLogisticsInfo.expressStatus = status;

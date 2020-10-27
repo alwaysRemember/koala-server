@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-10-26 17:19:59
+ * @LastEditTime: 2020-10-27 14:36:29
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
@@ -43,7 +43,7 @@ export interface IOrderDataItem {
   orderCheck: boolean;
   amount: number;
   productList: Array<IProductItem>;
-  updateTime: Date;
+  orderCheckTime: Date;
 }
 
 export interface IProductItem {

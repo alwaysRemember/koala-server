@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-27 14:20:33
+ * @LastEditTime: 2020-10-27 14:36:54
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -283,7 +283,7 @@ export class OrderService {
               orderId: item.id,
               orderType: item.orderType,
               amount: item.amount,
-              updateTime: item.updateTime,
+              orderCheckTime: item.orderCheckTime,
               orderCheck: item.orderCheck,
               productList: await Promise.all(
                 item.productList.map(async d => {
