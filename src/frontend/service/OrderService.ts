@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-27 14:36:54
+ * @LastEditTime: 2020-10-27 17:05:36
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -37,6 +37,7 @@ import {
   ICreateOrderParams,
   IGetOrderListRequestParams,
   IOrderItem,
+  IRefundCourierInfo,
   IReturnOfGoodsParams,
 } from '../form/IFrontOrder';
 import {
@@ -50,6 +51,7 @@ import { WxPay } from '../../utils/wxPay';
 import { ETradeType } from '../../utils/wxPay/enums';
 import { FrontUserService } from './UserService';
 import { OrderRefund } from 'src/global/dataobject/OrderRefund.entity';
+import { OrderRefundRepository } from 'src/global/repository/OrderRefundRepository';
 
 @Injectable()
 export class OrderService {
@@ -82,6 +84,7 @@ export class OrderService {
     private readonly frontUserRepository: FrontUserRepository,
     private readonly productConfigRepository: ProductConfigRepository,
     private readonly productMainImgRepository: ProductMainImgRepository,
+    private readonly orderRefundRepository: OrderRefundRepository,
   ) {}
 
   /**
@@ -263,6 +266,7 @@ export class OrderService {
         const db = this.orderRepository.createQueryBuilder('order');
         db.leftJoin('order.frontUser', 'frontUser');
         db.leftJoinAndSelect('order.productList', 'productList');
+        db.leftJoinAndSelect('order.orderRefund', 'orderRefund');
         db.andWhere('order.frontUser.userId=:id', { id: user.userId });
         // 判断订单状态
         if (orderType !== 'ALL') {
@@ -285,6 +289,7 @@ export class OrderService {
               amount: item.amount,
               orderCheckTime: item.orderCheckTime,
               orderCheck: item.orderCheck,
+              hasRefundCourierInfo: !!item.orderRefund?.trackingNumber,
               productList: await Promise.all(
                 item.productList.map(async d => {
                   // 提取产品配置的id
@@ -405,6 +410,42 @@ export class OrderService {
       } catch (e) {
         await reportErr('确实收货失败', e);
       }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 新增退货快递信息
+   * @param params
+   */
+  async addRefundCourierInfo({
+    orderId,
+    courierName,
+    courierNum,
+  }: IRefundCourierInfo) {
+    try {
+      let order: Order;
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              orderRefund: 'order.orderRefund',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('获取订单信息失败', e);
+      }
+      if (!order) await reportErr('未查到当前订单信息');
+      if (order.orderRefund.trackingNumber)
+        await reportErr('您已填写过退款快递信息');
+      const { id } = order.orderRefund;
+      await this.orderRefundRepository.update(id, {
+        trackingNumber: courierNum,
+        courierName,
+      });
     } catch (e) {
       throw new FrontException(e.message, e);
     }

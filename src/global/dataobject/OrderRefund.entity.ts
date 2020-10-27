@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-23 18:14:54
- * @LastEditTime: 2020-10-23 18:20:18
+ * @LastEditTime: 2020-10-27 16:59:09
  * @FilePath: /koala-server/src/global/dataobject/OrderRefund.entity.ts
  */
 
@@ -24,6 +24,12 @@ export class OrderRefund {
     comment: '退款原因',
   })
   reason: string;
+
+  @Column({
+    default: null,
+    comment: '退款快递名',
+  })
+  courierName: string;
 
   @Column({
     comment: '退款快递单号',

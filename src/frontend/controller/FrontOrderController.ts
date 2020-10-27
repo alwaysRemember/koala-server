@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-27 14:28:26
+ * @LastEditTime: 2020-10-27 16:56:35
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -23,6 +23,7 @@ import {
   IConfirmOrder,
   ICreateOrderParams,
   IGetOrderListRequestParams,
+  IRefundCourierInfo,
   IReturnOfGoodsParams,
 } from '../form/IFrontOrder';
 import {
@@ -37,6 +38,7 @@ import {
   GetOrderListSchema,
   GetOrderSchema,
   OrderPaymentSchema,
+  RefundCourierInfoSchema,
   ReturnOfGoodsSchema,
 } from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
@@ -174,6 +176,25 @@ export class FrontOrderController {
     const result = new ResultVoUtil();
     try {
       await this.orderService.confirmOrder(params);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 添加退货快递信息
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(RefundCourierInfoSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/add-refund-courier-info')
+  public async addRefundCourierInfo(@Body() params: IRefundCourierInfo) {
+    const result = new ResultVoUtil();
+    try {
+      await this.orderService.addRefundCourierInfo(params);
       return result.success();
     } catch (e) {
       return result.error(e.message);
