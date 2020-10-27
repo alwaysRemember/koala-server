@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-23 16:52:54
- * @LastEditTime: 2020-10-22 15:03:53
- * @FilePath: /koala-server/src/global/service/wxPayService.ts
+ * @LastEditTime: 2020-10-27 18:12:35
+ * @FilePath: /koala-server/src/global/service/WxPayService.ts
  */
 
 import { Injectable } from '@nestjs/common';
@@ -145,6 +145,7 @@ export class WxPayService {
           if (refund_status === EOrderRefundStatus.SUCCESS) {
             order.orderType = EOrderType.SUCCESS_RETURN;
           }
+
           order.refundStatus = refund_status;
           order.refundAccount = refund_account;
           order.refundRecvAccount = refund_recv_accout;

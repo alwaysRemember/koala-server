@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-26 16:35:21
+ * @LastEditTime: 2020-10-27 18:16:22
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 
@@ -187,6 +187,7 @@ export class BackendOrderService {
               backendUser: 'order.backendUser',
               productList: 'order.productList',
               logisticsInfo: 'order.logisticsInfo',
+              orderRefund: 'order.orderRefund',
             },
           },
         });
@@ -257,6 +258,13 @@ export class BackendOrderService {
         refundStatus: order.refundStatus,
         refundRecvAccount: order.refundRecvAccount,
         refundSuccessTime: order.refundSuccessTime,
+        refundCourier:
+          (order.orderRefund && {
+            courierName: order.orderRefund.courierName,
+            trackingNumber: order.orderRefund.trackingNumber,
+            reason: order.orderRefund.reason,
+          }) ||
+          null,
       };
     } catch (e) {
       throw new BackendException(e.message, e);
@@ -453,7 +461,7 @@ export class BackendOrderService {
       await this.orderRepository.update(order.id, {
         outRefundNo: data.outRefundNo,
         refundId: data.refundId,
-        refundStatus: EOrderRefundStatus.NULL,
+        refundStatus: EOrderRefundStatus.PROCESSING,
       });
     } catch (e) {
       await reportErr('更新退款信息失败', e);

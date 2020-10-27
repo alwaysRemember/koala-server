@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 15:19:38
- * @LastEditTime: 2020-10-26 15:49:51
+ * @LastEditTime: 2020-10-27 17:38:01
  * @FilePath: /koala-server/src/backstage/interface/IOrder.ts
  */
 
@@ -43,7 +43,15 @@ export interface IOrderDetailResponse {
   refundStatus: EOrderRefundStatus;
   refundRecvAccount: string;
   refundSuccessTime: string;
+  refundCourier: null | IRefundCourier;
 }
+
+export interface IRefundCourier {
+  reason:string;
+  courierName:string;
+  trackingNumber:string;
+}
+
 export interface IOrderDetailDeliveryInfo {
   name: string;
   phone: string;

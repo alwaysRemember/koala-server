@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:03:30
- * @LastEditTime: 2020-10-22 15:04:40
- * @FilePath: /koala-server/src/global/controller/wxPayController.ts
+ * @LastEditTime: 2020-10-27 18:00:14
+ * @FilePath: /koala-server/src/global/controller/WxPayController.ts
  */
 
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
