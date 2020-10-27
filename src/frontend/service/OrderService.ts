@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-26 17:20:32
+ * @LastEditTime: 2020-10-27 14:20:33
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -33,6 +33,7 @@ import { EntityManager, getManager, LessThanOrEqual, Not } from 'typeorm';
 import { ShoppingAddress } from '../dataobject/ShoppingAddress.entity';
 import { FrontException } from '../exception/FrontException';
 import {
+  IConfirmOrder,
   ICreateOrderParams,
   IGetOrderListRequestParams,
   IOrderItem,
@@ -64,7 +65,7 @@ export class OrderService {
 
   private paymentType: Array<EOrderType> = [EOrderType.PENDING_PAYMENT];
 
-  private confirmReceiptType: Array<EOrderType> = [EOrderType.TO_BE_RECEIVED];
+  private confirmOrderType: Array<EOrderType> = [EOrderType.TO_BE_RECEIVED];
 
   private wxPay = new WxPay({
     appid: appId,
@@ -376,6 +377,34 @@ export class OrderService {
           await reportErr('生成支付订单失败', e);
         });
       return result as ICreateOrderResponse;
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 订单确认收货
+   * @param params
+   */
+  async confirmOrder({ orderId }: IConfirmOrder) {
+    try {
+      let order: Order;
+      try {
+        order = await this.orderRepository.findOne(orderId);
+      } catch (e) {
+        await reportErr('获取订单信息失败', e);
+      }
+      if (!order) await reportErr('未查询到当前订单');
+      if (!this.confirmOrderType.find(v => v === order.orderType))
+        await reportErr('当前订单不允许此操作');
+      try {
+        // 状态改为待评价
+        await this.orderRepository.update(order.id, {
+          orderType: EOrderType.COMMENT,
+        });
+      } catch (e) {
+        await reportErr('确实收货失败', e);
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }

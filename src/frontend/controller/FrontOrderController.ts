@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-23 18:13:22
+ * @LastEditTime: 2020-10-27 14:28:26
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -10,6 +10,7 @@ import {
   Body,
   Controller,
   HttpCode,
+  Param,
   Post,
   Req,
   UsePipes,
@@ -19,6 +20,7 @@ import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import {
   ICancelOrder,
+  IConfirmOrder,
   ICreateOrderParams,
   IGetOrderListRequestParams,
   IReturnOfGoodsParams,
@@ -30,10 +32,12 @@ import {
 } from '../interface/IFrontOrder';
 import {
   CancelOrderSchema,
+  ConfirmOrderSchema,
   CreateOrderSchema,
   GetOrderListSchema,
   GetOrderSchema,
   OrderPaymentSchema,
+  ReturnOfGoodsSchema,
 } from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
 
@@ -147,11 +151,29 @@ export class FrontOrderController {
    * @param params
    */
   @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(ReturnOfGoodsSchema, ({ type }) => type === 'body'),
+  )
   @Post('/return-of-goods')
   public async returnOfGoods(@Body() params: IReturnOfGoodsParams) {
     const result = new ResultVoUtil();
     try {
       await this.orderService.returnOfGoods(params);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(ConfirmOrderSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/confirm-order')
+  public async confirmOrder(@Body() params: IConfirmOrder) {
+    const result = new ResultVoUtil();
+    try {
+      await this.orderService.confirmOrder(params);
       return result.success();
     } catch (e) {
       return result.error(e.message);

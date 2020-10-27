@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-13 14:37:50
- * @LastEditTime: 2020-10-26 15:27:12
+ * @LastEditTime: 2020-10-26 18:51:59
  * @FilePath: /koala-server/src/global/dataobject/OrderLogisticsInfo.entity.ts
  */
 

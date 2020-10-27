@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:29:20
- * @LastEditTime: 2020-10-23 17:02:13
+ * @LastEditTime: 2020-10-27 14:11:28
  * @FilePath: /koala-server/src/frontend/form/IFrontOrder.ts
  */
 
@@ -38,4 +38,8 @@ export interface ICancelOrder {
 export interface IReturnOfGoodsParams {
   orderId: string;
   reason: string;
+}
+
+export interface IConfirmOrder {
+  orderId: string;
 }
