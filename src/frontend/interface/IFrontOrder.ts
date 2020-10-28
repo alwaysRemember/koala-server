@@ -2,11 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-10-27 15:53:46
+ * @LastEditTime: 2020-10-28 18:22:46
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
 import { EOrderType } from 'src/global/enums/EOrder';
+import { IExpressDataItem } from 'src/global/interface/IExpress';
 
 export interface ICreateOrderResponse {
   timeStamp: string;
@@ -54,4 +55,11 @@ export interface IProductItem {
   amount: number;
   buyQuantity: number;
   productConfigList: Array<string>;
+}
+
+export interface IGetLogisticsInfoResponseData {
+  name: string;
+  num: string;
+  signStatus: string; // 签收状态
+  expressData: Array<IExpressDataItem>;
 }

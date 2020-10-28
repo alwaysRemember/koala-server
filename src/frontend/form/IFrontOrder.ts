@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:29:20
- * @LastEditTime: 2020-10-27 16:38:17
+ * @LastEditTime: 2020-10-28 17:08:32
  * @FilePath: /koala-server/src/frontend/form/IFrontOrder.ts
  */
 
@@ -47,5 +47,9 @@ export interface IConfirmOrder {
 export interface IRefundCourierInfo {
   courierName: string;
   courierNum: string;
-  orderId:string;
+  orderId: string;
+}
+
+export interface IGetLogisticsInfoRequestParams {
+  orderId: string;
 }

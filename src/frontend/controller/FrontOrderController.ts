@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-27 16:56:35
+ * @LastEditTime: 2020-10-28 18:22:26
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -22,12 +22,14 @@ import {
   ICancelOrder,
   IConfirmOrder,
   ICreateOrderParams,
+  IGetLogisticsInfoRequestParams,
   IGetOrderListRequestParams,
   IRefundCourierInfo,
   IReturnOfGoodsParams,
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
+  IGetLogisticsInfoResponseData,
   IGetOrderListResponse,
   IGetOrderResponse,
 } from '../interface/IFrontOrder';
@@ -35,6 +37,7 @@ import {
   CancelOrderSchema,
   ConfirmOrderSchema,
   CreateOrderSchema,
+  GetLogiticsInfoSchema,
   GetOrderListSchema,
   GetOrderSchema,
   OrderPaymentSchema,
@@ -196,6 +199,27 @@ export class FrontOrderController {
     try {
       await this.orderService.addRefundCourierInfo(params);
       return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取快递信息
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetLogiticsInfoSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-logistics-info')
+  public async getLogisticsInfo(
+    @Body() { orderId }: IGetLogisticsInfoRequestParams,
+  ): Promise<ResultVo<IGetLogisticsInfoResponseData | null>> {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.orderService.getLogisticsInfo(orderId);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

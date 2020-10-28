@@ -2,13 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:50
- * @LastEditTime: 2020-10-27 17:03:30
+ * @LastEditTime: 2020-10-28 17:17:25
  * @FilePath: /koala-server/src/frontend/modules/FrontOrderModule.ts
  */
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/global/dataobject/Order.entity';
+import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
 import { OrderRefund } from 'src/global/dataobject/OrderRefund.entity';
 import { PayOrder } from 'src/global/dataobject/PayOrder.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
@@ -17,6 +18,7 @@ import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
+import { OrderLogisticsInfoRepository } from 'src/global/repository/OrderLogisticsInfoRepository';
 import { OrderRefundRepository } from 'src/global/repository/OrderRefundRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
 import { PayOrderRepository } from 'src/global/repository/PayOrderRepository';
@@ -43,6 +45,10 @@ import { FrontUserModule } from './FrontUserModule';
     TypeOrmModule.forFeature([ProductConfig, ProductConfigRepository]),
     TypeOrmModule.forFeature([ProductMainImg, ProductMainImgRepository]),
     TypeOrmModule.forFeature([OrderRefund, OrderRefundRepository]),
+    TypeOrmModule.forFeature([
+      OrderLogisticsInfo,
+      OrderLogisticsInfoRepository,
+    ]),
     FrontUserModule,
   ],
   providers: [OrderService, OrderTasksService],

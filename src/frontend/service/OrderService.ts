@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-27 17:05:36
+ * @LastEditTime: 2020-10-28 18:30:06
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -42,6 +42,7 @@ import {
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
+  IGetLogisticsInfoResponseData,
   IGetOrderListResponse,
   IProductItem,
   IShoppingAddress,
@@ -52,6 +53,8 @@ import { ETradeType } from '../../utils/wxPay/enums';
 import { FrontUserService } from './UserService';
 import { OrderRefund } from 'src/global/dataobject/OrderRefund.entity';
 import { OrderRefundRepository } from 'src/global/repository/OrderRefundRepository';
+import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
+import { OrderLogisticsInfoRepository } from 'src/global/repository/OrderLogisticsInfoRepository';
 
 @Injectable()
 export class OrderService {
@@ -85,6 +88,7 @@ export class OrderService {
     private readonly productConfigRepository: ProductConfigRepository,
     private readonly productMainImgRepository: ProductMainImgRepository,
     private readonly orderRefundRepository: OrderRefundRepository,
+    private readonly orderLogisticsInfoRepository: OrderLogisticsInfoRepository,
   ) {}
 
   /**
@@ -684,6 +688,40 @@ export class OrderService {
           ).send();
         } catch (e) {}
       });
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取快递信息
+   * @param orderId
+   */
+  async getLogisticsInfo(
+    orderId: string,
+  ): Promise<IGetLogisticsInfoResponseData | null> {
+    try {
+      let logiticsInfo: OrderLogisticsInfo;
+      try {
+        const db = this.orderLogisticsInfoRepository
+          .createQueryBuilder('info')
+          .leftJoin(Order, 'order', 'order.id =:id', { id: orderId })
+          .andWhere('info.id =order.logisticsInfoId');
+        logiticsInfo = await db.getOne();
+      } catch (e) {
+        await reportErr('查询快递信息失败', e);
+      }
+      if (logiticsInfo) {
+        const { name, num, signStatus, expressData } = logiticsInfo;
+        return {
+          name,
+          num,
+          signStatus,
+          expressData,
+        };
+      } else {
+        return null;
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }
