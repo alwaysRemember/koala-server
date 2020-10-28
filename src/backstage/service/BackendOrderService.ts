@@ -2,14 +2,20 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-27 18:16:22
+ * @LastEditTime: 2020-10-28 11:01:12
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
-
+import * as Qs from 'qs';
+import * as CryptoJS from 'crypto-js';
 import { Injectable } from '@nestjs/common';
 import Axios from 'axios';
 import { HOST } from 'src/config/FileConfig';
-import { appId, KUAIDI_100_KEY, mchId } from 'src/config/projectConfig';
+import {
+  appId,
+  KUADI_100_USER_ID,
+  KUAIDI_100_KEY,
+  mchId,
+} from 'src/config/projectConfig';
 import { IShoppingAddress } from 'src/frontend/interface/IFrontOrder';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
@@ -350,6 +356,38 @@ export class BackendOrderService {
           await entityManager.update(Order, order.id, order);
           if (delLogisticsInfoId) {
             await entityManager.delete(OrderLogisticsInfo, delLogisticsInfoId);
+          }
+          // 发送订单发货短信
+          try {
+            Axios({
+              url: 'http://apisms.kuaidi100.com:9502/sms/send.do',
+              method: 'POST',
+              data: Qs.stringify({
+                sign: CryptoJS.MD5(KUAIDI_100_KEY + KUADI_100_USER_ID)
+                  .toString()
+                  .toUpperCase(),
+                userid: KUADI_100_USER_ID,
+                seller: '购GO',
+                phone:
+                  process.env.NODE_ENV === 'development'
+                    ? '15901749275'
+                    : order.shoppingAddress.phone,
+                tid: 6775,
+                content: JSON.stringify({
+                  姓名: order.shoppingAddress.name,
+                  快递单号: num ? num : ' ',
+                  快递名称: name ? name : ' ',
+                  订单号: order.id,
+                }),
+              }),
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            }).then(res => {
+              console.log(res);
+            });
+          } catch (e) {
+            await reportErr('向用户发送发货短信失败', e);
           }
           // 不需要物流则无需发起推送
           if (!isNeedExpress) return;
