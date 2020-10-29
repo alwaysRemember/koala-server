@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:29:20
- * @LastEditTime: 2020-10-28 17:08:32
+ * @LastEditTime: 2020-10-29 17:44:53
  * @FilePath: /koala-server/src/frontend/form/IFrontOrder.ts
  */
 
@@ -52,4 +52,15 @@ export interface IRefundCourierInfo {
 
 export interface IGetLogisticsInfoRequestParams {
   orderId: string;
+}
+
+
+export interface ISubmitOrderCommentRequestParams{
+  orderId: string;
+  productList: Array<ICommentProductItem>;
+}
+export interface ICommentProductItem {
+  productId: string;
+  rate: number;
+  text: string;
 }

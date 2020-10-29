@@ -8,7 +8,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-10-27 14:34:27
+ * @LastEditTime: 2020-10-29 18:25:54
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -186,6 +186,11 @@ export class Order {
     financialOrder => financialOrder.order,
   )
   financialOrder: FinancialOrder;
+
+  @Column({
+    comment: '可以入财务表的时间',
+  })
+  canCheckOutTime: string;
 
   @CreateDateColumn({
     comment: '创建时间',

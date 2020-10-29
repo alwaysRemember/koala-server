@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-09-25 19:00:46
+ * @LastEditTime: 2020-10-29 18:37:31
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -28,6 +28,7 @@ import { ProductConfig } from './ProductConfig.entity';
 import { AppletHomeBanner } from './AppletHomeBanner.entity';
 import { FrontUser } from './User.entity';
 import { Order } from './Order.entity';
+import { ProductComment } from './ProductComment.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -128,6 +129,13 @@ export class Product {
     frontUser => frontUser.favoriteProductList,
   )
   favoriteUserList: Array<FrontUser>;
+
+  @OneToMany(
+    type => ProductComment,
+    productcomment => productcomment.product,
+  )
+  @JoinColumn()
+  productCommentList: ProductComment;
 
   @CreateDateColumn({
     comment: '创建时间',

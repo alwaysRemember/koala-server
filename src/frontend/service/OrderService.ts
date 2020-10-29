@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-28 18:30:06
+ * @LastEditTime: 2020-10-29 18:33:21
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -18,7 +18,7 @@ import { ProductConfig } from 'src/global/dataobject/ProductConfig.entity';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
-import { EOrderExpiration, EOrderType } from 'src/global/enums/EOrder';
+import { EOrderTime, EOrderType } from 'src/global/enums/EOrder';
 import { EProductStatus } from 'src/global/enums/EProduct';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
@@ -39,6 +39,7 @@ import {
   IOrderItem,
   IRefundCourierInfo,
   IReturnOfGoodsParams,
+  ISubmitOrderCommentRequestParams,
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
@@ -55,6 +56,7 @@ import { OrderRefund } from 'src/global/dataobject/OrderRefund.entity';
 import { OrderRefundRepository } from 'src/global/repository/OrderRefundRepository';
 import { OrderLogisticsInfo } from 'src/global/dataobject/OrderLogisticsInfo.entity';
 import { OrderLogisticsInfoRepository } from 'src/global/repository/OrderLogisticsInfoRepository';
+import { ProductComment } from 'src/global/dataobject/ProductComment.entity';
 
 @Injectable()
 export class OrderService {
@@ -456,6 +458,76 @@ export class OrderService {
   }
 
   /**
+   * 提交订单评价
+   * @param params
+   */
+  async submitOrderComment({
+    orderId,
+    productList,
+  }: ISubmitOrderCommentRequestParams) {
+    try {
+      let order: Order;
+      try {
+        order = await this.orderRepository.findOne(orderId, {
+          join: {
+            alias: 'order',
+            leftJoinAndSelect: {
+              productList: 'order.productList',
+            },
+          },
+        });
+      } catch (e) {
+        await reportErr('订单信息获取失败', e);
+      }
+      if (!order) await reportErr('当前订单不存在');
+
+      if (order.orderType !== EOrderType.COMMENT)
+        await reportErr('当前订单状态不允许此操作');
+
+      if (order.productList.length !== productList.length)
+        await reportErr('当前评价订单的商品不正确');
+
+      let { length } = order.productList.reduce((prev, current) => {
+        if (productList.find(d => d.productId === current.id)) {
+          return prev;
+        } else {
+          return [...prev, current];
+        }
+      }, []); // 获取当前订单购买的产品和评价产品不同的产品
+      if (length) await reportErr("当前评价订单的商品不正确'");
+      await getManager()
+        .transaction(async (entityManager: EntityManager) => {
+          await entityManager.update(Order, order.id, {
+            orderType: EOrderType.FINISHED,
+            canCheckOutTime: String(
+              new Date().getTime() + EOrderTime.CAN_CHECK_OUT_TIME,
+            ),
+          });
+          // 获取产品
+          const productEntityList = await this.productRepository.findByIds(
+            productList.map(item => item.productId),
+          );
+          // 生成评价信息
+          const commentList = productList.map(({ rate, productId, text }) => {
+            const productComment = new ProductComment();
+            productComment.product = productEntityList.find(
+              v => v.id === productId,
+            );
+            productComment.rate = rate;
+            productComment.text = text ? text : '系统自动好评';
+            return productComment;
+          });
+          await entityManager.save(commentList);
+        })
+        .catch(async e => {
+          await reportErr('提交评价信息失败', e);
+        });
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
    * 创建订单列表
    * @param productList
    * @param frontUser
@@ -552,9 +624,7 @@ export class OrderService {
             }));
             order.orderType = EOrderType.PENDING_PAYMENT;
             order.shoppingAddress = shoppingAddress;
-            order.expiration = String(
-              new Date().getTime() + EOrderExpiration.CANCEL,
-            );
+            order.expiration = String(new Date().getTime() + EOrderTime.CANCEL);
             return order;
           },
         ),

@@ -2,13 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-26 17:27:34
- * @LastEditTime: 2020-10-26 17:32:49
+ * @LastEditTime: 2020-10-29 18:24:48
  * @FilePath: /koala-server/src/global/dataobject/FinancialOrder.entity.ts
  */
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EFinancialStatus } from '../enums/EOrder';
 import { Order } from './Order.entity';
 
+// 财务订单表
 @Entity('tb_financial_order')
 export class FinancialOrder {
   @PrimaryGeneratedColumn()

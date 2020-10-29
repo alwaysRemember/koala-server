@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-10-26 17:26:49
+ * @LastEditTime: 2020-10-29 18:24:09
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
 
@@ -30,8 +30,9 @@ export enum EOrderExpressStatus {
   UPDATEALL = 'updateall', // 重新推送
 }
 
-export enum EOrderExpiration {
+export enum EOrderTime {
   CANCEL = 7200000, // 自动取消时间(毫秒)
+  CAN_CHECK_OUT_TIME = 604800000, // 可以结账的时间
 }
 
 // 订单退款状态

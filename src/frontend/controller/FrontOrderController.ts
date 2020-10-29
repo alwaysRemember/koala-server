@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-28 18:22:26
+ * @LastEditTime: 2020-10-29 17:59:28
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -26,6 +26,7 @@ import {
   IGetOrderListRequestParams,
   IRefundCourierInfo,
   IReturnOfGoodsParams,
+  ISubmitOrderCommentRequestParams,
 } from '../form/IFrontOrder';
 import {
   ICreateOrderResponse,
@@ -43,6 +44,7 @@ import {
   OrderPaymentSchema,
   RefundCourierInfoSchema,
   ReturnOfGoodsSchema,
+  SubmitOrderComment,
 } from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
 
@@ -220,6 +222,27 @@ export class FrontOrderController {
     try {
       const data = await this.orderService.getLogisticsInfo(orderId);
       return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 提交订单评价
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(SubmitOrderComment, ({ type }) => type === 'body'),
+  )
+  @Post('/submit-order-comment')
+  public async submitOrderComment(
+    @Body() params: ISubmitOrderCommentRequestParams,
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      await this.orderService.submitOrderComment(params);
+      return result.success();
     } catch (e) {
       return result.error(e.message);
     }
