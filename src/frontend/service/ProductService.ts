@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-09-08 15:00:47
+ * @LastEditTime: 2020-10-30 14:33:19
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -21,6 +21,8 @@ import { Product } from 'src/global/dataobject/Product.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
+import { OrderRepository } from 'src/global/repository/OrderRepository';
+import { EOrderType } from 'src/global/enums/EOrder';
 
 @Injectable()
 export class ProductService {
@@ -29,6 +31,7 @@ export class ProductService {
     private readonly productDetailRepository: ProductDetailRepository,
     private readonly frontUserRepository: FrontUserRepository,
     private readonly productMainImgRepository: ProductMainImgRepository,
+    private readonly orderRepository: OrderRepository,
   ) {}
 
   /**
@@ -73,6 +76,26 @@ export class ProductService {
         await reportErr('获取商品主图失败', e);
       }
 
+      // 获取销量
+      let productSales: number = 0;
+      try {
+        const db = this.orderRepository
+          .createQueryBuilder('o')
+          .leftJoin(
+            'tb_product_related_tb_order',
+            'pro',
+            'pro.tbOrderId = o.id',
+          )
+          .leftJoin(Product, 'p', 'p.id = pro.tbProductId')
+          .where('p.id = :productId AND o.orderType = :type', {
+            productId: product.id,
+            type: EOrderType.FINISHED, // 完结的订单才能计算销量
+          });
+        productSales = await db.getCount();
+      } catch (e) {
+        await reportErr('获取销量失败');
+      }
+
       const {
         id,
         productVideo,
@@ -109,7 +132,7 @@ export class ProductService {
         productParameter,
         productConfigList,
         productDeliveryCity,
-        productSales: 100, // TODO 销量需要根据订单表进行计算
+        productSales: productSales,
         productShipping,
         productFavorites: favoriteType,
         productMainImg,

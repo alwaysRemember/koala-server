@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-26 17:27:34
- * @LastEditTime: 2020-10-29 18:24:48
+ * @LastEditTime: 2020-10-30 11:21:46
  * @FilePath: /koala-server/src/global/dataobject/FinancialOrder.entity.ts
  */
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
@@ -20,6 +20,16 @@ export class FinancialOrder {
     order => order.financialOrder,
   )
   order: Order;
+
+  @Column({
+    comment: '实际分账金额',
+  })
+  actualAmount: number;
+
+  @Column({
+    comment: '订单金额',
+  })
+  orderAmount: number;
 
   @Column({
     type: 'enum',
