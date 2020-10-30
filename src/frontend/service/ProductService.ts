@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-10-30 14:33:19
+ * @LastEditTime: 2020-10-30 14:36:20
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -93,7 +93,7 @@ export class ProductService {
           });
         productSales = await db.getCount();
       } catch (e) {
-        await reportErr('获取销量失败');
+        await reportErr('获取销量失败', e);
       }
 
       const {

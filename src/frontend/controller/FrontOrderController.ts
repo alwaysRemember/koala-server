@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-29 17:59:28
+ * @LastEditTime: 2020-10-30 16:35:19
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -26,6 +26,7 @@ import {
   IGetOrderListRequestParams,
   IRefundCourierInfo,
   IReturnOfGoodsParams,
+  ISearchOrderRequestParams,
   ISubmitOrderCommentRequestParams,
 } from '../form/IFrontOrder';
 import {
@@ -44,6 +45,7 @@ import {
   OrderPaymentSchema,
   RefundCourierInfoSchema,
   ReturnOfGoodsSchema,
+  SearchOrderSchema,
   SubmitOrderComment,
 } from '../schema/FrontOrderSchema';
 import { OrderService } from '../service/OrderService';
@@ -243,6 +245,26 @@ export class FrontOrderController {
     try {
       await this.orderService.submitOrderComment(params);
       return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 搜索订单
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(new ReqParamCheck(SearchOrderSchema, ({ type }) => type === 'body'))
+  @Post('/search-order')
+  public async searchOrder(
+    @Body() params: ISearchOrderRequestParams,
+    @Req() { headers: { openid } },
+  ): Promise<ResultVo<IGetOrderListResponse>> {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.orderService.searchOrder(params, openid);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-29 18:33:21
+ * @LastEditTime: 2020-10-30 16:35:02
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -39,6 +39,7 @@ import {
   IOrderItem,
   IRefundCourierInfo,
   IReturnOfGoodsParams,
+  ISearchOrderRequestParams,
   ISubmitOrderCommentRequestParams,
 } from '../form/IFrontOrder';
 import {
@@ -791,6 +792,92 @@ export class OrderService {
         };
       } else {
         return null;
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 搜索订单
+   * @param params
+   */
+  async searchOrder(
+    { page, searchValue }: ISearchOrderRequestParams,
+    openid: string,
+  ): Promise<IGetOrderListResponse> {
+    const TAKE_NUM = 10;
+    try {
+      // 获取用户
+      const user = await this.frontUserService.findByOpenid(openid);
+      try {
+        const db = this.orderRepository.createQueryBuilder('order');
+        db.leftJoin('order.frontUser', 'frontUser');
+        db.leftJoinAndSelect('order.productList', 'productList');
+        db.leftJoinAndSelect('order.orderRefund', 'orderRefund');
+        db.leftJoin(
+          'tb_product_related_tb_order',
+          'pro',
+          'pro.tbOrderId = order.id',
+        );
+        db.leftJoin(Product, 'product', 'product.id = pro.tbProductId');
+        db.andWhere('order.frontUser.userId=:id', { id: user.userId });
+        db.andWhere(`product.productName Like :name`, {
+          name: `%${searchValue}%`,
+        });
+        const data = await db
+          .skip((page - 1) * TAKE_NUM)
+          .take(TAKE_NUM)
+          .addOrderBy('order.createTime', 'DESC')
+          .getMany();
+        let total = await db.getCount();
+        total = Math.ceil(total / TAKE_NUM);
+        return {
+          total,
+          list: await Promise.all(
+            data.map(async item => ({
+              orderId: item.id,
+              orderType: item.orderType,
+              amount: item.amount,
+              orderCheckTime: item.orderCheckTime,
+              orderCheck: item.orderCheck,
+              hasRefundCourierInfo: !!item.orderRefund?.trackingNumber,
+              productList: await Promise.all(
+                item.productList.map(async d => {
+                  // 提取产品配置的id
+                  const productConfigIdList = item.buyProductConfigList?.find(
+                    item => item.productId === d.id,
+                  ).configList;
+                  const productConfig: Array<ProductConfig> = await this.productConfigRepository.findByIds(
+                    productConfigIdList || [],
+                  );
+                  const {
+                    productAmount: amount,
+                  }: ProductDetail = await this.productDetailRepository.findOne(
+                    d.productDetailId,
+                  );
+                  const {
+                    path: img,
+                  }: ProductMainImg = await this.productMainImgRepository.findOne(
+                    d.productMainImgId,
+                  );
+                  return {
+                    productId: d.id,
+                    name: d.productName,
+                    buyQuantity: item.buyProductQuantityList.find(
+                      item => item.productId === d.id,
+                    ).buyQuantity,
+                    productConfigList: productConfig.map(i => i.name),
+                    amount,
+                    img,
+                  };
+                }),
+              ),
+            })),
+          ),
+        };
+      } catch (e) {
+        await reportErr('获取订单列表失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);

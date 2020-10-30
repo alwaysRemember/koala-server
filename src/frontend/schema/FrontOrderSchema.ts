@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:42:42
- * @LastEditTime: 2020-10-29 17:49:18
+ * @LastEditTime: 2020-10-30 15:27:04
  * @FilePath: /koala-server/src/frontend/schema/FrontOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -76,10 +76,20 @@ export const SubmitOrderComment = Joi.object({
   productList: Joi.array().items(
     Joi.object({
       productId: Joi.string().required(),
-      rate: Joi.number().min(1).max(5).required(),
+      rate: Joi.number()
+        .min(1)
+        .max(5)
+        .required(),
       text: Joi.string()
         .allow('')
         .required(),
     }).required(),
   ),
+});
+
+export const SearchOrderSchema = Joi.object({
+  page: Joi.number()
+    .min(1)
+    .required(),
+  searchValue: Joi.string().required(),
 });
