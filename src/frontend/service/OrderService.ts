@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-10-30 16:35:02
+ * @LastEditTime: 2020-11-02 17:14:28
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -45,6 +45,7 @@ import {
 import {
   ICreateOrderResponse,
   IGetLogisticsInfoResponseData,
+  IGetOrderDetailResponseData,
   IGetOrderListResponse,
   IProductItem,
   IShoppingAddress,
@@ -525,6 +526,93 @@ export class OrderService {
         });
     } catch (e) {
       throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取订单详情
+   * @param orderId
+   */
+  async getOrderDetail(orderId: string): Promise<IGetOrderDetailResponseData> {
+    try {
+      let order: Order;
+      try {
+        const db = this.orderRepository.createQueryBuilder('order');
+        db.leftJoin('order.frontUser', 'frontUser');
+        db.leftJoinAndSelect('order.productList', 'productList');
+        db.leftJoinAndSelect('order.orderRefund', 'orderRefund');
+        db.leftJoinAndSelect('order.payOrder', 'payOrder');
+        db.andWhere('order.id =:orderId', { orderId });
+        order = await db.getOne();
+      } catch (e) {
+        await reportErr('获取订单详情失败', e);
+      }
+      if (!order) await reportErr('当前订单不存在');
+      const {
+        id,
+        orderType,
+        amount,
+        orderCheckTime,
+        orderCheck,
+        orderRefund,
+        productList,
+        orderShopping,
+        shoppingAddress,
+        remarkList,
+        refundRecvAccount,
+        refundSuccessTime,
+        payOrder,
+        buyProductConfigList,
+        buyProductQuantityList,
+      } = order;
+      return {
+        orderId: id,
+        orderType,
+        amount,
+        orderCheck,
+        orderCheckTime,
+        hasRefundCourierInfo: !!orderRefund?.trackingNumber,
+        orderShopping,
+        shoppingAddress,
+        remarkList,
+        refundRecvAccount,
+        refundSuccessTime,
+        transactionId: payOrder.transactionId,
+        productList: await Promise.all(
+          productList.map(async d => {
+            // 提取产品配置的id
+            const productConfigIdList = buyProductConfigList?.find(
+              item => item.productId === d.id,
+            ).configList;
+            
+            const productConfig: Array<ProductConfig> = await this.productConfigRepository.findByIds(
+              productConfigIdList || [],
+            );
+            const {
+              productAmount: amount,
+            }: ProductDetail = await this.productDetailRepository.findOne(
+              d.productDetailId,
+            );
+            const {
+              path: img,
+            }: ProductMainImg = await this.productMainImgRepository.findOne(
+              d.productMainImgId,
+            );
+            return {
+              productId: d.id,
+              name: d.productName,
+              buyQuantity: buyProductQuantityList.find(
+                item => item.productId === d.id,
+              ).buyQuantity,
+              productConfigList: productConfig.map(i => i.name),
+              amount,
+              img,
+            };
+          }),
+        ),
+      };
+    } catch (e) {
+      throw new FrontException(e.message);
     }
   }
 

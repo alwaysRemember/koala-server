@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:29:20
- * @LastEditTime: 2020-10-30 15:26:19
+ * @LastEditTime: 2020-11-02 15:13:45
  * @FilePath: /koala-server/src/frontend/form/IFrontOrder.ts
  */
 
@@ -66,4 +66,8 @@ export interface ICommentProductItem {
 export interface ISearchOrderRequestParams {
   page: number;
   searchValue: string;
+}
+
+export interface IGetOrderDetailRequestParams{
+  orderId:string;
 }

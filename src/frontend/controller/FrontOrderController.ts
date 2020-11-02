@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-10-30 16:35:19
+ * @LastEditTime: 2020-11-02 17:12:58
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
@@ -15,6 +15,7 @@ import {
   Req,
   UsePipes,
 } from '@nestjs/common';
+import { GetOrderDetailSchema } from 'src/backstage/schema/BackendOrderSchema';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
@@ -32,6 +33,7 @@ import {
 import {
   ICreateOrderResponse,
   IGetLogisticsInfoResponseData,
+  IGetOrderDetailResponseData,
   IGetOrderListResponse,
   IGetOrderResponse,
 } from '../interface/IFrontOrder';
@@ -264,6 +266,27 @@ export class FrontOrderController {
     const result = new ResultVoUtil();
     try {
       const data = await this.orderService.searchOrder(params, openid);
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取订单详情
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetOrderDetailSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-order-detail')
+  public async getOrderDetail(
+    @Body() { orderId }: { orderId: string },
+  ): Promise<ResultVo<IGetOrderDetailResponseData>> {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.orderService.getOrderDetail(orderId);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);

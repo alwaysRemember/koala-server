@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-10-28 18:22:46
+ * @LastEditTime: 2020-11-02 15:21:51
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
@@ -62,4 +62,14 @@ export interface IGetLogisticsInfoResponseData {
   num: string;
   signStatus: string; // 签收状态
   expressData: Array<IExpressDataItem>;
+}
+
+export interface IGetOrderDetailResponseData extends IOrderDataItem {
+  orderShopping: number;
+  shoppingAddress: IShoppingAddress;
+  remarkList: Array<IOrderRemarkParams>;
+  orderCheckTime: Date; // 订单签收时间
+  refundRecvAccount: string; // 退款入账账户
+  refundSuccessTime: string; // 退款成功时间
+  transactionId:string; // 支付单号
 }

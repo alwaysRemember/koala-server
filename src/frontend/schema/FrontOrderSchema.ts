@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:42:42
- * @LastEditTime: 2020-10-30 15:27:04
+ * @LastEditTime: 2020-11-02 15:14:15
  * @FilePath: /koala-server/src/frontend/schema/FrontOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -92,4 +92,8 @@ export const SearchOrderSchema = Joi.object({
     .min(1)
     .required(),
   searchValue: Joi.string().required(),
+});
+
+export const GetOrderDetailSchema = Joi.object({
+  orderId: Joi.string().required(),
 });
