@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-02 17:14:28
+ * @LastEditTime: 2020-11-06 14:14:38
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -463,12 +463,14 @@ export class OrderService {
    * 提交订单评价
    * @param params
    */
-  async submitOrderComment({
-    orderId,
-    productList,
-  }: ISubmitOrderCommentRequestParams) {
+  async submitOrderComment(
+    { orderId, productList }: ISubmitOrderCommentRequestParams,
+    openid: string,
+  ) {
     try {
       let order: Order;
+      // 获取用户
+      const user = await this.frontUserService.findByOpenid(openid);
       try {
         order = await this.orderRepository.findOne(orderId, {
           join: {
@@ -517,9 +519,10 @@ export class OrderService {
             );
             productComment.rate = rate;
             productComment.text = text ? text : '系统自动好评';
+            productComment.frontUser = user;
             return productComment;
           });
-          await entityManager.save(commentList);
+          await entityManager.save(ProductComment, commentList);
         })
         .catch(async e => {
           await reportErr('提交评价信息失败', e);
@@ -584,7 +587,7 @@ export class OrderService {
             const productConfigIdList = buyProductConfigList?.find(
               item => item.productId === d.id,
             ).configList;
-            
+
             const productConfig: Array<ProductConfig> = await this.productConfigRepository.findByIds(
               productConfigIdList || [],
             );

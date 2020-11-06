@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-29 18:13:34
- * @LastEditTime: 2020-10-29 18:37:43
+ * @LastEditTime: 2020-11-06 14:14:14
  * @FilePath: /koala-server/src/global/dataobject/ProductComment.entity.ts
  */
 
@@ -11,10 +11,12 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Product } from './Product.entity';
+import { FrontUser } from './User.entity';
 
 @Entity('tb_product_comment')
 export class ProductComment {
@@ -36,6 +38,12 @@ export class ProductComment {
     product => product.productCommentList,
   )
   product: Product;
+
+  @ManyToOne(
+    type => FrontUser,
+    frontUser => frontUser.productCommentList,
+  )
+  frontUser: FrontUser;
 
   @CreateDateColumn()
   createTime: Date;
