@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:59:14
- * @LastEditTime: 2020-10-30 14:00:47
+ * @LastEditTime: 2020-11-06 16:37:35
  * @FilePath: /koala-server/src/frontend/modules/FrontProductModule.ts
  */
 import { Module } from '@nestjs/common';
@@ -19,6 +19,8 @@ import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
+import { ProductComment } from 'src/global/dataobject/ProductComment.entity';
+import { ProductCommentReposiotry } from 'src/global/repository/ProductCommentReposiotry';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { OrderRepository } from 'src/global/repository/OrderRepository';
     TypeOrmModule.forFeature([FrontUser, FrontUserRepository]),
     TypeOrmModule.forFeature([ProductMainImg, ProductMainImgRepository]),
     TypeOrmModule.forFeature([Order, OrderRepository]),
+    TypeOrmModule.forFeature([ProductComment, ProductCommentReposiotry]),
   ],
   controllers: [FrontProductController],
   providers: [ProductService],

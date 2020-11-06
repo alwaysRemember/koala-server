@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-29 18:13:34
- * @LastEditTime: 2020-11-06 14:14:14
+ * @LastEditTime: 2020-11-06 16:51:40
  * @FilePath: /koala-server/src/global/dataobject/ProductComment.entity.ts
  */
 
@@ -44,6 +44,12 @@ export class ProductComment {
     frontUser => frontUser.productCommentList,
   )
   frontUser: FrontUser;
+
+  @Column({
+    comment: '点赞数',
+    default: 0,
+  })
+  likeNumber: number;
 
   @CreateDateColumn()
   createTime: Date;

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:55:19
- * @LastEditTime: 2020-09-17 15:27:02
+ * @LastEditTime: 2020-11-06 17:05:16
  * @FilePath: /koala-server/src/frontend/controller/FrontProductController.ts
  */
 
@@ -19,6 +19,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   GetProductDetailSchema,
   FavoriteProductType,
+  GetProductCommentSchema,
 } from '../schema/FrontProductSchema';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import {
@@ -26,6 +27,7 @@ import {
   IProductDetailResponse,
 } from '../interface/IProduct';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
+import { IGetProductCommentRequestParams } from '../form/IProduct';
 
 @Controller('/front/product')
 export class FrontProductController {
@@ -78,6 +80,27 @@ export class FrontProductController {
         openid,
       );
       return result.success({ favoriteType });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取商品评价
+   * @param param0
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetProductCommentSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-product-comment')
+  public async getProductComment(
+    @Body() { productId }: IGetProductCommentRequestParams,
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.productService.getProductComment(productId);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

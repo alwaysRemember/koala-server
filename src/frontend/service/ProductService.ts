@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-10-30 14:36:20
+ * @LastEditTime: 2020-11-06 17:04:44
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -16,6 +16,7 @@ import { reportErr } from 'src/utils/ReportError';
 import {
   IProductDetailResponse,
   IFavoriteProductType,
+  IGetProductCommentResponseData,
 } from '../interface/IProduct';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
@@ -23,6 +24,7 @@ import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
 import { EOrderType } from 'src/global/enums/EOrder';
+import { ProductCommentReposiotry } from 'src/global/repository/ProductCommentReposiotry';
 
 @Injectable()
 export class ProductService {
@@ -32,6 +34,7 @@ export class ProductService {
     private readonly frontUserRepository: FrontUserRepository,
     private readonly productMainImgRepository: ProductMainImgRepository,
     private readonly orderRepository: OrderRepository,
+    private readonly productCommentReposiotry: ProductCommentReposiotry,
   ) {}
 
   /**
@@ -225,6 +228,38 @@ export class ProductService {
         ),
         user,
       };
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取商品评价
+   * @param productId
+   */
+  async getProductComment(
+    productId: string,
+  ): Promise<IGetProductCommentResponseData> {
+    try {
+      try {
+        const db = this.productCommentReposiotry.createQueryBuilder('pc');
+        db.leftJoinAndSelect('pc.frontUser', 'frontUser');
+        db.leftJoin('pc.product', 'product');
+        db.andWhere('product.id =:productId', { productId });
+        const data = await db.getMany();
+        return {
+          list: data.map(
+            ({ text, rate, likeNumber, frontUser: { avatarUrl: avatar } }) => ({
+              text,
+              rate,
+              likeNumber,
+              avatar,
+            }),
+          ),
+        };
+      } catch (e) {
+        await reportErr('获取商品评价失败', e);
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }
