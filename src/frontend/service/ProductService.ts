@@ -2,16 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-11-06 17:04:44
+ * @LastEditTime: 2020-11-09 19:05:15
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
 import { Injectable } from '@nestjs/common';
-import { IProductDetail } from 'src/backstage/form/BackendProductDetailForm';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { FrontException } from '../exception/FrontException';
-import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
 import { reportErr } from 'src/utils/ReportError';
 import {
   IProductDetailResponse,
@@ -249,11 +247,17 @@ export class ProductService {
         const data = await db.getMany();
         return {
           list: data.map(
-            ({ text, rate, likeNumber, frontUser: { avatarUrl: avatar } }) => ({
+            ({
               text,
               rate,
-              likeNumber,
+              frontUser: { avatarUrl: avatar, nickName: userName },
+              createTime,
+            }) => ({
+              text,
+              rate,
               avatar,
+              userName,
+              createTime,
             }),
           ),
         };

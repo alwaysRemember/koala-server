@@ -4,7 +4,7 @@ import { EProductStatus } from 'src/global/enums/EProduct';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:34:38
- * @LastEditTime: 2020-11-06 15:38:20
+ * @LastEditTime: 2020-11-09 14:39:37
  * @FilePath: /koala-server/src/frontend/interface/IProduct.ts
  */
 export interface IProductDetailResponse {
@@ -54,6 +54,7 @@ export interface IGetProductCommentResponseData {
 export interface IProductCommentItem {
   text: string;
   rate: number;
-  likeNumber: number;
   avatar: string;
+  userName:string;
+  createTime
 }
