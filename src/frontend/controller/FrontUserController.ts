@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-09-22 15:19:08
+ * @LastEditTime: 2020-11-10 15:52:04
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import {
@@ -13,6 +13,7 @@ import {
   UsePipes,
   Body,
   Req,
+  Get,
 } from '@nestjs/common';
 import axios from 'axios';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
@@ -97,6 +98,18 @@ export class FrontUserController {
         req.headers.openid,
       );
       return result.success({ phone });
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @Get('/get-personal-center-data')
+  public async getPersonalCenterData(@Req() { headers: { openid } }) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.frontUserService.getPersonalCenterData(openid);
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

@@ -2,13 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:10:12
- * @LastEditTime: 2020-11-06 14:00:29
+ * @LastEditTime: 2020-11-10 15:43:57
  * @FilePath: /koala-server/src/frontend/controller/FrontOrderController.ts
  */
 
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Param,
   Post,
@@ -246,7 +247,7 @@ export class FrontOrderController {
   ) {
     const result = new ResultVoUtil();
     try {
-      await this.orderService.submitOrderComment(params,openid);
+      await this.orderService.submitOrderComment(params, openid);
       return result.success();
     } catch (e) {
       return result.error(e.message);

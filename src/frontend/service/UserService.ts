@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-09-22 17:39:34
+ * @LastEditTime: 2020-11-10 16:03:10
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -10,18 +10,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { IFrontUserSave } from 'src/global/form/User';
 import { FrontUser } from 'src/global/dataobject/User.entity';
-import { IUpdateUserPhone } from '../interface/IFrontUser';
+import {
+  IPersonalCenterResponseData,
+  IUpdateUserPhone,
+} from '../interface/IFrontUser';
 import { appId } from 'src/config/projectConfig';
 import { FrontException } from '../exception/FrontException';
 import WXBizDataCrypt from '../../utils/WXBizDataCrypt';
 import { reportErr } from 'src/utils/ReportError';
 import { BackendException } from 'src/backstage/exception/backendException';
+import { OrderRepository } from 'src/global/repository/OrderRepository';
+import { EOrderType } from 'src/global/enums/EOrder';
 
 @Injectable()
 export class FrontUserService {
   constructor(
     @InjectRepository(FrontUserRepository)
     private readonly frontUserRepository: FrontUserRepository,
+    private readonly orderRepository: OrderRepository,
   ) {}
 
   // 保存用户
@@ -81,6 +87,64 @@ export class FrontUserService {
       await this.frontUserRepository.save(user);
 
       return { phone: purePhoneNumber };
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取个人中心信息
+   * @param openid
+   */
+  async getPersonalCenterData(
+    openid: string,
+  ): Promise<IPersonalCenterResponseData> {
+    try {
+      const { userId } = await this.findByOpenid(openid);
+      const db = this.orderRepository.createQueryBuilder('o');
+      db.where('o.frontUserUserId =:userId', { userId });
+      db.select([
+        `count(CASE o.orderType WHEN "${EOrderType.PENDING_PAYMENT}" THEN "${EOrderType.PENDING_PAYMENT}" END) as pendingPayMentNumber`,
+        `count(CASE o.orderType WHEN "${EOrderType.TO_BE_DELIVERED}" THEN "${EOrderType.TO_BE_DELIVERED}" END) as toBeDeliveredNumber`,
+        `count(CASE o.orderType WHEN "${EOrderType.TO_BE_RECEIVED}" THEN "${EOrderType.TO_BE_RECEIVED}" END) as toBeReceivedNumber`,
+        `count(CASE o.orderType WHEN "${EOrderType.COMMENT}" THEN "${EOrderType.COMMENT}" END) as commentNumber`,
+      ]);
+      try {
+        const {
+          pendingPayMentNumber,
+          toBeDeliveredNumber,
+          toBeReceivedNumber,
+          commentNumber,
+        } = await db.getRawOne<{
+          pendingPayMentNumber: string;
+          toBeDeliveredNumber: string;
+          toBeReceivedNumber: string;
+          commentNumber: string;
+        }>();
+
+        return {
+          orderBtnListData: [
+            {
+              type: EOrderType.PENDING_PAYMENT,
+              badgeNumber: pendingPayMentNumber,
+            },
+            {
+              type: EOrderType.TO_BE_DELIVERED,
+              badgeNumber: toBeDeliveredNumber,
+            },
+            {
+              type: EOrderType.TO_BE_RECEIVED,
+              badgeNumber: toBeReceivedNumber,
+            },
+            {
+              type: EOrderType.COMMENT,
+              badgeNumber: commentNumber,
+            },
+          ].map(item => ({ ...item, badgeNumber: Number(item.badgeNumber) })),
+        };
+      } catch (e) {
+        await reportErr('获取个人中心信息失败', e);
+      }
     } catch (e) {
       throw new FrontException(e.message, e);
     }
