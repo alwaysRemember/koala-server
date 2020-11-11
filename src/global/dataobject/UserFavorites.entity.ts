@@ -2,11 +2,18 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-11 14:47:18
- * @LastEditTime: 2020-11-11 15:22:59
+ * @LastEditTime: 2020-11-11 16:09:21
  * @FilePath: /koala-server/src/global/dataobject/UserFavorites.entity.ts
  */
 
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Product } from './Product.entity';
 import { FrontUser } from './User.entity';
 
@@ -15,14 +22,18 @@ export class UserFavorites {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    comment: '用户id',
-  })
-  userId: number;
-
-  @OneToMany(
-    type => Product,
-    product => product.favorites,
+  @ManyToOne(
+    type => FrontUser,
+    frontUser => frontUser.userFavoritesList,
   )
-  productList: Array<Product>;
+  user: FrontUser;
+
+  @ManyToOne(
+    type => Product,
+    product => product.userFavoritesList,
+  )
+  product: Product;
+
+  @CreateDateColumn()
+  createTime: Date;
 }

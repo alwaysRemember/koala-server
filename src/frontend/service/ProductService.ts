@@ -2,11 +2,11 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-11-11 15:23:41
+ * @LastEditTime: 2020-11-11 16:35:03
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { FrontException } from '../exception/FrontException';
@@ -168,30 +168,35 @@ export class ProductService {
       // 是否已经收藏
       let {
         favoriteType: storedInFavorite,
-        userFavorites,
+        user,
       } = await this._checkFavoriteProduct(openid, productId);
       // 判断进行的收藏状态
       if (favoriteType) {
         // 收藏
         // 判断当前产品是否已经被收藏过
         if (storedInFavorite) await reportErr('当前商品已收藏');
-        userFavorites.productList.push(product);
+        try {
+          const userFavorites = new UserFavorites();
+          userFavorites.product = product;
+          userFavorites.user = user;
+          await this.userFavoritesRepository.save(userFavorites);
+        } catch (e) {
+          await reportErr('修改收藏状态出错', e);
+        }
       } else {
         if (!storedInFavorite) await reportErr('当前商品未收藏');
         // 取消收藏
-        const list: Array<Product> = JSON.parse(
-          JSON.stringify(userFavorites.productList),
-        );
-        list.splice(
-          list.findIndex(v => v.id === productId),
-          1,
-        );
-        userFavorites.productList = list;
-      }
-      try {
-        await this.userFavoritesRepository.save(userFavorites);
-      } catch (e) {
-        await reportErr('修改收藏状态出错', e);
+        try {
+          const userFavorites = await this.userFavoritesRepository.findOne({
+            where: {
+              user,
+              product,
+            },
+          });
+          await this.userFavoritesRepository.remove(userFavorites);
+        } catch (e) {
+          await reportErr('修改收藏状态出错', e);
+        }
       }
       return {
         favoriteType,
@@ -211,13 +216,19 @@ export class ProductService {
     productId: string,
   ): Promise<{
     favoriteType: boolean;
-    userFavorites: UserFavorites;
+    user: FrontUser;
   }> {
     let user: FrontUser;
     let favoriteType: boolean = false;
     try {
       try {
         user = await this.frontUserRepository.findOne({
+          join: {
+            alias: 'user',
+            leftJoinAndSelect: {
+              userFavoritesList: 'user.userFavoritesList',
+            },
+          },
           where: {
             openid,
           },
@@ -226,35 +237,23 @@ export class ProductService {
         await reportErr('查询当前用户失败', e);
       }
       if (!user) await reportErr('当前用户不存在');
-      // 获取收藏表中是否有当前用户
-      let userFavorites: UserFavorites;
-      try {
-        userFavorites = await this.userFavoritesRepository.findOne({
-          join: {
-            alias: 'favorites',
-            leftJoinAndSelect: {
-              productList: 'favorites.productList',
+      if (user.userFavoritesList.length) {
+        const list = await this.userFavoritesRepository.findByIds(
+          user.userFavoritesList.map(item => item.id),
+          {
+            join: {
+              alias: 'uf',
+              leftJoinAndSelect: {
+                product: 'uf.product',
+              },
             },
           },
-          where: {
-            userId: user.userId,
-          },
-        });
-      } catch (e) {
-        await reportErr('获取收藏数据失败', e);
-      }
-      if (userFavorites) {
-        favoriteType = !!userFavorites.productList.find(
-          v => v.id === productId,
         );
-      } else {
-        userFavorites = new UserFavorites();
-        userFavorites.userId = user.userId;
-        userFavorites.productList = [];
+        favoriteType = !!list.find(v => v.product.id === productId);
       }
       return {
         favoriteType,
-        userFavorites: userFavorites,
+        user,
       };
     } catch (e) {
       throw new FrontException(e.message, e);

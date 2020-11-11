@@ -3,7 +3,7 @@ import { ShoppingAddress } from 'src/frontend/dataobject/ShoppingAddress.entity'
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 14:38:08
- * @LastEditTime: 2020-11-06 14:14:30
+ * @LastEditTime: 2020-11-11 16:08:58
  * @FilePath: /koala-server/src/global/dataobject/User.entity.ts
  */
 import {
@@ -21,6 +21,7 @@ import { EUserGender, EUserLanguage } from '../enums/EUserGlobal';
 import { Order } from './Order.entity';
 import { Product } from './Product.entity';
 import { ProductComment } from './ProductComment.entity';
+import { UserFavorites } from './UserFavorites.entity';
 
 @Entity('tb_front_user')
 export class FrontUser {
@@ -110,6 +111,12 @@ export class FrontUser {
     productComment => productComment.frontUser,
   )
   productCommentList: Array<ProductComment>;
+
+  @OneToMany(
+    type => UserFavorites,
+    userFavorites => userFavorites.user,
+  )
+  userFavoritesList: Array<UserFavorites>;
 
   @CreateDateColumn({
     comment: '创建时间',

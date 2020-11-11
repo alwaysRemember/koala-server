@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-11-11 14:52:07
+ * @LastEditTime: 2020-11-11 16:07:08
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -125,13 +125,11 @@ export class Product {
   })
   productMainImgId: string;
 
-  @ManyToOne(
+  @OneToMany(
     type => UserFavorites,
-    userFavorites => userFavorites.productList,
+    userFavorites => userFavorites.product,
   )
-  favorites: UserFavorites;
-
-
+  userFavoritesList: Array<UserFavorites>;
 
   @OneToMany(
     type => ProductComment,
