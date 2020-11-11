@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-10-29 18:37:31
+ * @LastEditTime: 2020-11-11 14:52:07
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -29,6 +29,7 @@ import { AppletHomeBanner } from './AppletHomeBanner.entity';
 import { FrontUser } from './User.entity';
 import { Order } from './Order.entity';
 import { ProductComment } from './ProductComment.entity';
+import { UserFavorites } from './UserFavorites.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -124,11 +125,13 @@ export class Product {
   })
   productMainImgId: string;
 
-  @ManyToMany(
-    type => FrontUser,
-    frontUser => frontUser.favoriteProductList,
+  @ManyToOne(
+    type => UserFavorites,
+    userFavorites => userFavorites.productList,
   )
-  favoriteUserList: Array<FrontUser>;
+  favorites: UserFavorites;
+
+
 
   @OneToMany(
     type => ProductComment,

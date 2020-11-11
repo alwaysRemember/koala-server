@@ -93,15 +93,6 @@ export class FrontUser {
   })
   language: EUserLanguage;
 
-  @ManyToMany(
-    type => Product,
-    product => product.favoriteUserList,
-  )
-  @JoinTable({
-    name: 'tb_favorite_product',
-  })
-  favoriteProductList: Array<Product>;
-
   @OneToMany(
     type => ShoppingAddress,
     shoppingAddress => shoppingAddress.appletUser,
