@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-11 14:29:24
- * @LastEditTime: 2020-11-11 17:38:07
+ * @LastEditTime: 2020-11-12 15:28:04
  * @FilePath: /koala-server/src/frontend/service/FavoritesService.ts
  */
 
@@ -28,11 +28,7 @@ export class FavoritesService {
     private readonly productMainImgRepository: ProductMainImgRepository,
   ) {}
 
-  async getFavoritesData(
-    page: number,
-    openid: string,
-  ): Promise<IGetFavoritesResponseData> {
-    const TAKE_NUM = 10;
+  async getFavoritesData(openid: string): Promise<IGetFavoritesResponseData> {
     try {
       const { userId } = await this.userService.findByOpenid(openid);
       // 获取分页信息
@@ -45,13 +41,7 @@ export class FavoritesService {
           'product.id = uf.productId',
         );
 
-        const data = await db
-          .skip((page - 1) * TAKE_NUM)
-          .take(TAKE_NUM)
-          .addOrderBy('uf.createTime', 'DESC')
-          .getMany();
-        let total = await db.getCount();
-        total = Math.ceil(total / TAKE_NUM);
+        const data = await db.addOrderBy('uf.createTime', 'DESC').getMany();
         const productDetailList = await this.produtDetailRepository.findByIds(
           data.map(item => item.product.productDetailId),
         );
@@ -59,7 +49,6 @@ export class FavoritesService {
           data.map(item => item.product.productMainImgId),
         );
         return {
-          total,
           list: data.map(
             ({
               product: {
@@ -69,7 +58,9 @@ export class FavoritesService {
                 productDetailId,
                 productStatus,
               },
+              id: favoritesId,
             }) => ({
+              favoritesId,
               productId: id,
               img: productImgList.find(v => v.id === productMainImgId).path,
               name: productName,
@@ -81,6 +72,22 @@ export class FavoritesService {
         };
       } catch (e) {
         await reportErr('获取收藏信息失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  async removeFavorites(favoritesId: number) {
+    try {
+      try {
+        const favorites = await this.userFavoritesRepository.findOne(
+          favoritesId,
+        );
+        if (!favorites) await reportErr('不存在当前的收藏记录');
+        await this.userFavoritesRepository.remove(favorites);
+      } catch (e) {
+        await reportErr('删除收藏记录失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);
