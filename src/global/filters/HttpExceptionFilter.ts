@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-09-27 18:19:50
+ * @LastEditTime: 2020-11-12 16:04:33
  * @FilePath: /koala-server/src/global/filters/HttpExceptionFilter.ts
  */
 import {
@@ -28,6 +28,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    // 忽略根路径请求
+    if (['/', '/favicon.ico'].find(v => v === request.originalUrl)) {
+      response
+        .status(HttpStatus.OK)
+        .json(new ResultVo(EResultVoStatus.TOAST, null, '异常访问接口'));
+      return;
+    }
+
     new SaveLogUtil({
       title: '*******httpExceptionFilter*******',
       token: request.headers['token'] as string,
@@ -38,7 +46,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception: JSON.stringify(exception),
     }).saveError();
 
-    new Mail('KOALA - ERROR - CODE', {
+    const mail = new Mail('KOALA - ERROR - CODE', {
       token: request.headers['token'] as string,
       openid: request.headers['openid'] as string,
       body: JSON.stringify(request.body),
@@ -47,7 +55,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       header: JSON.stringify(request.headers),
       exception: JSON.stringify(exception),
     });
-    // TODO .send();
+    if (process.env.NODE_ENV === 'production') {
+      mail.send();
+    }
 
     response
       .status(HttpStatus.OK)
