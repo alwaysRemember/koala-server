@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:21:13
- * @LastEditTime: 2020-08-05 17:12:43
+ * @LastEditTime: 2020-11-13 15:37:17
  * @FilePath: /koala-server/src/frontend/schema/FrontUserSchema.ts
  */
 
@@ -26,4 +26,10 @@ export const UserLoginSchema = Joi.object({
 export const UpdateUserPhone = Joi.object({
   iv: Joi.string().required(),
   encryptedData: Joi.string().required(),
+});
+
+export const GetMyCommentSchema = Joi.object({
+  page: Joi.number()
+    .min(1)
+    .required(),
 });
