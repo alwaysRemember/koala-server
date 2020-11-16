@@ -15,7 +15,7 @@ import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { ProductDetailRepository } from 'src/global/repository/ProductDetailRepository';
 import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 import { UserFavoritseRepository } from 'src/global/repository/UserFavoritesRepository';
-import { FrontFavoritesController } from '../controller/FrontFavoritesController';
+import { FrontFavoritesController } from '../controller/FrontFavoriesController';
 import { FavoritesService } from '../service/FavoritesService';
 import { FrontUserModule } from './FrontUserModule';
 
