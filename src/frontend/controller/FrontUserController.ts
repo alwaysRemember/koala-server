@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-11-10 15:52:04
+ * @LastEditTime: 2020-11-16 14:54:35
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import {
@@ -21,6 +21,7 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import {
   UserLoginSchema,
   UpdateUserPhone,
+  GetMyCommentSchema,
 } from 'src/frontend/schema/FrontUserSchema';
 import { IFrontUserLogin, IFrontUserSave } from 'src/global/form/User';
 import { FrontUserService } from 'src/frontend/service/UserService';
@@ -109,6 +110,29 @@ export class FrontUserController {
     const result = new ResultVoUtil();
     try {
       const data = await this.frontUserService.getPersonalCenterData(openid);
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取我的评价列表
+   * @param param0
+   * @param param1
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetMyCommentSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-my-comment')
+  public async getMyComment(
+    @Body() { page }: { page: number },
+    @Req() { headers: { openid } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.frontUserService.getMyComment(page, openid);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);

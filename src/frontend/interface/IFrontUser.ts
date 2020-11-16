@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-05 15:25:37
- * @LastEditTime: 2020-11-13 15:37:35
+ * @LastEditTime: 2020-11-16 15:13:09
  * @FilePath: /koala-server/src/frontend/interface/IFrontUser.ts
  */
 
@@ -28,10 +28,12 @@ export interface IMyCommentResponseData {
 }
 
 export interface ICommentItem {
+  id:number;
   rate: number;
   text: string;
   avatar: string;
-  createTime: string;
+  userName:string;
+  createTime: Date;
   product: ICommentProduct;
 }
 

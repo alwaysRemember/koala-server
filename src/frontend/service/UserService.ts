@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-11-10 16:03:10
+ * @LastEditTime: 2020-11-16 15:13:17
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -11,6 +11,7 @@ import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { IFrontUserSave } from 'src/global/form/User';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import {
+  IMyCommentResponseData,
   IPersonalCenterResponseData,
   IUpdateUserPhone,
 } from '../interface/IFrontUser';
@@ -21,6 +22,8 @@ import { reportErr } from 'src/utils/ReportError';
 import { BackendException } from 'src/backstage/exception/backendException';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
 import { EOrderType } from 'src/global/enums/EOrder';
+import { ProductCommentReposiotry } from 'src/global/repository/ProductCommentReposiotry';
+import { ProductMainImgRepository } from 'src/global/repository/ProductMainImgRepository';
 
 @Injectable()
 export class FrontUserService {
@@ -28,6 +31,8 @@ export class FrontUserService {
     @InjectRepository(FrontUserRepository)
     private readonly frontUserRepository: FrontUserRepository,
     private readonly orderRepository: OrderRepository,
+    private readonly productCommentRepository: ProductCommentReposiotry,
+    private readonly productMainImgReposiotry: ProductMainImgRepository,
   ) {}
 
   // 保存用户
@@ -144,6 +149,65 @@ export class FrontUserService {
         };
       } catch (e) {
         await reportErr('获取个人中心信息失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取我的评价信息
+   * @param page
+   * @param openid
+   */
+  public async getMyComment(
+    page: number,
+    openid: string,
+  ): Promise<IMyCommentResponseData> {
+    try {
+      const TAKE_NUM = 10;
+      const user = await this.findByOpenid(openid);
+      try {
+        const db = this.productCommentRepository.createQueryBuilder('pc');
+        db.leftJoinAndSelect('pc.product', 'pc.product');
+        db.andWhere('pc.frontUserUserId =:userId', { userId: user.userId });
+        const data = await db
+          .skip((page - 1) * TAKE_NUM)
+          .take(TAKE_NUM)
+          .addOrderBy('pc.createTime', 'DESC')
+          .getMany();
+        let total = await db.getCount();
+        total = Math.ceil(total / TAKE_NUM);
+
+        const productImgList = await this.productMainImgReposiotry.findByIds(
+          Array.from(new Set(data.map(item => item.product.productMainImgId))),
+        );
+
+        return {
+          total,
+          list: data.map(
+            ({
+              id,
+              rate,
+              text,
+              createTime,
+              product: { id: productId, productMainImgId },
+            }) => ({
+              id,
+              rate,
+              text,
+              createTime,
+              product: {
+                productId,
+                url: productImgList.find(v => v.id === productMainImgId).path,
+              },
+              avatar: user.avatarUrl,
+              userName: user.nickName,
+            }),
+          ),
+        };
+      } catch (e) {
+        await reportErr('获取评价信息失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);
