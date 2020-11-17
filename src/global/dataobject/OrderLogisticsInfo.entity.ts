@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-10-13 14:37:50
- * @LastEditTime: 2020-10-26 18:51:59
+ * @LastEditTime: 2020-11-17 15:55:41
  * @FilePath: /koala-server/src/global/dataobject/OrderLogisticsInfo.entity.ts
  */
 
@@ -18,16 +18,19 @@ export class OrderLogisticsInfo {
 
   @Column({
     comment: '快递名称',
+    default:"",
   })
   name: string;
 
   @Column({
     comment: '快递代码',
+    default:"",
   })
   code: string;
 
   @Column({
     comment: '快递单号',
+    default:"",
   })
   num: string;
 

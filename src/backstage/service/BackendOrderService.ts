@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-10-28 11:01:12
+ * @LastEditTime: 2020-11-17 16:02:59
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 import * as Qs from 'qs';
@@ -346,7 +346,7 @@ export class BackendOrderService {
               order.logisticsInfo = data;
             }
           } else {
-            delLogisticsInfoId = order.logisticsInfo.id;
+            delLogisticsInfoId = order.logisticsInfo?.id;
             order.logisticsInfo = null;
           }
           // 当订单状态为待发货的时候 修改订单状态为待收货
@@ -375,8 +375,8 @@ export class BackendOrderService {
                 tid: 6775,
                 content: JSON.stringify({
                   姓名: order.shoppingAddress.name,
-                  快递单号: num ? num : ' ',
-                  快递名称: name ? name : ' ',
+                  快递单号: num ? num : ' 空 ',
+                  快递名称: name ? name : ' 无需快递 ',
                   订单号: order.id,
                 }),
               }),

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-24 17:58:39
- * @LastEditTime: 2020-09-24 18:39:48
+ * @LastEditTime: 2020-11-17 16:06:26
  * @FilePath: /koala-server/src/global/service/OrderTasksService.ts
  */
 
@@ -15,9 +15,10 @@ import { PayOrderRepository } from '../repository/PayOrderRepository';
 export class OrderTasksService {
   constructor(private readonly orderService: OrderService) {}
 
-  // 每半小时跑一次取消订单的脚本
+  // 每半小时跑一次脚本
   @Interval(1800000)
   handle() {
     this.orderService.updateOrderTypeByOrderExpiration();
+    this.orderService.autoFinishedOrder();
   }
 }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-17 14:46:12
+ * @LastEditTime: 2020-11-17 16:06:19
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -553,6 +553,60 @@ export class OrderService {
           .buyQuantity;
       });
       await this.productRepository.save(productList);
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 自动评价
+   */
+  async autoFinishedOrder() {
+    try {
+      let orderList = await this.orderRepository.find({
+        join: {
+          alias: 'order',
+          leftJoinAndSelect: {
+            frontUser: 'order.frontUser',
+            productList: 'order.productList',
+          },
+        },
+        where: {
+          orderType: EOrderType.COMMENT,
+        },
+      });
+      orderList = orderList.filter(({ updateTime }) => {
+        const middleNumber =
+          new Date().getTime() - new Date(updateTime).getTime(); // 当前的时间 - 最后一次更新的时间
+        // 大于7天
+        return middleNumber >= 604800000;
+      });
+      orderList.forEach(
+        async ({
+          frontUser: { openid },
+          productList,
+          id,
+          buyProductQuantityList,
+        }) => {
+          await getManager().transaction(async () => {
+            // 提交商品评价
+            await this.submitOrderComment(
+              {
+                orderId: id,
+                productList: productList.map(({ id }) => ({
+                  productId: id,
+                  rate: 5,
+                  text: '系统自动好评',
+                })),
+              },
+              openid,
+            );
+            // 更新商品销量
+            await this.updateProductSale(productList, buyProductQuantityList);
+            console.log("end");
+          });
+        },
+      );
     } catch (e) {
       throw new FrontException(e.message, e);
     }
