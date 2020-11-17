@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:51:14
- * @LastEditTime: 2020-11-17 15:59:41
+ * @LastEditTime: 2020-11-17 16:35:05
  * @FilePath: /koala-server/src/backstage/schema/BackendOrderSchema.ts
  */
 import * as Joi from '@hapi/joi';
@@ -45,12 +45,13 @@ export const GetOrderDetailSchema = Joi.object({
 
 export const UpdateOrderLogisticsInfoSchema = Joi.object({
   orderId: Joi.string().required(),
-  name: Joi.string().allow(""),
-  code: Joi.string().allow(""),
-  num: Joi.string().allow(""),
+  name: Joi.string().allow(''),
+  code: Joi.string().allow(''),
+  num: Joi.string().allow(''),
   isNeedExpress: Joi.boolean().required(),
 });
 
 export const ReturnOfGoodsSchema = Joi.object({
   orderId: Joi.string().required(),
+  amount: Joi.number().required(),
 });

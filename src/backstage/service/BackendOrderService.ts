@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-11-17 16:02:59
+ * @LastEditTime: 2020-11-17 16:37:16
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 import * as Qs from 'qs';
@@ -38,6 +38,7 @@ import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendException } from '../exception/backendException';
 import {
   IGetOrderListRequestParams,
+  IReturnOfGoodsRequestParams,
   IUpdateOrderLogisticsInfoRequestParams,
 } from '../form/BackendOrderForm';
 import {
@@ -435,7 +436,10 @@ export class BackendOrderService {
    * @param orderId
    * @param token
    */
-  async returnOfGoods(orderId: string, token: string) {
+  async returnOfGoods(
+    { orderId, amount }: IReturnOfGoodsRequestParams,
+    token: string,
+  ) {
     try {
       let order: Order;
       const { userId: localUserId, userType }: BackendUser = JSON.parse(
@@ -469,7 +473,7 @@ export class BackendOrderService {
       ) {
         await reportErr('当前订单正在退款处理中');
       }
-      await this._returnOfGoods(order);
+      await this._returnOfGoods(order, amount);
     } catch (e) {
       throw new BackendException(e.message, e);
     }
@@ -480,7 +484,11 @@ export class BackendOrderService {
    * @param order
    * @param refundDesc 退款原因
    */
-  private async _returnOfGoods(order: Order, refundDesc?: string) {
+  private async _returnOfGoods(
+    order: Order,
+    refundAmount?: number,
+    refundDesc?: string,
+  ) {
     const wxPay = new WxPay({
       appid: appId,
       mchId,
@@ -489,7 +497,7 @@ export class BackendOrderService {
     const { payOrder } = order;
     const data = await wxPay.returnOfGoods({
       transactionId: payOrder.transactionId,
-      refundFee: order.amount,
+      refundFee: (refundAmount && refundAmount) || order.amount,
       totalFee: payOrder.payAmount,
       refundDesc: refundDesc ? refundDesc : `订单号: ${order.id} 发起退款`,
       outRefundNo: order.outRefundNo,

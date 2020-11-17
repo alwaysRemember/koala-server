@@ -130,7 +130,7 @@ export class BackendOrderController {
   ) {
     const result = new ResultVoUtil();
     try {
-      await this.backendOrderService.returnOfGoods(params.orderId, token);
+      await this.backendOrderService.returnOfGoods(params, token);
       return result.success();
     } catch (e) {
       return result.error(e.message);
