@@ -1,6 +1,7 @@
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { ShoppingAddress } from 'src/frontend/dataobject/ShoppingAddress.entity';
 import {
+  IBuyProductQuantityItem,
   IOrderRemarkParams,
   IShoppingAddress,
 } from 'src/frontend/interface/IFrontOrder';
@@ -8,7 +9,7 @@ import {
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 17:58:26
- * @LastEditTime: 2020-11-10 15:43:46
+ * @LastEditTime: 2020-11-17 14:37:54
  * @FilePath: /koala-server/src/global/dataobject/Order.entity.ts
  */
 
@@ -70,7 +71,7 @@ export class Order {
     type: 'json',
     comment: '每个产品的购买数量',
   })
-  buyProductQuantityList: Array<{ productId: string; buyQuantity: number }>;
+  buyProductQuantityList: Array<IBuyProductQuantityItem>;
 
   @Column({
     type: 'json',

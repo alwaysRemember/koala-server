@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-06 14:14:38
+ * @LastEditTime: 2020-11-17 14:46:12
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -43,6 +43,7 @@ import {
   ISubmitOrderCommentRequestParams,
 } from '../form/IFrontOrder';
 import {
+  IBuyProductQuantityItem,
   ICreateOrderResponse,
   IGetLogisticsInfoResponseData,
   IGetOrderDetailResponseData,
@@ -523,10 +524,35 @@ export class OrderService {
             return productComment;
           });
           await entityManager.save(ProductComment, commentList);
+          // 修改商品的销量
+          await this.updateProductSale(
+            order.productList,
+            order.buyProductQuantityList,
+          );
         })
         .catch(async e => {
           await reportErr('提交评价信息失败', e);
         });
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 更新商品的销量
+   * @param productList
+   * @param buyProductQuantityList
+   */
+  async updateProductSale(
+    productList: Array<Product>,
+    buyProductQuantityList: Array<IBuyProductQuantityItem>,
+  ) {
+    try {
+      productList.forEach(({ id, productSales }) => {
+        productSales += buyProductQuantityList.find(d => d.productId === id)
+          .buyQuantity;
+      });
+      await this.productRepository.save(productList);
     } catch (e) {
       throw new FrontException(e.message, e);
     }

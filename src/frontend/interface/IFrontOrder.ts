@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:19:40
- * @LastEditTime: 2020-11-02 15:21:51
+ * @LastEditTime: 2020-11-17 14:37:46
  * @FilePath: /koala-server/src/frontend/interface/IFrontOrder.ts
  */
 
@@ -57,6 +57,10 @@ export interface IProductItem {
   productConfigList: Array<string>;
 }
 
+export interface IBuyProductQuantityItem {
+  productId: string;
+  buyQuantity: number;
+}
 export interface IGetLogisticsInfoResponseData {
   name: string;
   num: string;
@@ -71,5 +75,5 @@ export interface IGetOrderDetailResponseData extends IOrderDataItem {
   orderCheckTime: Date; // 订单签收时间
   refundRecvAccount: string; // 退款入账账户
   refundSuccessTime: string; // 退款成功时间
-  transactionId:string; // 支付单号
+  transactionId: string; // 支付单号
 }

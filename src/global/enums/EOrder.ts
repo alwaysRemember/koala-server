@@ -2,9 +2,16 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-18 18:21:24
- * @LastEditTime: 2020-10-29 18:24:09
+ * @LastEditTime: 2020-11-17 14:30:23
  * @FilePath: /koala-server/src/global/enums/EOrder.ts
  */
+
+ /**
+  * 订单流转轨迹
+  * 待付款 -> 待发货 -> 待收货 -> 待评价 -> 已完结
+  * 待付款 -> 已取消
+  * 待付款 -> 待发货||待收货 -> 退款中 -> 退款成功
+  */
 
 export enum EOrderType {
   PENDING_PAYMENT = 'PENDING_PAYMENT', // 待付款

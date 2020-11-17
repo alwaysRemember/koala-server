@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-11-11 16:07:08
+ * @LastEditTime: 2020-11-17 14:31:46
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -61,6 +61,12 @@ export class Product {
     comment: '是否已删除',
   })
   isDel: boolean;
+
+  @Column({
+    default: 0,
+    comment: '销量',
+  })
+  productSales: number;
 
   @ManyToOne(
     type => Categories,

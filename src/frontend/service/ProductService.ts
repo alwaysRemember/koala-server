@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-11-11 16:35:03
+ * @LastEditTime: 2020-11-17 14:32:12
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -80,25 +80,7 @@ export class ProductService {
         await reportErr('获取商品主图失败', e);
       }
 
-      // 获取销量
-      let productSales: number = 0;
-      try {
-        const db = this.orderRepository
-          .createQueryBuilder('o')
-          .leftJoin(
-            'tb_product_related_tb_order',
-            'pro',
-            'pro.tbOrderId = o.id',
-          )
-          .leftJoin(Product, 'p', 'p.id = pro.tbProductId')
-          .where('p.id = :productId AND o.orderType = :type', {
-            productId: product.id,
-            type: EOrderType.FINISHED, // 完结的订单才能计算销量
-          });
-        productSales = await db.getCount();
-      } catch (e) {
-        await reportErr('获取销量失败', e);
-      }
+
 
       const {
         id,
@@ -108,6 +90,7 @@ export class ProductService {
         productStatus,
         productType,
         productConfigList,
+        productSales
       } = product;
       const {
         productContent,
