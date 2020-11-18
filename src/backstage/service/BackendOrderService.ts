@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-11-17 16:37:16
+ * @LastEditTime: 2020-11-17 16:59:17
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 import * as Qs from 'qs';
@@ -384,9 +384,7 @@ export class BackendOrderService {
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
-            }).then(res => {
-              console.log(res);
-            });
+            })
           } catch (e) {
             await reportErr('向用户发送发货短信失败', e);
           }

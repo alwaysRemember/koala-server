@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-17 16:06:19
+ * @LastEditTime: 2020-11-17 17:03:04
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -547,12 +547,14 @@ export class OrderService {
     productList: Array<Product>,
     buyProductQuantityList: Array<IBuyProductQuantityItem>,
   ) {
+    
     try {
-      productList.forEach(({ id, productSales }) => {
-        productSales += buyProductQuantityList.find(d => d.productId === id)
-          .buyQuantity;
+      productList.forEach(async item => {
+        await this.productRepository.update(item.id,{
+          productSales:item.productSales+buyProductQuantityList.find(v=>v.productId === item.id).buyQuantity
+        })
       });
-      await this.productRepository.save(productList);
+      
     } catch (e) {
       throw new FrontException(e.message, e);
     }
@@ -603,7 +605,7 @@ export class OrderService {
             );
             // 更新商品销量
             await this.updateProductSale(productList, buyProductQuantityList);
-            console.log("end");
+            console.log('end');
           });
         },
       );
