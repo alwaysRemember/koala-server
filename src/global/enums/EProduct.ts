@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 15:39:01
- * @LastEditTime: 2020-08-04 16:42:39
+ * @LastEditTime: 2020-11-26 14:48:23
  * @FilePath: /koala-server/src/global/enums/EProduct.ts
  */
 
@@ -23,4 +23,11 @@ export enum EProductStatusTransfer {
 
 export enum EDefaultSelect {
   ALL = 'ALL',
+}
+
+// 订单列表排序规则
+export enum EProductSortType {
+  AMOUNT_ASE = 'AMOUNT_ASE', // 金额从小到大
+  AMOUNT_DESC = 'AMOUNT_DESC', // 金额从大到小
+  SALES = 'SALES', // 默认销量小到大排序
 }

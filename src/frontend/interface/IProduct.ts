@@ -1,10 +1,13 @@
+import { Product } from 'src/global/dataobject/Product.entity';
+import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { EProductStatus } from 'src/global/enums/EProduct';
 
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:34:38
- * @LastEditTime: 2020-11-09 14:39:37
+ * @LastEditTime: 2020-11-26 16:05:12
  * @FilePath: /koala-server/src/frontend/interface/IProduct.ts
  */
 export interface IProductDetailResponse {
@@ -55,6 +58,24 @@ export interface IProductCommentItem {
   text: string;
   rate: number;
   avatar: string;
-  userName:string;
-  createTime
+  userName: string;
+  createTime;
+}
+
+export interface IProductListResponseData {
+  total: number;
+  list: Array<IProductListItem>;
+}
+
+export interface IProductListItem {
+  productId: string;
+  amount: string;
+  imgPath: string;
+  name: string;
+  productSales: number; // 销量
+  productDeliveryCity: string; // 发货地
+}
+export interface IProductListSqlResponseItem extends Product {
+  productDetail: ProductDetail;
+  productMainImg: ProductMainImg;
 }

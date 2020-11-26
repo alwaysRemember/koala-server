@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-11-17 14:32:12
+ * @LastEditTime: 2020-11-26 16:10:05
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -15,6 +15,9 @@ import {
   IProductDetailResponse,
   IFavoriteProductType,
   IGetProductCommentResponseData,
+  IProductListItem,
+  IProductListSqlResponseItem,
+  IProductListResponseData,
 } from '../interface/IProduct';
 import { Product } from 'src/global/dataobject/Product.entity';
 import { FrontUser } from 'src/global/dataobject/User.entity';
@@ -25,6 +28,11 @@ import { EOrderType } from 'src/global/enums/EOrder';
 import { ProductCommentReposiotry } from 'src/global/repository/ProductCommentReposiotry';
 import { UserFavoritseRepository } from 'src/global/repository/UserFavoritesRepository';
 import { UserFavorites } from 'src/global/dataobject/UserFavorites.entity';
+import { IGetProductListRequestParams } from '../form/IProduct';
+import { EProductSortType, EProductStatus } from 'src/global/enums/EProduct';
+import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { Like } from 'typeorm';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 
 @Injectable()
 export class ProductService {
@@ -80,8 +88,6 @@ export class ProductService {
         await reportErr('获取商品主图失败', e);
       }
 
-
-
       const {
         id,
         productVideo,
@@ -90,7 +96,7 @@ export class ProductService {
         productStatus,
         productType,
         productConfigList,
-        productSales
+        productSales,
       } = product;
       const {
         productContent,
@@ -275,6 +281,86 @@ export class ProductService {
         };
       } catch (e) {
         await reportErr('获取商品评价失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  async getProductList({
+    categoriesId,
+    searchName,
+    productSortType,
+    page,
+  }: IGetProductListRequestParams): Promise<IProductListResponseData> {
+    const TAKE_NUM = 10;
+    try {
+      try {
+        const db = this.productRepository.createQueryBuilder('p');
+
+        db.leftJoinAndMapOne(
+          'p.productDetail',
+          ProductDetail,
+          'productDetail',
+          'productDetail.id = p.productDetailId',
+        );
+        db.leftJoinAndMapOne(
+          'p.productMainImg',
+          ProductMainImg,
+          'productMainImg',
+          ' productMainImg.id = p.productMainImgId',
+        );
+
+        /* 条件筛选 */
+        db.andWhere('p.productName Like :searchName', {
+          searchName: `%${searchName}%`,
+        });
+        db.andWhere('p.isDel = :isDel', { isDel: false });
+        db.andWhere('p.productStatus =:productStatus', {
+          productStatus: EProductStatus.PUT_ON_SHELF,
+        });
+
+        db.skip((page - 1) * TAKE_NUM);
+        db.take(TAKE_NUM);
+        /* 排序 */
+        switch (productSortType) {
+          case EProductSortType.SALES:
+            db.addOrderBy('p.productSales', 'DESC');
+            break;
+          case EProductSortType.AMOUNT_ASE:
+            db.addOrderBy('productDetail.productAmount', 'ASC');
+            break;
+          case EProductSortType.AMOUNT_DESC:
+            db.addOrderBy('productDetail.productAmount', 'DESC');
+            break;
+        }
+        let total = await db.getCount();
+        total = Math.ceil(total / TAKE_NUM);
+
+        const data = ((await db.getMany()) as unknown) as Array<
+          IProductListSqlResponseItem
+        >;
+        return {
+          total,
+          list: (data.map(
+            ({
+              id: productId,
+              productName: name,
+              productSales,
+              productDetail: { productAmount: amount, productDeliveryCity },
+              productMainImg: { path: imgPath },
+            }) => ({
+              productId,
+              amount,
+              imgPath,
+              name,
+              productSales,
+              productDeliveryCity,
+            }),
+          ) as unknown) as Array<IProductListItem>,
+        };
+      } catch (e) {
+        await reportErr('获取商品列表失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);

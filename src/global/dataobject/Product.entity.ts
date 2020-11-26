@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-11-17 14:31:46
+ * @LastEditTime: 2020-11-26 15:16:52
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {

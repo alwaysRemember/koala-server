@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:55:19
- * @LastEditTime: 2020-11-06 17:05:16
+ * @LastEditTime: 2020-11-26 15:00:55
  * @FilePath: /koala-server/src/frontend/controller/FrontProductController.ts
  */
 
@@ -20,6 +20,7 @@ import {
   GetProductDetailSchema,
   FavoriteProductType,
   GetProductCommentSchema,
+  GetProductListSchema,
 } from '../schema/FrontProductSchema';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import {
@@ -27,7 +28,10 @@ import {
   IProductDetailResponse,
 } from '../interface/IProduct';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
-import { IGetProductCommentRequestParams } from '../form/IProduct';
+import {
+  IGetProductCommentRequestParams,
+  IGetProductListRequestParams,
+} from '../form/IProduct';
 
 @Controller('/front/product')
 export class FrontProductController {
@@ -100,6 +104,26 @@ export class FrontProductController {
     const result = new ResultVoUtil();
     try {
       const data = await this.productService.getProductComment(productId);
+      return result.success(data);
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 获取商品列表
+   * @param params
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(GetProductListSchema, ({ type }) => type === 'body'),
+  )
+  @Post('/get-product-list')
+  public async getProductList(@Body() params: IGetProductListRequestParams) {
+    const result = new ResultVoUtil();
+
+    try {
+      const data = await this.productService.getProductList(params);
       return result.success(data);
     } catch (e) {
       return result.error(e.message);
