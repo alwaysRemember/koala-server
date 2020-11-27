@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:39:25
- * @LastEditTime: 2020-11-26 15:16:52
+ * @LastEditTime: 2020-11-27 14:55:57
  * @FilePath: /koala-server/src/global/dataobject/Product.entity.ts
  */
 import {
@@ -30,6 +30,7 @@ import { FrontUser } from './User.entity';
 import { Order } from './Order.entity';
 import { ProductComment } from './ProductComment.entity';
 import { UserFavorites } from './UserFavorites.entity';
+import { ShoppingCart } from './ShoppingCart.entity';
 
 @Entity('tb_product')
 export class Product {
@@ -136,6 +137,12 @@ export class Product {
     userFavorites => userFavorites.product,
   )
   userFavoritesList: Array<UserFavorites>;
+
+  @OneToMany(
+    type => ShoppingCart,
+    shoppingCart => shoppingCart.product,
+  )
+  shoppingCartList: Array<ShoppingCart>;
 
   @OneToMany(
     type => ProductComment,

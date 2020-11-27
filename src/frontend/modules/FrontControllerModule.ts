@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:33:22
- * @LastEditTime: 2020-11-16 18:04:57
+ * @LastEditTime: 2020-11-27 15:12:56
  * @FilePath: /koala-server/src/frontend/modules/FrontControllerModule.ts
  */
 
@@ -14,6 +14,7 @@ import { FrontShoppingAddressModule } from './FrontShoppingAddressModule';
 import { FrontOrderModule } from './FrontOrderMOdule';
 import { FrontFavoritesModule } from './FrontFavoritesModule';
 import { FrontCategoriesModule } from './FrontCategoriesModule';
+import { FrontShoppingCartModule } from './FrontShoppingCartModule';
 
 const list = [
   FrontUserModule,
@@ -23,6 +24,7 @@ const list = [
   FrontOrderModule,
   FrontFavoritesModule,
   FrontCategoriesModule,
+  FrontShoppingCartModule,
 ];
 
 @Module({

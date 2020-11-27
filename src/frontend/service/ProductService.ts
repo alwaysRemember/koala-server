@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-20 15:58:44
- * @LastEditTime: 2020-11-26 16:10:05
+ * @LastEditTime: 2020-11-26 16:41:34
  * @FilePath: /koala-server/src/frontend/service/ProductService.ts
  */
 
@@ -310,15 +310,22 @@ export class ProductService {
           'productMainImg',
           ' productMainImg.id = p.productMainImgId',
         );
+        db.leftJoin('p.categories', 'categories');
 
         /* 条件筛选 */
-        db.andWhere('p.productName Like :searchName', {
-          searchName: `%${searchName}%`,
-        });
         db.andWhere('p.isDel = :isDel', { isDel: false });
         db.andWhere('p.productStatus =:productStatus', {
           productStatus: EProductStatus.PUT_ON_SHELF,
         });
+
+        /* id存在则以ID为主 */
+        if (categoriesId) {
+          db.andWhere('categories.id =:categoriesId', { categoriesId });
+        } else {
+          db.andWhere('p.productName Like :searchName', {
+            searchName: `%${searchName}%`,
+          });
+        }
 
         db.skip((page - 1) * TAKE_NUM);
         db.take(TAKE_NUM);

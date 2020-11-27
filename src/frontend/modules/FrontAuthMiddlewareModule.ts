@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-05 16:04:35
- * @LastEditTime: 2020-11-16 18:11:24
+ * @LastEditTime: 2020-11-27 15:12:46
  * @FilePath: /koala-server/src/frontend/modules/FrontAuthMiddlewareModule.ts
  */
 import { MiddlewareConsumer, NestModule, Module } from '@nestjs/common';
@@ -13,6 +13,7 @@ import { FrontShoppingAddressController } from '../controller/FrontShoppingAddre
 import { FrontOrderController } from '../controller/FrontOrderController';
 import { FrontFavoritesController } from '../controller/FrontFavoriesController';
 import { FrontCategoriesController } from '../controller/FrontCategoritesController';
+import { FrontShoppingCartController } from '../controller/FrontShoppingCartController';
 
 @Module({})
 export class FrontAuthMiddlewareModule implements NestModule {
@@ -27,6 +28,7 @@ export class FrontAuthMiddlewareModule implements NestModule {
         FrontOrderController,
         FrontFavoritesController,
         FrontCategoriesController,
+        FrontShoppingCartController,
       );
   }
 }
