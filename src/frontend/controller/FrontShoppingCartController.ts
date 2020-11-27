@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:10:15
- * @LastEditTime: 2020-11-27 16:11:25
+ * @LastEditTime: 2020-11-27 18:06:25
  * @FilePath: /koala-server/src/frontend/controller/FrontShoppingCartController.ts
  */
 
@@ -16,8 +16,14 @@ import {
 } from '@nestjs/common';
 import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
-import { ISaveProductToShoppingCartRequestParams } from '../form/IShoppingCart';
-import { SaveProductToShoppingCartSchema } from '../schema/FrontShoppingCartSchema';
+import {
+  IDeleteProductForShoppingCartRequestParams,
+  ISaveProductToShoppingCartRequestParams,
+} from '../form/IShoppingCart';
+import {
+  DeleteProductForShoppingCartSchema,
+  SaveProductToShoppingCartSchema,
+} from '../schema/FrontShoppingCartSchema';
 import { ShoppingCartService } from '../service/ShoppingCartService';
 
 @Controller('/front/shopping-cart')
@@ -44,6 +50,35 @@ export class FrontShoppingCartController {
     const result = new ResultVoUtil();
     try {
       await this.shoppingCartService.saveProductToShoppingCart(params, openid);
+      return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  /**
+   * 删除当前购物车产品（支持多个）
+   * @param param0
+   * @param param1
+   */
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      DeleteProductForShoppingCartSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @Post('/delete-product-for-shopping-cart')
+  public async deleteProductForShoppingCart(
+    @Body() { idList }: IDeleteProductForShoppingCartRequestParams,
+    @Req() { headers: { openid } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      await this.shoppingCartService.deleteProductForShoppingCart(
+        idList,
+        openid,
+      );
       return result.success();
     } catch (e) {
       return result.error(e.message);

@@ -11,7 +11,7 @@ import { FrontUserService } from './UserService';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-11-27 15:47:07
+ * @LastEditTime: 2020-11-27 18:07:01
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -48,6 +48,42 @@ export class ShoppingCartService {
         this.shoppingCartRepository.save(shoppingCart);
       } catch (e) {
         await reportErr('添加购物车失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 删除当前的购物车产品
+   * @param id
+   * @param openid
+   */
+  async deleteProductForShoppingCart(idList: Array<string>, openid: string) {
+    try {
+      const user = await this.userService.findByOpenid(openid);
+      let shoppingCartList: Array<ShoppingCart>;
+      try {
+        shoppingCartList = await this.shoppingCartRepository.findByIds(idList, {
+          join: {
+            alias: 'c',
+            leftJoin: {
+              user: 'c.user',
+            },
+          },
+          where: {
+            user,
+          },
+        });
+      } catch (e) {
+        await reportErr('查询当前产品信息失败', e);
+      }
+      if (!shoppingCartList.length) await reportErr('获取不到当前的产品');
+
+      try {
+        await this.shoppingCartRepository.remove(shoppingCartList);
+      } catch (e) {
+        await reportErr('删除当前产品失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);
