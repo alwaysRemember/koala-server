@@ -1,17 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { Product } from 'src/global/dataobject/Product.entity';
 import { ShoppingCart } from 'src/global/dataobject/ShoppingCart.entity';
+import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { ShoppingCartRepository } from 'src/global/repository/ShoppingCartRepository';
 import { reportErr } from 'src/utils/ReportError';
 import { FrontException } from '../exception/FrontException';
-import { ISaveProductToShoppingCartRequestParams } from '../form/IShoppingCart';
+import {
+  IGetShoppingCartProductListRequestParams,
+  ISaveProductToShoppingCartRequestParams,
+} from '../form/IShoppingCart';
+import { IShoppingCartResponseData } from '../interface/IShoppingCart';
 import { FrontUserService } from './UserService';
 
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-11-27 18:07:01
+ * @LastEditTime: 2020-11-30 15:20:55
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -20,6 +26,7 @@ export class ShoppingCartService {
     private readonly shoppingCartRepository: ShoppingCartRepository,
     private readonly userService: FrontUserService,
     private readonly productRepository: ProductRepository,
+    private readonly productConfigRepository: ProductConfigRepository,
   ) {}
 
   /**
@@ -84,6 +91,70 @@ export class ShoppingCartService {
         await this.shoppingCartRepository.remove(shoppingCartList);
       } catch (e) {
         await reportErr('删除当前产品失败', e);
+      }
+    } catch (e) {
+      throw new FrontException(e.message, e);
+    }
+  }
+
+  /**
+   * 获取购物车列表
+   * @param page
+   * @param openid
+   */
+  async getShoppingCartProductList(
+    page: number,
+    openid: string,
+  ): Promise<IShoppingCartResponseData> {
+    const TAKE_NUM = 10;
+    try {
+      try {
+        const user = this.userService.findByOpenid(openid);
+        const db = this.shoppingCartRepository.createQueryBuilder('cart');
+
+        db.leftJoinAndSelect('cart.product', 'product');
+
+        db.skip((page - 1) * TAKE_NUM)
+          .take(TAKE_NUM)
+          .addOrderBy('cart.createTime', 'DESC');
+        const data = await db.getMany();
+        let total = await db.getCount();
+        total = Math.ceil(total / TAKE_NUM);
+
+        const productConfigList = await this.productConfigRepository.findByIds(
+          data
+            .map(item => item.buyProductConfigList)
+            .reduce((p, c) => {
+              return p.concat(c);
+            }, []),
+        );
+
+        return {
+          total,
+          list: data.map(
+            ({
+              product: { id, productName, productStatus },
+              buyProductQuantity,
+              buyProductConfigList,
+            }) => ({
+              productId: id,
+              name: productName,
+              buyQuantity: buyProductQuantity,
+              productStatus,
+              buyConfigList: buyProductConfigList.map(configId => {
+                const { id, name } = productConfigList.find(
+                  d => d.id === configId,
+                );
+                return {
+                  id,
+                  name,
+                };
+              }),
+            }),
+          ),
+        };
+      } catch (e) {
+        await reportErr('获取购物车信息失败', e);
       }
     } catch (e) {
       throw new FrontException(e.message, e);

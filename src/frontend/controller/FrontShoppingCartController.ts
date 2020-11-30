@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:10:15
- * @LastEditTime: 2020-11-27 18:06:25
+ * @LastEditTime: 2020-11-30 16:06:58
  * @FilePath: /koala-server/src/frontend/controller/FrontShoppingCartController.ts
  */
 
@@ -18,10 +18,12 @@ import { ReqParamCheck } from 'src/global/pips/ReqParamCheck';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import {
   IDeleteProductForShoppingCartRequestParams,
+  IGetShoppingCartProductListRequestParams,
   ISaveProductToShoppingCartRequestParams,
 } from '../form/IShoppingCart';
 import {
   DeleteProductForShoppingCartSchema,
+  GetShoppingCartProductListSchema,
   SaveProductToShoppingCartSchema,
 } from '../schema/FrontShoppingCartSchema';
 import { ShoppingCartService } from '../service/ShoppingCartService';
@@ -80,6 +82,30 @@ export class FrontShoppingCartController {
         openid,
       );
       return result.success();
+    } catch (e) {
+      return result.error(e.message);
+    }
+  }
+
+  @HttpCode(200)
+  @UsePipes(
+    new ReqParamCheck(
+      GetShoppingCartProductListSchema,
+      ({ type }) => type === 'body',
+    ),
+  )
+  @Post('/get-shopping-cart-product-list')
+  public async getShoppingCartProductList(
+    @Body() { page }: IGetShoppingCartProductListRequestParams,
+    @Req() { headers: { openid } },
+  ) {
+    const result = new ResultVoUtil();
+    try {
+      const data = await this.shoppingCartService.getShoppingCartProductList(
+        page,
+        openid,
+      );
+      return result.success(data);
     } catch (e) {
       return result.error(e.message);
     }

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-26 15:44:13
+ * @LastEditTime: 2020-11-30 12:11:16
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -605,7 +605,6 @@ export class OrderService {
             );
             // 更新商品销量
             await this.updateProductSale(productList, buyProductQuantityList);
-            console.log('end');
           });
         },
       );
