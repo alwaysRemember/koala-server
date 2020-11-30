@@ -2,14 +2,10 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-13 14:50:36
- * @LastEditTime: 2020-11-18 14:51:55
+ * @LastEditTime: 2020-11-30 16:12:59
  * @FilePath: /koala-server/src/global/dataobject/ProductDetail.entity.ts
  */
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('tb_product_detail')
 export class ProductDetail {
@@ -33,6 +29,13 @@ export class ProductDetail {
     comment: '产品金额',
   })
   productAmount: number;
+
+  @Column({
+    type: 'int',
+    comment: '成本价',
+    default: 0,
+  })
+  productCostAmount: number;
 
   @Column({
     type: 'int',

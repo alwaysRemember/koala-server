@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-09-17 15:53:23
+ * @LastEditTime: 2020-11-30 16:43:19
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -200,6 +200,7 @@ export class BackendProductService {
 
       // 产品详细信息
       productDetail.productAmount = data.amount;
+      productDetail.productCostAmount = data.costAmount;
       productDetail.productBrief = data.productBrief;
       productDetail.productContent = data.productDetail;
       productDetail.productParameter = data.productParameter;
@@ -306,10 +307,11 @@ export class BackendProductService {
           try {
             // 保存ProductConfig
             let productConfigList = data.productConfigList.map(
-              ({ id, amount, name, categoryName }) => {
+              ({ id, amount, name, categoryName, costAmount }) => {
                 const productConfig = new ProductConfig();
                 productConfig.amount = amount;
                 productConfig.name = name;
+                productConfig.costAmount = costAmount;
                 productConfig.categoryName = categoryName;
                 if (id) productConfig.id = id;
                 return productConfig;
@@ -465,6 +467,7 @@ export class BackendProductService {
         productParameter,
         productDeliveryCity,
         productShipping,
+        productCostAmount,
       } = detail;
 
       return {
@@ -473,6 +476,7 @@ export class BackendProductService {
         productType,
         categoriesId,
         amount,
+        costAmount: productCostAmount,
         productBrief,
         productDetail,
         bannerList: product.productBanner.map(

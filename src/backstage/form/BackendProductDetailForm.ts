@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:22:10
- * @LastEditTime: 2020-09-01 14:46:25
+ * @LastEditTime: 2020-11-30 16:26:12
  * @FilePath: /koala-server/src/backstage/form/BackendProductDetailForm.ts
  */
 
@@ -15,6 +15,7 @@ export interface IProductDetail {
   productStatus: EProductStatus;
   productType: boolean;
   amount: number;
+  costAmount: number;
   productBrief: string;
   categoriesId: string;
   productDetail: string;
@@ -30,5 +31,5 @@ export interface IProductDetail {
   productConfigList: Array<IProductConfig>;
   productConfigDelList: Array<number>;
   productDeliveryCity: string;
-  productShipping:number;
+  productShipping: number;
 }

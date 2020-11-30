@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-18 14:02:45
- * @LastEditTime: 2020-08-18 14:10:47
+ * @LastEditTime: 2020-11-30 16:13:29
  * @FilePath: /koala-server/src/global/dataobject/ProductConfig.entity.ts
  */
 
@@ -28,6 +28,11 @@ export class ProductConfig {
     comment: '增加的金额',
   })
   amount: number;
+  @Column({
+    comment: '成本增加的金额',
+    default: 0,
+  })
+  costAmount: number;
 
   @ManyToOne(
     type => Product,

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-20 16:23:02
- * @LastEditTime: 2020-09-01 14:46:41
+ * @LastEditTime: 2020-11-30 16:27:55
  * @FilePath: /koala-server/src/backstage/schema/BackendProductDetailSchema.ts
  */
 
@@ -20,6 +20,9 @@ export const BackendProductDetailSchema = Joi.object({
   productDetail: Joi.string().required(),
   productBrief: Joi.string().required(),
   amount: Joi.number()
+    .min(1)
+    .required(),
+  costAmount: Joi.number()
     .min(1)
     .required(),
   mediaIdList: Joi.array()
@@ -58,6 +61,7 @@ export const BackendProductDetailSchema = Joi.object({
         categoryName: Joi.string().required(),
         name: Joi.string().required(),
         amount: Joi.number().required(),
+        costAmount: Joi.number().required(),
       }),
     )
     .required(),
