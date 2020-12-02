@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from 'src/global/dataobject/Product.entity';
+import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ShoppingCart } from 'src/global/dataobject/ShoppingCart.entity';
 import { ProductConfigRepository } from 'src/global/repository/ProductConfigRepository';
 import { ProductRepository } from 'src/global/repository/ProductRepository';
@@ -10,14 +12,18 @@ import {
   IGetShoppingCartProductListRequestParams,
   ISaveProductToShoppingCartRequestParams,
 } from '../form/IShoppingCart';
-import { IShoppingCartResponseData } from '../interface/IShoppingCart';
+import { IProductListSqlResponseItem } from '../interface/IProduct';
+import {
+  IShoppingCartResponseData,
+  IShoppingCartSqlResponseItem,
+} from '../interface/IShoppingCart';
 import { FrontUserService } from './UserService';
 
 /*
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-11-30 15:20:55
+ * @LastEditTime: 2020-12-01 15:44:30
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -113,11 +119,24 @@ export class ShoppingCartService {
         const db = this.shoppingCartRepository.createQueryBuilder('cart');
 
         db.leftJoinAndSelect('cart.product', 'product');
-
+        db.leftJoinAndMapOne(
+          'cart.productMainImg',
+          ProductMainImg,
+          'productMainImg',
+          ' productMainImg.id = product.productMainImgId',
+        );
+        db.leftJoinAndMapOne(
+          'cart.productDetail',
+          ProductDetail,
+          'productDetail',
+          'productDetail.id = product.productDetailId',
+        );
         db.skip((page - 1) * TAKE_NUM)
           .take(TAKE_NUM)
           .addOrderBy('cart.createTime', 'DESC');
-        const data = await db.getMany();
+        const data = ((await db.getMany()) as unknown) as Array<
+          IShoppingCartSqlResponseItem
+        >;
         let total = await db.getCount();
         total = Math.ceil(total / TAKE_NUM);
 
@@ -136,9 +155,14 @@ export class ShoppingCartService {
               product: { id, productName, productStatus },
               buyProductQuantity,
               buyProductConfigList,
+              productDetail: { productAmount, productShipping },
+              productMainImg: { path: productImg },
             }) => ({
               productId: id,
               name: productName,
+              amount: productAmount,
+              productShipping,
+              productImg,
               buyQuantity: buyProductQuantity,
               productStatus,
               buyConfigList: buyProductConfigList.map(configId => {
