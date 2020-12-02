@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-30 14:32:44
- * @LastEditTime: 2020-12-01 15:43:41
+ * @LastEditTime: 2020-12-02 14:54:32
  * @FilePath: /koala-server/src/frontend/interface/IShoppingCart.ts
  */
 
@@ -17,6 +17,7 @@ export interface IShoppingCartResponseData {
     list: Array<IShoppingCartItem>;
   }
   export interface IShoppingCartItem {
+    shoppingCartId:string;
     productId: string;
     name: string;
     productImg: string;

@@ -23,7 +23,7 @@ import { FrontUserService } from './UserService';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-12-01 15:44:30
+ * @LastEditTime: 2020-12-02 16:05:30
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -112,7 +112,7 @@ export class ShoppingCartService {
     page: number,
     openid: string,
   ): Promise<IShoppingCartResponseData> {
-    const TAKE_NUM = 10;
+    const TAKE_NUM = 5;
     try {
       try {
         const user = this.userService.findByOpenid(openid);
@@ -152,13 +152,15 @@ export class ShoppingCartService {
           total,
           list: data.map(
             ({
-              product: { id, productName, productStatus },
+              id: shoppingCartId,
+              product: { id: productId, productName, productStatus },
               buyProductQuantity,
               buyProductConfigList,
               productDetail: { productAmount, productShipping },
               productMainImg: { path: productImg },
             }) => ({
-              productId: id,
+              shoppingCartId,
+              productId,
               name: productName,
               amount: productAmount,
               productShipping,
