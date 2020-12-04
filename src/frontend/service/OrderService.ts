@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-12-04 17:11:23
+ * @LastEditTime: 2020-12-04 17:22:48
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -312,6 +312,7 @@ export class OrderService {
                   );
                   const {
                     productAmount: amount,
+                    productShipping,
                   }: ProductDetail = await this.productDetailRepository.findOne(
                     d.productDetailId,
                   );
@@ -320,14 +321,18 @@ export class OrderService {
                   }: ProductMainImg = await this.productMainImgRepository.findOne(
                     d.productMainImgId,
                   );
+                  const buyQuantity = item.buyProductQuantityList.find(
+                    item => item.productId === d.id,
+                  ).buyQuantity;
                   return {
                     productId: d.id,
                     name: d.productName,
-                    buyQuantity: item.buyProductQuantityList.find(
-                      item => item.productId === d.id,
-                    ).buyQuantity,
+                    buyQuantity,
                     productConfigList: productConfig.map(i => i.name),
-                    amount,
+                    amount:
+                      productConfig.reduce((p, c) => p + c.amount, amount) *
+                        buyQuantity +
+                      productShipping,
                     img,
                   };
                 }),
@@ -677,6 +682,7 @@ export class OrderService {
             );
             const {
               productAmount: amount,
+              productShipping,
             }: ProductDetail = await this.productDetailRepository.findOne(
               d.productDetailId,
             );
@@ -685,14 +691,18 @@ export class OrderService {
             }: ProductMainImg = await this.productMainImgRepository.findOne(
               d.productMainImgId,
             );
+            const buyQuantity = buyProductQuantityList.find(
+              item => item.productId === d.id,
+            ).buyQuantity;
             return {
               productId: d.id,
               name: d.productName,
-              buyQuantity: buyProductQuantityList.find(
-                item => item.productId === d.id,
-              ).buyQuantity,
+              buyQuantity,
               productConfigList: productConfig.map(i => i.name),
-              amount,
+              amount:
+                productConfig.reduce((p, c) => p + c.amount, amount) *
+                  buyQuantity +
+                productShipping,
               img,
             };
           }),
