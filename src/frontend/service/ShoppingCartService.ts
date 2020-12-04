@@ -23,7 +23,7 @@ import { FrontUserService } from './UserService';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-12-02 16:05:30
+ * @LastEditTime: 2020-12-04 16:20:36
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -168,12 +168,17 @@ export class ShoppingCartService {
               buyQuantity: buyProductQuantity,
               productStatus,
               buyConfigList: buyProductConfigList.map(configId => {
-                const { id, name } = productConfigList.find(
-                  d => d.id === configId,
-                );
+                const {
+                  id,
+                  name,
+                  categoryName,
+                  amount,
+                } = productConfigList.find(d => d.id === configId);
                 return {
                   id,
                   name,
+                  categoryName,
+                  amount,
                 };
               }),
             }),

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-11-30 12:11:16
+ * @LastEditTime: 2020-12-04 17:11:23
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -149,8 +149,9 @@ export class OrderService {
       } catch (e) {
         await reportErr('获取产品信息失败', e);
       }
-      // 判断是否所有产品都可以购买
-      productList.length !== data.buyProductList.length &&
+
+      // 判断是否所有产品都可以购买 (命中代表购买的商品中有些商品状态不符合购买要求)
+      productList.length > data.buyProductList.length &&
         (await reportErr('当前选择的产品中存在不可购买产品'));
       // 判断是否选择了商品配置
       await this.isSelectProductConfig(data.buyProductList, productList);
@@ -167,6 +168,7 @@ export class OrderService {
           phone: address.phone,
         },
       );
+
       // 创建支付订单记录
       const payOrder = new PayOrder();
       payOrder.orderList = orderList;
@@ -547,14 +549,15 @@ export class OrderService {
     productList: Array<Product>,
     buyProductQuantityList: Array<IBuyProductQuantityItem>,
   ) {
-    
     try {
       productList.forEach(async item => {
-        await this.productRepository.update(item.id,{
-          productSales:item.productSales+buyProductQuantityList.find(v=>v.productId === item.id).buyQuantity
-        })
+        await this.productRepository.update(item.id, {
+          productSales:
+            item.productSales +
+            buyProductQuantityList.find(v => v.productId === item.id)
+              .buyQuantity,
+        });
       });
-      
     } catch (e) {
       throw new FrontException(e.message, e);
     }
@@ -712,25 +715,26 @@ export class OrderService {
     shoppingAddress: IShoppingAddress,
   ): Promise<Array<Order>> {
     return await Promise.all(
-      productList
+      buyProductList
         .reduce<
           Array<{
             user: BackendUser;
             productList: Array<Product>;
           }>
         >((prev, current) => {
+          const product = productList.find(v => v.id === current.productId);
           // 判断是否已经有了当前用户
           const index = prev.findIndex(
-            value => value.user === current.backendUser,
+            value => value.user.userId === product?.backendUser.userId,
           );
           if (index > -1) {
             // 存在则直接添加到代理分类中
-            prev[index].productList = prev[index].productList.concat([current]);
+            prev[index].productList = prev[index].productList.concat([product]);
           } else {
             // 不存在则创建新的
             prev.push({
-              user: current.backendUser,
-              productList: [current],
+              user: product.backendUser,
+              productList: [product],
             });
           }
           return prev;
@@ -748,12 +752,12 @@ export class OrderService {
             // 订单金额=((商品默认金额+商品配置金额)*商品数量+运费)^n
             const orderAmount = await (
               await Promise.all(
-                productList.map(async ({ id: productId }) => {
+                productList.map(async product => {
+                  const { id: productId } = product;
                   const {
                     selectProductConfigList,
                     buyQuantity,
                   } = buyProductList.find(item => item.productId === productId);
-                  const product = productList.find(v => (v.id = productId));
                   const productDetail = await this.productDetailRepository.findOne(
                     product.productDetailId,
                   );
@@ -764,16 +768,25 @@ export class OrderService {
                     );
                     return config.amount;
                   });
+
                   orderShopping += productDetail.productShipping;
+                  configAmountList.filter(item => item > 0);
                   // 金额相加
-                  return (
-                    configAmountList.reduce(
-                      (prev, current) => prev + current,
-                      productDetail.productAmount,
-                    ) *
-                      buyQuantity +
-                    productDetail.productShipping
-                  );
+                  if (configAmountList.length) {
+                    const amount =
+                      configAmountList.reduce((prev, current) => {
+                        return prev + current;
+                      }, productDetail.productAmount) *
+                        buyQuantity +
+                      productDetail.productShipping;
+                    console.log('in');
+                    return amount;
+                  } else {
+                    return (
+                      productDetail.productAmount * buyQuantity +
+                      productDetail.productShipping
+                    );
+                  }
                 }),
               )
             ).reduce((prev, current) => prev + current, 0);
@@ -832,9 +845,10 @@ export class OrderService {
 
       // 如果是待付款的状态直接改变订单状态就行
       if (order.orderType === EOrderType.PENDING_PAYMENT) {
-        order.orderType = EOrderType.CANCEL;
         try {
-          await this.orderRepository.update(order.id, order);
+          await this.orderRepository.update(order.id, {
+            orderType: EOrderType.CANCEL,
+          });
         } catch (e) {
           await reportErr('取消订单失败', e);
         }

@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 17:20:39
- * @LastEditTime: 2020-11-10 11:39:54
+ * @LastEditTime: 2020-12-02 19:02:30
  * @FilePath: /koala-server/src/config/MysqlConfig.ts
  */
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
