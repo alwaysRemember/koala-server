@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-22 15:12:34
- * @LastEditTime: 2020-12-04 17:22:48
+ * @LastEditTime: 2020-12-07 15:39:44
  * @FilePath: /koala-server/src/frontend/service/OrderService.ts
  */
 
@@ -469,11 +469,14 @@ export class OrderService {
 
   /**
    * 提交订单评价
-   * @param params
+   * @param param0
+   * @param openid
+   * @param isAutoComment 是否为自动评价
    */
   async submitOrderComment(
     { orderId, productList }: ISubmitOrderCommentRequestParams,
     openid: string,
+    isAutoComment: boolean = false,
   ) {
     try {
       let order: Order;
@@ -536,6 +539,8 @@ export class OrderService {
             order.productList,
             order.buyProductQuantityList,
           );
+
+          //TODO  isAutoComment 如果是 自动评价则 直接入财务表，如果不是自动评价，则需要判断订单状态是否为完结&&最后一次更新时间为7天前
         })
         .catch(async e => {
           await reportErr('提交评价信息失败', e);
@@ -610,6 +615,7 @@ export class OrderService {
                 })),
               },
               openid,
+              true,
             );
             // 更新商品销量
             await this.updateProductSale(productList, buyProductQuantityList);
@@ -789,7 +795,6 @@ export class OrderService {
                       }, productDetail.productAmount) *
                         buyQuantity +
                       productDetail.productShipping;
-                    console.log('in');
                     return amount;
                   } else {
                     return (

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-09-07 16:25:44
+ * @LastEditTime: 2020-12-07 15:34:30
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -20,6 +20,10 @@ import { CategoriesRepository } from 'src/global/repository/CategoriesRepository
 import { ProductRepository } from 'src/global/repository/ProductRepository';
 import { ProductMainImg } from 'src/global/dataobject/ProductMainImg.entity';
 import { ProductDetail } from 'src/global/dataobject/ProductDetail.entity';
+import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
+import { FrontUser } from 'src/global/dataobject/User.entity';
+import { Order } from 'src/global/dataobject/Order.entity';
+import { Product } from 'src/global/dataobject/Product.entity';
 
 @Injectable()
 export class HomeService {
@@ -27,8 +31,10 @@ export class HomeService {
     private readonly bannerRepository: AppletHomeBannerRepository,
     private readonly categoriesRepository: CategoriesRepository,
     private readonly productRepository: ProductRepository,
+    private readonly userRepository: FrontUserRepository,
   ) {}
-  async getHomeData(): Promise<IHomeData> {
+
+  async getHomeData(openid: string): Promise<IHomeData> {
     let bannerList: Array<IBannerItem> = [];
     let categoriesList: Array<ICategoriesItem> = [];
     let showCategoriesMore: boolean = false;
@@ -80,10 +86,27 @@ export class HomeService {
       // 精选推荐
       // 规则: 根据用户最近购买的产品分类情况进行推荐。
       // 如没有购买的产品则显示卖的最好的产品前10个
-      // 如不足10个则推荐最新添加的产品
       // TODO 需要根据订单表||产品购买记录进行编写
       try {
-        featuredList = await this.productRepository
+        // 获取当前用户的订单中购买的产品类别
+        const categoriesList = await this.categoriesRepository
+          .createQueryBuilder('c')
+          .leftJoin(FrontUser, 'u', 'u.openid=:openid', { openid })
+          .leftJoin(
+            Order,
+            'o',
+            "(o.orderType = 'COMMENT' OR o.orderType = 'FINISHED')",
+          )
+          .leftJoin(
+            'tb_product_related_tb_order',
+            'pro',
+            'pro.tbOrderId = o.id',
+          )
+          .leftJoin(Product, 'p', 'p.id = pro.tbProductId')
+          .where('c.isUse = 1 AND c.id = p.categoriesId')
+          .orderBy('o.createTime', 'DESC')
+          .getMany();
+        const db = this.productRepository
           .createQueryBuilder('product')
           .select([
             'product.id as id ',
@@ -101,10 +124,27 @@ export class HomeService {
             ProductDetail,
             'detail',
             'detail.id = product.productDetailId',
-          )
-          .orderBy('product.updateTime', 'DESC')
-          .take(10)
-          .getRawMany();
+          );
+        // 判断是否有当前购买的分类
+        if (categoriesList.length) {
+          let str = categoriesList.reduce((prev, current, index) => {
+            const isLast = index === categoriesList.length - 1;
+            if (index === 0) {
+              prev += '(';
+            }
+            prev += `product.categoriesId='${current.id}'${
+              isLast ? '' : 'OR '
+            }`;
+            if (isLast) prev += ')';
+            return prev;
+          }, '');
+          console.log(str);
+
+          db.where(str);
+        }
+        db.orderBy('product.createTime', 'DESC');
+        db.take(10);
+        featuredList = await db.getRawMany();
       } catch (e) {
         await reportErr('获取推荐商品失败', e);
       }
