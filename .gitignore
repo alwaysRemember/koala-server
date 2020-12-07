@@ -35,5 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # project
-/src/config/projectConfig.ts
+# /src/config/projectConfig.ts
 /upload/

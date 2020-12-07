@@ -11,14 +11,14 @@
       "vizion": false,
       "env": {
         "NODE_ENV": "production",
-        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_HOST": "172.16.0.13",
         "MYSQL_PORT": "3306",
         "MYSQL_USERNAME": "root",
-        "MYSQL_PASSWORD": "tanghaojie",
+        "MYSQL_PASSWORD": "P63PMvuE&VXvEBpA",
         "MYSQL_DATABASE": "koala",
         "REDIS_PORT": "6379",
-        "REDIS_HOST": "127.0.0.1",
-        "REDIS_PASSWORD": ""
+        "REDIS_HOST": "10.66.243.153",
+        "REDIS_PASSWORD": "V1@QSH38r0pDPlKP"
       }
     }
   ]
