@@ -1,7 +1,6 @@
 # compiled output
 /dist
 /node_modules
-/static
 
 # Logs
 logs
@@ -36,4 +35,5 @@ lerna-debug.log*
 
 # project
 # /src/config/projectConfig.ts
+# /static
 /upload/
