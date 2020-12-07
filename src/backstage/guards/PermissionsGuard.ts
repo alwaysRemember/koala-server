@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-08 18:43:11
- * @LastEditTime: 2020-09-27 18:17:15
+ * @LastEditTime: 2020-12-07 18:50:57
  * @FilePath: /koala-server/src/backstage/guards/PermissionsGuard.ts
  */
 import { CanActivate, Injectable, ExecutionContext } from '@nestjs/common';
@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 import { EBackendUserType } from '../enums/EBackendUserType';
 import { BackendUser } from '../dataobject/BackendUser.entity';
-import { BackendException } from '../exception/backendException';
+import { BackendException } from '../exception/BackendException';
 import { RedisCacheService } from '../service/RedisCacheService';
 
 @Injectable()

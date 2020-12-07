@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-09-27 14:33:08
- * @LastEditTime: 2020-11-17 16:59:17
+ * @LastEditTime: 2020-12-07 18:52:31
  * @FilePath: /koala-server/src/backstage/service/BackendOrderService.ts
  */
 import * as Qs from 'qs';
@@ -35,7 +35,7 @@ import { IReturnOfGoodsResponse } from 'src/utils/wxPay/interface';
 import { EntityManager, getManager } from 'typeorm';
 import { BackendUser } from '../dataobject/BackendUser.entity';
 import { EBackendUserType } from '../enums/EBackendUserType';
-import { BackendException } from '../exception/backendException';
+import { BackendException } from '../exception/BackendException';
 import {
   IGetOrderListRequestParams,
   IReturnOfGoodsRequestParams,

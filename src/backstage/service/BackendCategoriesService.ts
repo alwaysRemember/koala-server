@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-01 18:12:55
- * @LastEditTime: 2020-08-13 14:19:35
+ * @LastEditTime: 2020-12-07 18:51:40
  * @FilePath: /koala-server/src/backstage/service/BackendCategoriesService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -11,10 +11,7 @@ import {
   ICategoriesList,
   IUpdateCategories,
 } from 'src/backstage/form/BackendCategoriesForm';
-import { createWriteStream, accessSync, unlinkSync } from 'fs';
-import { join } from 'path';
-import { BackendException } from 'src/backstage/exception/backendException';
-import { IMAGE } from 'src/global/enums/EFilePath';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import { CategoriesRepository } from 'src/global/repository/CategoriesRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categories } from 'src/global/dataobject/Categories.entity';

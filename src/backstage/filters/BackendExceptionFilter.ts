@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 17:51:59
- * @LastEditTime: 2020-09-27 18:18:31
+ * @LastEditTime: 2020-12-07 18:50:16
  * @FilePath: /koala-server/src/backstage/filters/BackendExceptionFilter.ts
  */
 import { HttpExceptionFilter } from '../../global/filters/HttpExceptionFilter';
@@ -12,7 +12,7 @@ import {
   Catch,
   HttpStatus,
 } from '@nestjs/common';
-import { BackendException } from 'src/backstage/exception/backendException';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import { Response, Request } from 'express';
 import { ResultVoUtil } from 'src/utils/ResultVoUtil';
 import { SaveLogUtil } from 'src/utils/SaveLogUtil';

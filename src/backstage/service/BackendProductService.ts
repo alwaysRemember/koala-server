@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-11-30 16:43:19
+ * @LastEditTime: 2020-12-07 18:52:51
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -20,7 +20,7 @@ import { ProductBannerRepository } from '../../global/repository/ProductBannerRe
 import { HOST } from '../../config/FileConfig';
 import { IMAGE, VIDEO } from '../../global/enums/EFilePath';
 import { ProductBanner } from '../../global/dataobject/ProductBanner.entity';
-import { BackendException } from '../exception/backendException';
+import { BackendException } from '../exception/BackendException';
 import { ProductVideo } from 'src/global/dataobject/ProductVideo.entity';
 import { ProductVideoRepository } from 'src/global/repository/ProductVideoRepository';
 import { IProductDetail } from 'src/backstage/form/BackendProductDetailForm';

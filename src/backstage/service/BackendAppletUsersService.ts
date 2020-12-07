@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-09 17:37:18
- * @LastEditTime: 2020-09-17 15:37:51
+ * @LastEditTime: 2020-12-07 18:51:24
  * @FilePath: /koala-server/src/backstage/service/BackendAppletUsersService.ts
  */
 import { Injectable } from '@nestjs/common';
 import { IBackendAppletUsersListRequestParams } from 'src/backstage/form/BackendAppletUsersForm';
 import { IFrontUser } from 'src/global/form/User';
 import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
-import { BackendException } from 'src/backstage/exception/backendException';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import { Like } from 'typeorm';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 

@@ -2,12 +2,12 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-15 17:06:26
- * @LastEditTime: 2020-08-10 15:32:19
+ * @LastEditTime: 2020-12-07 18:51:54
  * @FilePath: /koala-server/src/backstage/service/BackendMediaLibraryService.ts
  */
 import { join } from 'path';
 import { AUDIO, VIDEO, IMAGE, HOME } from 'src/global/enums/EFilePath';
-import { BackendException } from 'src/backstage/exception/backendException';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import { createWriteStream, accessSync, unlinkSync } from 'fs';
 import { ProductMediaLibrary } from 'src/global/dataobject/ProductMediaLibrary.entity';
 import { EMediaType } from 'src/backstage/enums/EMediaLibrary';

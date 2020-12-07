@@ -2,14 +2,14 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-04 15:52:53
- * @LastEditTime: 2020-08-06 18:12:40
+ * @LastEditTime: 2020-12-07 18:53:02
  * @FilePath: /koala-server/src/backstage/service/BackendUserService.ts
  */
 import { BackendUserRepository } from 'src/backstage/repository/BackendUserRepository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BackendUser } from 'src/backstage/dataobject/BackendUser.entity';
 import { Injectable } from '@nestjs/common';
-import { BackendException } from 'src/backstage/exception/backendException';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import {
   IBackendUserForm,
   IBackendUserLoginForm,

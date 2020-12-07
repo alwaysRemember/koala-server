@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-07 15:48:16
- * @LastEditTime: 2020-09-17 15:34:01
+ * @LastEditTime: 2020-12-07 18:51:12
  * @FilePath: /koala-server/src/backstage/service/BackendAppletHomeBannerService.ts
  */
 
@@ -14,7 +14,7 @@ import { AppletHomeBannerImgReposioty } from 'src/global/repository/AppletHomeBa
 import { AppletHomeBannerRepository } from 'src/global/repository/AppletHomeBannerRepository';
 import { AppletHomeBannerImg } from 'src/global/dataobject/AppletHomeBannerImg.entity';
 import { HOST } from 'src/config/FileConfig';
-import { BackendException } from '../exception/backendException';
+import { BackendException } from '../exception/BackendException';
 import {
   IAppletHomeAddBannerResponse,
   IAppletHomeGetBannerListResponseItem,

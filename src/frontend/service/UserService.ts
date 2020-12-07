@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-11-16 15:13:17
+ * @LastEditTime: 2020-12-07 18:54:20
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -19,7 +19,7 @@ import { appId } from 'src/config/projectConfig';
 import { FrontException } from '../exception/FrontException';
 import WXBizDataCrypt from '../../utils/WXBizDataCrypt';
 import { reportErr } from 'src/utils/ReportError';
-import { BackendException } from 'src/backstage/exception/backendException';
+import { BackendException } from 'src/backstage/exception/BackendException';
 import { OrderRepository } from 'src/global/repository/OrderRepository';
 import { EOrderType } from 'src/global/enums/EOrder';
 import { ProductCommentReposiotry } from 'src/global/repository/ProductCommentReposiotry';
