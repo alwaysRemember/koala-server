@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 14:32:26
- * @LastEditTime: 2020-11-27 15:34:06
+ * @LastEditTime: 2020-12-07 18:59:24
  * @FilePath: /koala-server/src/global/dataobject/ShoppingCart.entity.ts
  */
 
@@ -39,11 +39,14 @@ export class ShoppingCart {
   buyProductQuantity: number;
 
   @Column({
-      type:"json",
+    type: 'json',
+    default: [],
     comment: '购买的配置',
   })
   buyProductConfigList: Array<number>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    comment: '创建时间',
+  })
   createTime: Date;
 }
