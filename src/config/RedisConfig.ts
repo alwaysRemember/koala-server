@@ -2,8 +2,8 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-05 15:27:07
- * @LastEditTime: 2020-11-10 11:43:46
- * @FilePath: /koala-server/src/config/RedisConfig.ts
+ * @LastEditTime: 2020-12-07 19:46:59
+ * @FilePath: /koala-server/prod_process.json
  */
 
 export const RedisConfig = {
