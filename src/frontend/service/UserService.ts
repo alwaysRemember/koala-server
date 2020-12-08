@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-23 15:06:37
- * @LastEditTime: 2020-12-07 18:54:20
+ * @LastEditTime: 2020-12-08 18:16:36
  * @FilePath: /koala-server/src/frontend/service/UserService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -38,7 +38,7 @@ export class FrontUserService {
   // 保存用户
   async save(user: IFrontUserSave): Promise<FrontUser> {
     try {
-      const currentUser = await this.findByOpenid(user.openid);
+      const currentUser = await this.findByOpenid(user.openid, false);
 
       //判断是否已存在   已存在则是更新用户信息 否则保存
       if (currentUser) {
@@ -60,11 +60,18 @@ export class FrontUserService {
     }
   }
 
-  // 根据openid查找用户
-  async findByOpenid(openid: string): Promise<FrontUser> {
+  /**
+   * 根据openid查找用户
+   * @param openid
+   * @param throwErr 是否需要抛出错误
+   */
+  async findByOpenid(
+    openid: string,
+    throwErr: boolean = true,
+  ): Promise<FrontUser> {
     try {
       const user = await this.frontUserRepository.findByOpenid(openid);
-      if (!user) await reportErr('未查到当前用户');
+      if (!user && throwErr) await reportErr('未查到当前用户');
       return user;
     } catch (e) {
       await reportErr(e.message, e);
