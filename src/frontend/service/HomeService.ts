@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-12-07 15:34:30
+ * @LastEditTime: 2020-12-09 13:57:33
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -138,8 +138,6 @@ export class HomeService {
             if (isLast) prev += ')';
             return prev;
           }, '');
-          console.log(str);
-
           db.where(str);
         }
         db.orderBy('product.createTime', 'DESC');

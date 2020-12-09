@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-05-28 18:35:18
- * @LastEditTime: 2020-11-12 16:04:33
+ * @LastEditTime: 2020-12-09 12:59:32
  * @FilePath: /koala-server/src/global/filters/HttpExceptionFilter.ts
  */
 import {
@@ -27,9 +27,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx: HttpArgumentsHost = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-
     // 忽略根路径请求
-    if (['/', '/favicon.ico'].find(v => v === request.originalUrl)) {
+    if (
+      ['/', '/favicon.ico', 'http://example.com/'].find(
+        v => v === request.originalUrl,
+      )
+    ) {
       response
         .status(HttpStatus.OK)
         .json(new ResultVo(EResultVoStatus.TOAST, null, '异常访问接口'));

@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-05 16:04:35
- * @LastEditTime: 2020-11-27 15:12:46
+ * @LastEditTime: 2020-12-09 12:11:33
  * @FilePath: /koala-server/src/frontend/modules/FrontAuthMiddlewareModule.ts
  */
 import { MiddlewareConsumer, NestModule, Module } from '@nestjs/common';
@@ -20,7 +20,7 @@ export class FrontAuthMiddlewareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(FrontAuthMiddleware)
-      .exclude('/api/front/login')
+      .exclude('/api/front/login', '/api/front/home/get-home-data')
       .forRoutes(
         FrontUserController,
         FrontHomeController,

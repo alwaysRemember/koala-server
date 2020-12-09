@@ -3,7 +3,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-06-22 17:31:07
- * @LastEditTime: 2020-11-16 14:54:35
+ * @LastEditTime: 2020-12-09 14:18:25
  * @FilePath: /koala-server/src/frontend/controller/FrontUserController.ts
  */
 import {
@@ -29,6 +29,7 @@ import { appId, AppSecret } from 'src/config/projectConfig';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { IUpdateUserPhone } from '../interface/IFrontUser';
 import { ResultVo } from 'src/global/viewobject/ResultVo';
+import { reportErr } from 'src/utils/ReportError';
 
 @Controller('/front')
 export class FrontUserController {
@@ -59,8 +60,9 @@ export class FrontUserController {
         },
       );
       // 判断是否失败
-      if (data.errcode && data.errcode !== 0)
+      if (data.errcode && data.errcode !== 0){
         return result.error('登录失败，请稍后重试');
+      }
 
       // 删除code字段
       delete user.code;
