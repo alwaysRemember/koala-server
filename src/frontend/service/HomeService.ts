@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-12-09 13:57:33
+ * @LastEditTime: 2020-12-09 15:19:15
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -24,6 +24,7 @@ import { FrontUserRepository } from 'src/global/repository/FrontUserRepository';
 import { FrontUser } from 'src/global/dataobject/User.entity';
 import { Order } from 'src/global/dataobject/Order.entity';
 import { Product } from 'src/global/dataobject/Product.entity';
+import { EProductStatus } from 'src/global/enums/EProduct';
 
 @Injectable()
 export class HomeService {
@@ -86,7 +87,6 @@ export class HomeService {
       // 精选推荐
       // 规则: 根据用户最近购买的产品分类情况进行推荐。
       // 如没有购买的产品则显示卖的最好的产品前10个
-      // TODO 需要根据订单表||产品购买记录进行编写
       try {
         // 获取当前用户的订单中购买的产品类别
         const categoriesList = await this.categoriesRepository
@@ -140,6 +140,9 @@ export class HomeService {
           }, '');
           db.where(str);
         }
+        db.andWhere('prodct.productStatus =:productStatus', {
+          productStatus: EProductStatus.PUT_ON_SHELF,
+        });
         db.orderBy('product.createTime', 'DESC');
         db.take(10);
         featuredList = await db.getRawMany();
