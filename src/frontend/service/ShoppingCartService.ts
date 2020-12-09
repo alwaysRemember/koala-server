@@ -23,7 +23,7 @@ import { FrontUserService } from './UserService';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-12-04 16:20:36
+ * @LastEditTime: 2020-12-09 17:32:17
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -137,6 +137,7 @@ export class ShoppingCartService {
         const data = ((await db.getMany()) as unknown) as Array<
           IShoppingCartSqlResponseItem
         >;
+        db.andWhere(`cart.userUserId = ${(await user).userId}`);
         let total = await db.getCount();
         total = Math.ceil(total / TAKE_NUM);
 
