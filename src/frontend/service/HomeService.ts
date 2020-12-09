@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-08-13 14:45:15
- * @LastEditTime: 2020-12-09 15:22:58
+ * @LastEditTime: 2020-12-09 15:34:40
  * @FilePath: /koala-server/src/frontend/service/HomeService.ts
  */
 
@@ -137,9 +137,11 @@ export class HomeService {
             }`;
             if (isLast) prev += ')';
             return prev;
-          }, `prodct.productStatus =${EProductStatus.PUT_ON_SHELF} AND `);
+          }, ``);
           db.where(str);
         }
+        db.andWhere(`product.productStatus = '${EProductStatus.PUT_ON_SHELF}'`);
+        
         db.orderBy('product.createTime', 'DESC');
         db.take(10);
         featuredList = await db.getRawMany();
