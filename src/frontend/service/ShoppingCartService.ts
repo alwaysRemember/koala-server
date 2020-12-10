@@ -23,7 +23,7 @@ import { FrontUserService } from './UserService';
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-11-27 15:12:09
- * @LastEditTime: 2020-12-10 10:24:10
+ * @LastEditTime: 2020-12-10 10:31:52
  * @FilePath: /koala-server/src/frontend/service/ShoppingCartService.ts
  */
 @Injectable()
@@ -115,7 +115,7 @@ export class ShoppingCartService {
     const TAKE_NUM = 5;
     try {
       try {
-        const user = this.userService.findByOpenid(openid);
+        const user =  await this.userService.findByOpenid(openid);
         const db = this.shoppingCartRepository.createQueryBuilder('cart');
 
         db.leftJoinAndSelect('cart.product', 'product');
@@ -131,7 +131,7 @@ export class ShoppingCartService {
           'productDetail',
           'productDetail.id = product.productDetailId',
         );
-        db.andWhere(`cart.userUserId = ${(await user).userId}`);
+        db.andWhere(`cart.userUserId = ${user.userId}`);
         db.skip((page - 1) * TAKE_NUM)
           .take(TAKE_NUM)
           .addOrderBy('cart.createTime', 'DESC');

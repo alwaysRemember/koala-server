@@ -2,7 +2,7 @@
  * @Author: Always
  * @LastEditors: Always
  * @Date: 2020-07-17 15:21:36
- * @LastEditTime: 2020-12-07 18:52:51
+ * @LastEditTime: 2020-12-10 16:38:18
  * @FilePath: /koala-server/src/backstage/service/BackendProductService.ts
  */
 import { Injectable } from '@nestjs/common';
@@ -175,14 +175,12 @@ export class BackendProductService {
   async uploadProduct(data: IProductDetail, token: string): Promise<string> {
     try {
       // 从redis中获取用户信息
-      const { userId }: BackendUser = JSON.parse(
-        JSON.stringify(await this.redisService.get(token)),
-      );
+      const userStr = await this.redisService.get(token);
+      const { userId }: BackendUser = JSON.parse(userStr);
 
       // 查询是否拥有此用户
       const user = await this.backendUserService.backendFindByUserId(userId);
       if (!user) throw new BackendException('查无此用户');
-
       const product = new Product();
       const productDetail = new ProductDetail();
       const hasProduct: boolean = !!data.productId; // 是否已经当前已有产品
